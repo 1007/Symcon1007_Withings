@@ -32,7 +32,7 @@
       //$this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
 
 	    //Timer erstellen
-      //$this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
+      $this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
  
 
       //Update
