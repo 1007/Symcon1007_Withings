@@ -13,6 +13,7 @@
       parent::Create();
     
       $this->RegisterPropertyInteger("Intervall", 21600);  
+      $this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
         
       }
     
@@ -28,8 +29,7 @@
 			//Lets register a variable with action
 			$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
 			$this->EnableAction("Withings");
-      $this->RegisterPropertyInteger("Intervall", 21600);
-      //$this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
+      
 
 	    //Timer erstellen
       $this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
