@@ -108,7 +108,7 @@
         return false;
       IPS_SetName ($id,$Name);
       IPS_SetParent($id,$Parent);
-      IPS_ApplyChanges($id);    
+        
       
       return $id;
       }
