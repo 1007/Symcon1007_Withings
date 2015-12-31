@@ -107,6 +107,7 @@
       if ( $id == false )
         return false;
       IPS_SetName ($id,$Name);
+      Sleep(5);
       IPS_SetParent($id,$Parent);
         
       
