@@ -2,9 +2,24 @@
   "elements":
   [
 
-    { "type": "Label", "label": "####### Withings v1.0 #######" },
-    { "type": "Label", "label": "Intervall für das Abfragen der Daten:" },
-    { "type": "IntervalBox", "name": "Intervall", "caption": "Sekunden" },
+    { "type": "Label"             , "label":  "####### Withings v1.0 #######" },
+    { "type": "Label"             , "label":  "Withings Zugangsdaten" },
+    { "type": "ValidationTextBox" , "name" :  "Username", "caption": "Username" },
+    { "type": "ValidationTextBox" , "name" :  "Userpassword", "caption": "Userpasswort" },
+    { "type": "ValidationTextBox" , "name" :  "User", "caption": "User" },
+
+    { "type": "Label"             , "label":  "Withings Messwerte" },
+    { "type": "CheckBox"          , "name" :  "BodyMeasures", "caption": "Koerperwerte" },
+    { "type": "CheckBox"          , "name" :  "ActivityMeasures", "caption": "Aktivitaetswerte" },
+    { "type": "CheckBox"          , "name" :  "IntradayActivity", "caption": "Tageswerte" },
+    { "type": "CheckBox"          , "name" :  "SleepMeasures", "caption": "Schlafwerte Einzeln" },
+    { "type": "CheckBox"          , "name" :  "SleepSummary", "caption": "Schlafwerte Gesamt" },
+
+    { "type": "Label"             , "label":  "Intervall für das Abfragen der Daten:" },
+    { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
+
+    { "type": "Label"             , "label":  "Moduleinstellungen" },
+    { "type": "CheckBox"          , "name" :  "Looging", "caption": "Logging" },
 
   ]
 
