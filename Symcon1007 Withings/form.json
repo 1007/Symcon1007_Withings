@@ -1,0 +1,11 @@
+{
+  "elements":
+  [
+
+    { "type": "Label", "label": "####### Withings v1.0 #######" },
+    { "type": "Label", "label": "Intervall für das Abfragen der Daten:" },
+    { "type": "IntervalBox", "name": "Intervall", "caption": "Sekunden" },
+
+  ]
+
+}
