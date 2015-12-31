@@ -53,7 +53,7 @@
     //**************************************************************************    
     public function Update()
       {
-      Logging("Update");
+      $this->Logging("Update");
           
       return true;
       }
