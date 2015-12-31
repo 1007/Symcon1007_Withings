@@ -1,0 +1,14 @@
+{
+	"id": "{FC9594BF-7708-4FE7-AD83-28452F4CD8EE}",
+	"name": "Withings",
+	"type": 3,
+	"vendor": "",
+	"aliases": 
+	[
+		"Withings"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "WIT"
+}
