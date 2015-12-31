@@ -21,7 +21,7 @@
       $this->RegisterPropertyString("Username", "user@user.de");  
       $this->RegisterPropertyString("Userpassword", "123456");  
       $this->RegisterPropertyString("User", "XXX");  
-      $this->RegisterPropertyBoolean("Logging", false);  
+      $this->RegisterPropertyBoolean("Logging", true);  
       $this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
         
       }
@@ -34,8 +34,10 @@
 		  {
 			//Never delete this line!
 			parent::ApplyChanges();
+      
+      
 			
-			//Lets register a variable with action
+			//Lets register a variable with action   ????
 			$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
 			$this->EnableAction("Withings");
       
