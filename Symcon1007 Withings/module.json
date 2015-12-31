@@ -1,11 +1,11 @@
 {
 	"id": "{FC9594BF-7708-4FE7-AD83-28452F4CD8EE}",
-	"name": "Symcon1007 Withings",
+	"name": "Withings",
 	"type": 3,
 	"vendor": "",
 	"aliases": 
 	[
-		"Symcon1007 Withings"
+		"Withings"
 	],
 	"parentRequirements": [],
 	"childRequirements": [],
