@@ -106,9 +106,10 @@
       $id = IPS_CreateCategory ();
       if ( $id == false )
         return false;
+      IPS_SetParent($id,$Parent);  
       IPS_SetName ($id,$Name);
       Sleep(5);
-      IPS_SetParent($id,$Parent);
+      
         
       
       return $id;
