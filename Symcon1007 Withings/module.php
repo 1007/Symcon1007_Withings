@@ -100,7 +100,7 @@
     //**************************************************************************    
     private function CreateKategorie($Name,$Parent)
       {
-      if ( $parent == 0 OR $parent == false )
+      if ( $Parent == 0 OR $Parent == false )
         return;
         
       $id = IPS_CreateCategory ();
