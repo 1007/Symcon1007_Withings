@@ -19,7 +19,7 @@
     { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
 
     { "type": "Label"             , "label":  "Moduleinstellungen" },
-    { "type": "CheckBox"          , "name" :  "Looging", "caption": "Logging" },
+    { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging" },
 
   ]
 

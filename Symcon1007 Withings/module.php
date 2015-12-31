@@ -53,7 +53,7 @@
     //**************************************************************************    
     public function Update()
       {
-      IPS_Logmessage(basename(__FILE__),"Update");
+      Logging("Update");
           
       return true;
       }
@@ -89,7 +89,29 @@
 			   }
 		
 		  }
+
 		
+    //**************************************************************************
+    //  Logging
+    //**************************************************************************    
+    private function Logging($Text)
+      {
+      if ( $this->ReadPropertyBoolean("Logging") == false )
+        return;
+      $ordner = IPS_GetLogDir() . "Withings";
+      if ( !is_dir ( $ordner ) )
+		    mkdir($ordner);
+
+      if ( !is_dir ( $ordner ) )
+	     return;
+
+      $time = date("d.m.Y H:i:s");
+      $logdatei = IPS_GetLogDir() . "Withings/Withings.log";
+      $datei = fopen($logdatei,"a+");
+      fwrite($datei, $time ." ". $Text . chr(13));
+      fclose($datei);
+      }
+
 
     protected function RegisterTimer($Name, $Interval, $Script)
       {
