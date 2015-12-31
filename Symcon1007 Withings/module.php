@@ -8,8 +8,8 @@
 			parent::ApplyChanges();
 			
 			//Lets register a variable with action
-			$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
-			$this->EnableAction("Withings");
+			//$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
+			//$this->EnableAction("Withings");
 			
 		}
 		
