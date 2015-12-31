@@ -45,8 +45,8 @@
     //**************************************************************************    
     public function Update()
       {
-    
-    
+      IPS_Logmessage(basename(__FILE__),"Update");
+          
       return true;
       }
       
