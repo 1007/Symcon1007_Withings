@@ -35,7 +35,7 @@
 			//Never delete this line!
 			parent::ApplyChanges();
       
-      CreateKategorie("SUB",$_IPS[\'TARGET\']); 
+      CreateKategorie("SUB",$_IPS['TARGET']); 
 
 			
 			//Lets register a variable with action   ????
