@@ -36,7 +36,7 @@
 			parent::ApplyChanges();
 
 			$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
-      $parent = IPS_GetParent($d);
+      $parent = IPS_GetParent($id);
       
       $this->CreateKategorie("SUB",$parent); 
 
