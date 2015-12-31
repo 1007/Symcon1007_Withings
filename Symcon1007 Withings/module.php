@@ -34,8 +34,11 @@
 		  {
 			//Never delete this line!
 			parent::ApplyChanges();
+
+			$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
+      $parent = IPS_GetParent($d);
       
-      this->CreateKategorie("SUB",$_IPS['TARGET']); 
+      this->CreateKategorie("SUB",$parent); 
 
 			
 			//Lets register a variable with action   ????
@@ -97,7 +100,9 @@
     //**************************************************************************    
     private function CreateKategorie($Name,$Parent)
       {
-      
+      if ( $parent == 0 OR $parent == false )
+        return;
+        
       $id = IPS_CreateCategory ();
       if ( $id == false )
         return false;
