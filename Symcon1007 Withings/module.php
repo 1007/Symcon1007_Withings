@@ -8,8 +8,8 @@
 			parent::ApplyChanges();
 			
 			//Lets register a variable with action
-			$this->RegisterVariableInteger("TestVariable", "Test", "~Intensity.100");
-			$this->EnableAction("TestVariable");
+			$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
+			$this->EnableAction("Withings");
 			
 		}
 		
@@ -17,7 +17,7 @@
 		{
 			
 			switch($Ident) {
-				case "TestVariable":
+				case "Withings":
 					SetValue($this->GetIDForIdent($Ident), $Value);
 					break;
 				default:
