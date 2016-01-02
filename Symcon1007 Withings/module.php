@@ -108,16 +108,15 @@
     private function CreateKategorie($Name,$Parent)
       {
       if ( $Parent == 0 OR $Parent == false )
-        return;
-        
+        return false;
+      $id = @IPS_GetCategoryIDByName($Name,$parent);  
+      if ( $id == false)
+        return false;
       $id = IPS_CreateCategory ();
       if ( $id == false )
         return false;
       IPS_SetParent($id,$Parent);  
       IPS_SetName ($id,$Name);
-      Sleep(5);
-      
-        
       
       return $id;
       }
