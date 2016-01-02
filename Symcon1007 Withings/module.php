@@ -38,7 +38,8 @@
 			$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
       $parent = IPS_GetParent($id);
       
-      $this->CreateKategorie("SUB",$parent); 
+      $this->CreateKategorie("Waage",$parent); 
+      $this->CreateKategorie("Blutdruck",$parent); 
 
 			
 			//Lets register a variable with action   ????
