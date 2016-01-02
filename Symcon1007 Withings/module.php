@@ -35,6 +35,12 @@
 			//Never delete this line!
 			parent::ApplyChanges();
 
+			$id = $this->RegisterVariableString("name", "Name","~String");
+			$id = $this->RegisterVariableString("gender", "Geschlecht","~String");
+			$id = $this->RegisterVariableString("birthdate", "Geburtstag","~String");
+			$id = $this->RegisterVariableInteger("height", "Groesse");
+
+
 			$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
       $parent = IPS_GetParent($id);
       
