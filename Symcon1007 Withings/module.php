@@ -109,7 +109,7 @@
       {
       if ( $Parent == 0 OR $Parent == false )
         return false;
-      $id = @IPS_GetCategoryIDByName($Name,$parent);  
+      $id = @IPS_GetCategoryIDByName($Name,$Parent);  
       if ( $id == false)
         return false;
       $id = IPS_CreateCategory ();
