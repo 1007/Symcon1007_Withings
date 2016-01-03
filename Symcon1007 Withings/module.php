@@ -167,7 +167,7 @@
       {
       $id = $this->GetIDForIdent("name");
       $ModulID = IPS_GetParent($id);
-      IPS_Logmessage(basename(__FILE__),$ModulID);
+      
                   
  	    $Username 		  = $this->ReadPropertyString("Username");
       $Userpassword   = $this->ReadPropertyString("Userpassword");
