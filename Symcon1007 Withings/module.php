@@ -21,7 +21,7 @@
       $this->RegisterPropertyString("Username", "user@user.de");  
       $this->RegisterPropertyString("Userpassword", "123456");  
       $this->RegisterPropertyString("User", "XXX");  
-      $this->RegisterPropertyBoolean("Logging", true);  
+      $this->RegisterPropertyBoolean("Logging", false);  
       $this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
         
       }
@@ -41,16 +41,30 @@
 			$id = $this->RegisterVariableInteger("height", "Groesse");
 
 
-			$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
+			//$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
       $parent = IPS_GetParent($id);
       
-      $this->CreateKategorie("Waage",$parent); 
-      $this->CreateKategorie("Blutdruck",$parent); 
-
+      $CatID = $this->CreateKategorie("Waage",$parent);
+      if ( $CatID === false )
+        throw new Exception("Kategorie Waage nicht definiert");
+			$id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","~Valve",1);
+      IPS_SetParent($id,$CatID);
+			$id = $this->RegisterVariableInteger("systolicblood", "Systolic","~Valve",2);
+      IPS_SetParent($id,$CatID);
+			$id = $this->RegisterVariableInteger("heartpulse", "Puls","~Valve",3);
+      IPS_SetParent($id,$CatID);
+			$id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+      IPS_SetParent($id,$CatID);
+      
+         
+      $CatID = $this->CreateKategorie("Blutdruck",$parent); 
+      if ( $CatID === false )
+        throw new Exception("Kategorie Blutdruck nicht definiert");
+ 
 			
 			//Lets register a variable with action   ????
-			$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
-			$this->EnableAction("Withings");
+			//$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
+			//$this->EnableAction("Withings");
       
 	    //Timer erstellen
       $this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
@@ -115,7 +129,7 @@
       else
         return false;
       $id = IPS_CreateCategory ();
-      if ( $id == false )
+      if ( $id === false )
         return false;
       IPS_SetParent($id,$Parent);  
       IPS_SetName ($id,$Name);
