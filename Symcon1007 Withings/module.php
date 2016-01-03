@@ -468,7 +468,7 @@ protected  function DoGewicht($ModulID,$data)
 	$fettprozent   = 0;
 	$bmi           = 0;
 	$groesse       = 0;
-	
+	print_r($data);
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
 	   $groesse = GetValueInteger($id);
