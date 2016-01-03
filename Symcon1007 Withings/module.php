@@ -71,6 +71,7 @@
         {
         $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
         IPS_SetParent($id,$CatID);
+        IPS_ApplyChanges($id);
         AC_SetLoggingStatus($ArchivID,$id,true);
         IPS_ApplyChanges($id);
         }
