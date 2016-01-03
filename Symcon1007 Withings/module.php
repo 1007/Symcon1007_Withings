@@ -107,7 +107,7 @@
       $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("bmi", "BMI","~Valve.F",1);
+        $id = $this->RegisterVariableFloat("bmi", "BMI","~Valve.F",5);
         IPS_SetParent($id,$CatID);
         }
 
