@@ -14,10 +14,7 @@
     
       $this->RegisterPropertyInteger("Intervall", 21600);  
       $this->RegisterPropertyBoolean("BodyMeasures", true);  
-      $this->RegisterPropertyBoolean("ActivityMeasures", false);  
-      $this->RegisterPropertyBoolean("IntradayActivity", false);  
-      $this->RegisterPropertyBoolean("SleepMeasures", false);  
-      $this->RegisterPropertyBoolean("SleepSummary", false);  
+      $this->RegisterPropertyBoolean("BloodMeasures", false);  
       $this->RegisterPropertyString("Username", "user@user.de");  
       $this->RegisterPropertyString("Userpassword", "123456");  
       $this->RegisterPropertyString("User", "XXX");  
@@ -35,10 +32,10 @@
 			//Never delete this line!
 			parent::ApplyChanges();
 
-			$id = $this->RegisterVariableString("name", "Name","~String");
-			$id = $this->RegisterVariableString("gender", "Geschlecht","~String");
-			$id = $this->RegisterVariableString("birthdate", "Geburtstag","~String");
-			$id = $this->RegisterVariableInteger("height", "Groesse");
+			$id = $this->RegisterVariableString("name"     , "Name"      ,"~String",0);
+			$id = $this->RegisterVariableString("gender"   , "Geschlecht","~String",2);
+			$id = $this->RegisterVariableString("birthdate", "Geburtstag","~String",1);
+			$id = $this->RegisterVariableInteger("height"  , "Groesse"   ,"~Valve" ,3);
 
 
 			//$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
@@ -92,19 +89,19 @@
       $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","~Valve.F",1);
+        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","~Valve.F",3);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","~Valve.F",1);
+        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","~Valve.F",2);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","~Valve.F",1);
+        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","~Valve.F",4);
         IPS_SetParent($id,$CatID);
         }
 

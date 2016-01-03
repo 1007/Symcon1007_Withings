@@ -9,11 +9,8 @@
     { "type": "ValidationTextBox" , "name" :  "User", "caption": "User" },
 
     { "type": "Label"             , "label":  "Withings Messwerte" },
-    { "type": "CheckBox"          , "name" :  "BodyMeasures", "caption": "Koerperwerte" },
-    { "type": "CheckBox"          , "name" :  "ActivityMeasures", "caption": "Aktivitaetswerte" },
-    { "type": "CheckBox"          , "name" :  "IntradayActivity", "caption": "Tageswerte" },
-    { "type": "CheckBox"          , "name" :  "SleepMeasures", "caption": "Schlafwerte Einzeln" },
-    { "type": "CheckBox"          , "name" :  "SleepSummary", "caption": "Schlafwerte Gesamt" },
+    { "type": "CheckBox"          , "name" :  "BodyMeasures",  "caption": "Gewichtswerte" },
+    { "type": "CheckBox"          , "name" :  "BloodMeasures", "caption": "Blutdruckwerte" },
 
     { "type": "Label"             , "label":  "Intervall für das Abfragen der Daten:" },
     { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
