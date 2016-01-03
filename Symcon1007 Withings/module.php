@@ -70,10 +70,9 @@
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
-        IPS_SetParent($id,$CatID);
-        IPS_ApplyChanges($id);
         AC_SetLoggingStatus($ArchivID,$id,true);
         IPS_ApplyChanges($id);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
 			if ($VariablenID === false)
