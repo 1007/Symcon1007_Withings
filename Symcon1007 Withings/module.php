@@ -104,7 +104,12 @@
         $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","~Valve.F",4);
         IPS_SetParent($id,$CatID);
         }
-
+      $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableFloat("bmi", "BMI","~Valve.F",1);
+        IPS_SetParent($id,$CatID);
+        }
 
 
 
