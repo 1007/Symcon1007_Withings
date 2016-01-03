@@ -472,7 +472,11 @@ protected function DoGroesse($ModulID,$data)
 
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
-	   SetValueInteger($id,$Groesse);
+    {
+     $v =  GetValueInteger($id);
+     if ( $v != $Groesse)
+	     SetValueInteger($id,$Groesse);
+    }
 
 	}
 	
