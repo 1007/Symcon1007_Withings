@@ -176,7 +176,7 @@
 		  }
 
 
-    function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) {
+    private function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) {
         if ( sizeof($Associations) === 0 ){
             $MinValue = 0;
             $MaxValue = 0;
