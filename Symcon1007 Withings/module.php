@@ -34,7 +34,7 @@
 
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableString("gender"     , "Geschlecht","~String",2);
-			$id = $this->RegisterVariableInteger("birthdate" , "Geburtstag","~UnixTimestamp",1);
+			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
 			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"~Valve" ,3);
 
 
