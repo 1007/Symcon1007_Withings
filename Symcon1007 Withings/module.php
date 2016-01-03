@@ -36,12 +36,16 @@
       $this->RegisterProfile(1,"WITHINGS_Puls"    ,"Graph"  ,""," bpm");
       $this->RegisterProfile(2,"WITHINGS_Kilo"    ,""       ,""," kg",false,false,false,1);
       $this->RegisterProfile(1,"WITHINGS_Blutdruck","",""," mmHg");
+      RegisterProfileGender("WITHINGS_Gender", "", "", "", Array(
+                                             Array(0, "maennlich",  "", 0x0000FF),
+                                             Array(1, "weiblich",   "", 0xFF0000)
+                                            ));
 
 
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableString("gender"     , "Geschlecht","~String",2);
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
-			$id = $this->RegisterVariableInteger("height"    , "Groesse1"   ,"WITHINGS_Groesse" ,3);
+			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_Groesse" ,3);
 
       $parent = IPS_GetParent($id);
             
@@ -171,6 +175,23 @@
 		
 		  }
 
+
+    function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) {
+        if ( sizeof($Associations) === 0 ){
+            $MinValue = 0;
+            $MaxValue = 0;
+        } else {
+            $MinValue = $Associations[0][0];
+            $MaxValue = $Associations[sizeof($Associations)-1][0];
+        }
+
+        this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+        foreach($Associations as $Association) {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
+
+    }
 
     //**************************************************************************
     //  Create    Kategorie
