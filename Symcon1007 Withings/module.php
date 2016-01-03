@@ -449,7 +449,7 @@ protected function DoGroesse($ModulID,$data)
 	if ( count($data) != 3 )
 	   {
 	   $this->Logging("Fehler bei DoGroesse ".count($data));
-	   return;
+	   //return;
 		}
 	$Groesse = $data['value'];
 
@@ -468,7 +468,7 @@ protected  function DoGewicht($ModulID,$data)
 	$fettprozent   = 0;
 	$bmi           = 0;
 	$groesse       = 0;
-	print_r($data);
+	
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
 	   $groesse = GetValueInteger($id);
@@ -486,7 +486,7 @@ protected  function DoGewicht($ModulID,$data)
 	if ( count($data) != 4 )
 	   {
 	   $this->Logging("Fehler bei DoGewicht ".count($data));
-	   return;
+	   //return;
 		}
 
 	$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
@@ -547,7 +547,7 @@ protected  function DoBlutdruck($ModulID,$data)
 	if ( count($data) != 3 )
 	   {
 	   $this->Logging("Fehler bei DoBlutdruck ".count($data));
-	   return;
+	   //return;
 		}
 
 	$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
