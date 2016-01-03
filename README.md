@@ -13,7 +13,7 @@
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
 und speichert sie in Variablen.
-
+                                                                                                                  #
 
 ## 2. Systemanforderungen
 - IP-Symcon ab Version 4.x
@@ -24,7 +24,7 @@ und speichert sie in Variablen.
 `https://github.com/1007/Symcon1007_Withings`
 
 ## 4. Konfiguration
-Folgende Einstellungen sind noetig
+###Folgende Einstellungen sind noetig
 
 Zugangsdaten fuer Withings:
     Benutzername
