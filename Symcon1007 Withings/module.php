@@ -433,13 +433,30 @@ protected  function DoUser($ModulID,$data)
 	
 	$id = @IPS_GetVariableIDByName("Name",$ModulID);
 	if ( $id > 0 )
-	   SetValueString($id,$Name);
+    {
+     $v =  GetValueString($id);
+     if ( $v != $Name)
+	     SetValueString($id,$Name);
+    }
+
 	$id = @IPS_GetVariableIDByName("Geburtstag",$ModulID);
 	if ( $id > 0 )
-	   SetValueString($id,$Geburtstag);
+    {
+     $v =  GetValueString($id);
+     if ( $v != $Geburtstag)
+	     SetValueString($id,$Geburtstag);
+    }
+
+	  
+
 	$id = @IPS_GetVariableIDByName("Geschlecht",$ModulID);
 	if ( $id > 0 )
-	   SetValueInteger($id,$Geschlecht);
+    {
+     $v =  GetValueInteger($id);
+     if ( $v != $Geschlecht)
+	     SetValueInteger($id,$Geschlecht);
+    }
+
 	}
 	
 	
