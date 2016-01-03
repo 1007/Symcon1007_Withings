@@ -139,7 +139,11 @@
     public function Update()
       {
       $this->Logging("Update");
-          
+
+      $id = $this->GetIDForIdent("name");
+      $parent = IPS_GetParent($id);
+      IPS_Logmessage(basename(__FILE__),$parent);
+                
       return true;
       }
       
