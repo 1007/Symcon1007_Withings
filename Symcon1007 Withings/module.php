@@ -36,7 +36,7 @@
       $this->RegisterProfile(1,"WITHINGS_Puls"    ,"Graph"  ,""," bpm");
       $this->RegisterProfile(2,"WITHINGS_Kilo"    ,""       ,""," kg",false,false,false,1);
       $this->RegisterProfile(1,"WITHINGS_Blutdruck","",""," mmHg");
-      RegisterProfileGender("WITHINGS_Gender", "", "", "", Array(
+      $this->RegisterProfileGender("WITHINGS_Gender", "", "", "", Array(
                                              Array(0, "maennlich",  "", 0x0000FF),
                                              Array(1, "weiblich",   "", 0xFF0000)
                                             ));
@@ -176,7 +176,7 @@
 		  }
 
 
-    private function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) {
+    protected function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) {
         if ( sizeof($Associations) === 0 ){
             $MinValue = 0;
             $MaxValue = 0;
