@@ -41,7 +41,7 @@
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableString("gender"     , "Geschlecht","~String",2);
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
-			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_Groesse" ,3);
+			$id = $this->RegisterVariableInteger("height"    , "Groesse1"   ,"WITHINGS_Groesse" ,3);
 
       $parent = IPS_GetParent($id);
             
