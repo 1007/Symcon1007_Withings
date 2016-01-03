@@ -632,7 +632,7 @@ protected  function CurlCall ( $service , &$result=null )
 	curl_setopt($s,CURLOPT_URL,$APIURL.$service);
    curl_setopt($s,CURLOPT_POST,false);
    curl_setopt($s, CURLOPT_RETURNTRANSFER, 1);
-	Logging($APIURL.$service);
+	$this->Logging($APIURL.$service);
 	$output = curl_exec($s);
    curl_close($s);
 
