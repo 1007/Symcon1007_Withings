@@ -37,8 +37,10 @@
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
 			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"~Valve" ,3);
 
-      $parent = IPS_GetParent($id);
-      print_r($this);
+      //$parent = IPS_GetParent($id);
+      //print_r($this);
+      $parent = $this['InstanceID:protected'];
+      
       $CatID = $this->CreateKategorie("Blutdruck",$parent);
       if ( $CatID === false )
         throw new Exception("Kategorie Blutdruck nicht definiert");
