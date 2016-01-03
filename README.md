@@ -8,13 +8,13 @@
 2. [Systemanforderungen](#2-systemanforderungen)
 3. [Installation](#3-installation)
 4. [Konfiguration](#4-konfiguration)
-5. [Changelog](#5-changelog) 
+5. [Visualisierung](#5-visualisierung)
+6. [Changelog](#6-changelog) 
 
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
 und speichert sie in Variablen.
                                                                                                                   #
-
 ## 2. Systemanforderungen
 - IP-Symcon ab Version 4.x
 
@@ -43,8 +43,11 @@ Abfrageintervall in Sekunden
 
 Logging einschalten ( Logdatei in Ordner ../logs/Withings)
 
+## 5. Visualisierung
+Um die Daten im Webfront darzustellen einfach die Instance innerhalb einer
+Kategorie verlinken
 
-## 5. Changelog
+## 6. Changelog
 Version 2.1:
   - Erster Release
 
