@@ -173,7 +173,70 @@
       $Userpassword   = $this->ReadPropertyString("Userpassword");
       $User           = $this->ReadPropertyString("User");     
       
+      $this->API_AccountGetuserslist ( $Username, $Userpassword, $users );
 
+      if ( !$users )
+	     {
+	     $this->Logging("Fehler beim Holen der Username und Passwort ueberpruefen");
+       return;
+	     }
+
+      $gefunden = false;
+	
+      foreach( $users as $user )
+	     {
+	     if ( $user['shortname'] == $User )
+        {
+	      $gefunden = true;
+			  $personid = $user['id'];
+			  $publickey = $user['publickey'];
+			  $data = $user;
+			 }
+	     }
+	   
+	   if ( !$gefunden )
+	     {
+	     $this->Logging("User Shortname ".$User." nicht gefunden.");
+       return;
+	     }
+
+	     $startdate 	= 0;     // Startdatum
+	     $enddate 	= 0;     // Endedatum
+
+	     // User
+	     $this->DoUser($ModulID,$data);
+
+        if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
+          {
+          $this->Logging("BodyMeasures Daten werden geholt.");
+
+	       // Groesse
+	       $limit      = 1;     
+	       $meastype   = 4;
+	       $devtype   	= 1;
+	       $this->API_MeasureGetmeas ( $personid, $publickey, $data, $startdate,$enddate,$meastype,$devtype,$limit);
+	       $this->DoGroesse($ModulID,$data);
+
+	       // Gewicht
+	       $limit      = 4;
+	       $meastype   = false;
+	       $devtype   	= 1;
+	       $this->API_MeasureGetmeas ( $personid, $publickey, $data, $startdate,$enddate,$meastype,$devtype,$limit);
+	       $this->DoGewicht($ModulID,$data);
+         }
+
+        if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
+          {
+          $this->Logging("BloodMeasures Daten werden geholt.");
+
+	       // Blutdruck
+	       $limit      = 3;
+	       $meastype   = false;
+	       $devtype   	= 4;
+	       $this->API_MeasureGetmeas ( $personid, $publickey, $data, $startdate,$enddate,$meastype,$devtype,$limit);
+	       $this->DoBlutdruck($ModulID,$data);
+         }
+         
       }
 
     //**************************************************************************
@@ -353,4 +416,240 @@
       }
 	
 	}
+  
+  //****************************************************************************
+  
+protected function function DoUser($ModulID,$data)
+	{
+	$Tage = array("Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag");
+	
+	$Vorname  	= $data['firstname'];
+	$Nachname 	= $data['lastname'];
+	$Name       = $Vorname . " " . $Nachname;
+	$Geschlecht = $data['gender'];
+	$Geburtstag = date('d.m.Y',$data['birthdate']);
+	$Tag        = $Tage[date("w",$data['birthdate'])];
+	$Geburtstag = $Tag . " " . $Geburtstag;
+	
+	$id = @IPS_GetVariableIDByName("Name",$ModulID);
+	if ( $id > 0 )
+	   SetValueString($id,$Name);
+	$id = @IPS_GetVariableIDByName("Geburtstag",$ModulID);
+	if ( $id > 0 )
+	   SetValueString($id,$Geburtstag);
+	$id = @IPS_GetVariableIDByName("Geschlecht",$ModulID);
+	if ( $id > 0 )
+	   SetValueString($id,$Geschlecht);
+	}
+	
+	
+protected function function DoGroesse($ModulID,$data)
+	{
+	$data = @$data['measuregrps'][0]['measures'][0];
+	if ( count($data) != 3 )
+	   {
+	   $this->Logging("Fehler bei DoGroesse");
+	   return;
+		}
+	$Groesse = $data['value'];
+
+	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
+	if ( $id > 0 )
+	   SetValueInteger($id,$Groesse);
+
+	}
+	
+protected function function DoGewicht($ModulID,$data)
+	{
+	$gewichtdatum 	= false;
+	$gewicht       = 0;
+	$fettfrei      = 0;
+	$fettanteil    = 0;
+	$fettprozent   = 0;
+	$bmi           = 0;
+	$groesse       = 0;
+	
+	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
+	if ( $id > 0 )
+	   $groesse = GetValueInteger($id);
+
+
+	$CatID = @IPS_GetCategoryIDByName("Waage",$ModulID);
+	
+	if ( $CatID === false )
+	   return;
+
+	$time = @$data['measuregrps'][0]['date'];
+
+	$data = @$data['measuregrps'][0]['measures'];
+
+	if ( count($data) != 4 )
+	   {
+	   $this->Logging("Fehler bei DoGroesse");
+	   return;
+		}
+
+	$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
+	if ( $id > 0 )
+	   {
+	   $old = GetValueInteger($id);
+	   if ( $old == $time )    // keine neue Daten
+	      return false;
+	   SetValueInteger($id,$time);
+		}
+
+	foreach($data as $messung)
+	   {
+		$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
+
+		if ( $messung['type'] == 1 )  $gewicht 		= round ($val,2);
+		if ( $messung['type'] == 5 )  $fettfrei 		= round ($val,2);
+		if ( $messung['type'] == 6 )  $fettprozent 	= round ($val,2);
+		if ( $messung['type'] == 8 )  $fettanteil  	= round ($val,2);
+
+	   }
+
+   $bmi = round($gewicht/(($groesse/100)*($groesse/100)),2);
+
+	$id = IPS_GetVariableIDByName("Gewicht",$CatID);
+	if ( $id > 0 )
+	   SetValueFloat($id,$gewicht);
+	$id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
+	if ( $id > 0 )
+	   SetValueFloat($id,$fettanteil);
+	$id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
+	if ( $id > 0 )
+	   SetValueFloat($id,$fettfrei);
+	$id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
+	if ( $id > 0 )
+	   SetValueFloat($id,$fettprozent);
+	$id = IPS_GetVariableIDByName("BMI",$CatID);
+	if ( $id > 0 )
+	   SetValueFloat($id,$bmi);
+
+	}
+	
+protected function function DoBlutdruck($ModulID,$data)
+	{
+	$diastolic     = 0;
+	$systolic      = 0;
+	$puls          = 0;
+
+	$CatID = @IPS_GetCategoryIDByName("Blutdruck",$ModulID);
+
+	if ( $CatID === false )
+	   return;
+   	
+	$time = @$data['measuregrps'][0]['date'];
+	
+	$data = @$data['measuregrps'][0]['measures'];
+
+	if ( count($data) != 3 )
+	   {
+	   $this->Logging("Fehler bei DoBlutdruck");
+	   return;
+		}
+
+	$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
+	if ( $id > 0 )
+	   {
+	   $old = GetValueInteger($id);
+	   if ( $old == $time )    // keine neue Daten
+	      return false;
+	   SetValueInteger($id,$time);
+		}
+
+	foreach($data as $messung)
+	   {
+		$val = $messung['value'];
+
+		if ( $messung['type'] == 9 )  $diastolic 		= $val;
+		if ( $messung['type'] == 10 ) $systolic 		= $val;
+		if ( $messung['type'] == 11 ) $pulse 			= $val;
+
+	   }
+
+	$id = IPS_GetVariableIDByName("Diastolic",$CatID);
+	if ( $id > 0 )
+	   SetValueInteger($id,$diastolic);
+	$id = IPS_GetVariableIDByName("Systolic",$CatID);
+	if ( $id > 0 )
+	   SetValueInteger($id,$systolic);
+	$id = IPS_GetVariableIDByName("Puls",$CatID);
+	if ( $id > 0 )
+	   SetValueInteger($id,$pulse);
+
+	}
+	
+protected function	API_MeasureGetmeas ( $userid, $publickey , &$measuregrps, $startdate=0, $enddate=0, $meastype = false ,$devtype=false, $limit=false )
+	{
+
+	$string="measure?action=getmeas&userid=".$userid."&publickey=".$publickey;
+	$string="measure?action=getmeas&userid=".$userid."&publickey=".$publickey;
+
+	if ( $meastype );
+  		$string.="&meastype=".$meastype;
+
+	if ( $devtype );
+  		$string.="&devtype=".$devtype;
+
+	if ( $limit )
+		$string.="&limit=".$limit;
+
+	if ( $this->CurlCall ( $string,$result)===false)
+		return ( false );
+
+	$measuregrps = $result['body'];
+
+	return (true);
+	}
+
+protected function function API_AccountGetuserslist ( $email, $password , &$userslist )
+	{
+	$userslist = Array ();
+
+	if ( $this->CurlCall ( "once?action=get", $result)===false)
+		return (false);
+
+	$once = $result['body']['once'];
+	$hash = md5 ( $email.":".md5($password).":".$once);
+
+	if ( $this->CurlCall ( "account?action=getuserslist&email=".$email."&hash=".$hash, $result)===false)
+		return (false);
+	
+	$userslist = $result['body']['users'];
+
+	return (true);
+
+	}
+
+protected function function CurlCall ( $service , &$result=null )
+	{
+	
+	$APIURL = 'http://wbsapi.withings.net/';
+
+	$s = curl_init();
+	curl_setopt($s,CURLOPT_URL,$APIURL.$service);
+   curl_setopt($s,CURLOPT_POST,false);
+   curl_setopt($s, CURLOPT_RETURNTRANSFER, 1);
+	Logging($APIURL.$service);
+	$output = curl_exec($s);
+   curl_close($s);
+
+	$result = json_decode ( $output , TRUE );
+
+	if (!is_array($result))
+		return (false);
+	if (!key_exists('status',$result))
+		return (false);
+	if ($result['status']!=0)
+		return (false);
+
+	return ( true );
+
+	}
+
+  
+    
+  
 ?>
