@@ -33,9 +33,10 @@
 			//Never delete this line!
 			parent::ApplyChanges();
 
-      $this->RegisterProfile(1,"WITHINGS_Groesse" ,"Gauge"  ,""," cm");
-      $this->RegisterProfile(1,"WITHINGS_Puls"    ,"Graph"  ,""," bpm");
-      $this->RegisterProfile(2,"WITHINGS_Kilo"    ,""       ,""," kg",false,false,false,1);
+      $this->RegisterProfile(1,"WITHINGS_Groesse"  ,"Gauge"  ,""," cm");
+      $this->RegisterProfile(1,"WITHINGS_Puls"     ,"Graph"  ,""," bpm");
+      $this->RegisterProfile(2,"WITHINGS_Kilo"     ,""       ,""," kg",false,false,false,1);
+      $this->RegisterProfile(2,"WITHINGS_Prozent"  ,""       ,""," %",false,false,false,1);
       $this->RegisterProfile(1,"WITHINGS_Blutdruck","",""," mmHg");
       $this->RegisterProfileGender("WITHINGS_Gender", "", "", "", Array(
                                              Array(0, "maennlich",  "", 0x0000FF),
@@ -110,13 +111,13 @@
       $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","~Valve.F",4);
+        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","WITHINGS_Prozent",4);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("bmi", "BMI","~Valve.F",5);
+        $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_Prozent",5);
         IPS_SetParent($id,$CatID);
         }
 
