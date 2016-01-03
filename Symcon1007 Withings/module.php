@@ -127,7 +127,8 @@
       if ( $id === false)
         {}
       else
-        return false;
+        return $id;
+        
       $id = IPS_CreateCategory ();
       if ( $id === false )
         return false;
