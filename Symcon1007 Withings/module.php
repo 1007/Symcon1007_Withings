@@ -61,10 +61,10 @@
       $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);
-        IPS_SetParent($id,$CatID);
+        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);    
         AC_SetLoggingStatus($ArchivID,$id,true);
         IPS_ApplyChanges($id);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
 			if ($VariablenID === false)
