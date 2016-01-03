@@ -24,7 +24,7 @@ und speichert sie in Variablen.
 `https://github.com/1007/Symcon1007_Withings`
 
 ## 4. Konfiguration
-###Folgende Einstellungen sind noetig
+#####Folgende Einstellungen sind noetig
 
 Zugangsdaten fuer Withings:
     Benutzername
