@@ -7,6 +7,7 @@
     { "type": "ValidationTextBox" , "name" :  "Username", "caption": "Username" },
     { "type": "ValidationTextBox" , "name" :  "Userpassword", "caption": "Userpasswort" },
     { "type": "ValidationTextBox" , "name" :  "User", "caption": "User" },
+    { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
 
     { "type": "Label"             , "label":  "Withings Messwerte" },
     { "type": "CheckBox"          , "name" :  "BodyMeasures",  "caption": "Gewichtswerte" },

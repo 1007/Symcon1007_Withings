@@ -19,6 +19,7 @@
       $this->RegisterPropertyString("Userpassword", "123456");  
       $this->RegisterPropertyString("User", "XXX");  
       $this->RegisterPropertyBoolean("Logging", false);  
+      $this->RegisterPropertyBoolean("Modulaktiv", true);  
       $this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
         
       }
@@ -138,11 +139,12 @@
     //**************************************************************************    
     public function Update()
       {
+      if ( $this->ReadPropertyBoolean("Modulaktiv") == false )
+        return;
+
       $this->Logging("Update");
 
-      $id = $this->GetIDForIdent("name");
-      $parent = IPS_GetParent($id);
-      IPS_Logmessage(basename(__FILE__),$parent);
+      $this->UpdateUserData();
                 
       return true;
       }
@@ -161,6 +163,18 @@
 
 
 
+    protected function UpdateUserData()
+      {
+      $id = $this->GetIDForIdent("name");
+      $ModulID = IPS_GetParent($id);
+      IPS_Logmessage(basename(__FILE__),$ModulID);
+                  
+ 	    $Username 		  = $this->ReadPropertyString("Username");
+      $Userpassword   = $this->ReadPropertyString("Userpassword");
+      $User           = $this->ReadPropertyString("User");     
+      
+
+      }
 
     //**************************************************************************
     //
