@@ -62,10 +62,8 @@
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);
-        sleep(2);    
         AC_SetLoggingStatus($ArchivID,$id,true);
-        sleep(2);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
@@ -73,16 +71,16 @@
         {
         $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_M_Puls",3);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
 			if ($VariablenID === false)
@@ -105,41 +103,41 @@
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableFloat("weight", "Gewicht","WITHINGS_M_Kilo",1);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","WITHINGS_M_Kilo",3);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","WITHINGS_M_Kilo",2);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","WITHINGS_M_Prozent",4);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
 			if ($VariablenID === false)
         {
         $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_Prozent",5);
-        IPS_SetParent($id,$CatID);
         AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($id);
+        IPS_ApplyChanges($ArchivID);
+        IPS_SetParent($id,$CatID);
         }
 
 
