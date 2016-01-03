@@ -41,9 +41,9 @@
 			//$id = $this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
       $parent = IPS_GetParent($id);
       
-      $CatID = $this->CreateKategorie("Waage",$parent);
+      $CatID = $this->CreateKategorie("Blutdruck",$parent);
       if ( $CatID === false )
-        throw new Exception("Kategorie Waage nicht definiert");
+        throw new Exception("Kategorie Blutdruck nicht definiert");
       
       $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
 			if ($VariablenID === false)
@@ -70,9 +70,9 @@
         IPS_SetParent($id,$CatID);
         }
                
-      $CatID = $this->CreateKategorie("Blutdruck",$parent); 
+      $CatID = $this->CreateKategorie("Waage",$parent); 
       if ( $CatID === false )
-        throw new Exception("Kategorie Blutdruck nicht definiert");
+        throw new Exception("Kategorie Waage nicht definiert");
  
       $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
 			if ($VariablenID === false)
@@ -207,7 +207,7 @@
       }
 
 
-    protected function RegisterTimer($Name, $Interval, $Script)
+    protected function RegisterTimer($Name, $Interval, $Script,$Position = 99)
       {
       $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
       if ($id === false)
@@ -231,6 +231,7 @@
       IPS_SetName($id, $Name);
       IPS_SetHidden($id, true);
       IPS_SetEventScript($id, $Script);
+      IPS_SetPosition($id,$Position);
       if ($Interval > 0)
         {
         IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
