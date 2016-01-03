@@ -439,7 +439,7 @@ protected  function DoUser($ModulID,$data)
 	   SetValueString($id,$Geburtstag);
 	$id = @IPS_GetVariableIDByName("Geschlecht",$ModulID);
 	if ( $id > 0 )
-	   SetValueString($id,$Geschlecht);
+	   SetValueInteger($id,$Geschlecht);
 	}
 	
 	
