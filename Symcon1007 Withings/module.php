@@ -448,7 +448,7 @@ protected function DoGroesse($ModulID,$data)
 	$data = @$data['measuregrps'][0]['measures'][0];
 	if ( count($data) != 3 )
 	   {
-	   $this->Logging("Fehler bei DoGroesse");
+	   $this->Logging("Fehler bei DoGroesse ".count($data));
 	   return;
 		}
 	$Groesse = $data['value'];
@@ -485,7 +485,7 @@ protected  function DoGewicht($ModulID,$data)
 
 	if ( count($data) != 4 )
 	   {
-	   $this->Logging("Fehler bei DoGroesse");
+	   $this->Logging("Fehler bei DoGewicht ".count($data));
 	   return;
 		}
 
@@ -546,7 +546,7 @@ protected  function DoBlutdruck($ModulID,$data)
 
 	if ( count($data) != 3 )
 	   {
-	   $this->Logging("Fehler bei DoBlutdruck");
+	   $this->Logging("Fehler bei DoBlutdruck ".count($data));
 	   return;
 		}
 
