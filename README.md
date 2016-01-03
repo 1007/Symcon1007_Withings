@@ -27,11 +27,11 @@ und speichert sie in Variablen.
 #####Folgende Einstellungen sind noetig
 
 Zugangsdaten fuer Withings:
-    Benutzername
-    Userpasswort
-    Kurzname des Benutzers
+- Benutzername
+- Userpasswort
+- Kurzname des Benutzers
     
-Folgende Einstellungen sind individuell
+#####Folgende Einstellungen sind individuell
 
 Modul aktivieren
 
