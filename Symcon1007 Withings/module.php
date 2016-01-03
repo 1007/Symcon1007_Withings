@@ -33,12 +33,12 @@
 			//Never delete this line!
 			parent::ApplyChanges();
 
-      $this->RegisterProfile(1,"WITHINGS_Groesse"  ,"Gauge"  ,""," cm");
-      $this->RegisterProfile(1,"WITHINGS_Puls"     ,"Graph"  ,""," bpm");
-      $this->RegisterProfile(2,"WITHINGS_Kilo"     ,""       ,""," kg",false,false,false,1);
-      $this->RegisterProfile(2,"WITHINGS_Prozent"  ,""       ,""," %",false,false,false,1);
-      $this->RegisterProfile(1,"WITHINGS_Blutdruck","",""," mmHg");
-      $this->RegisterProfileGender("WITHINGS_Gender", "", "", "", Array(
+      $this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
+      $this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
+      $this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
+      $this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
+      $this->RegisterProfile(1,"WITHINGS_M_Blutdruck","",""," mmHg");
+      $this->RegisterProfileGender("WITHINGS_M_Gender", "", "", "", Array(
                                              Array(0, "maennlich",  "", 0x0000FF),
                                              Array(1, "weiblich",   "", 0xFF0000)
                                             ));
