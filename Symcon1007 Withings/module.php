@@ -32,15 +32,19 @@
 			//Never delete this line!
 			parent::ApplyChanges();
 
+      $this->RegisterProfile(1,"WITHINGS_Groesse" ,"Gauge"  ,""," cm");
+      $this->RegisterProfile(1,"WITHINGS_Puls"    ,"Graph"  ,""," bpm");
+      $this->RegisterProfile(2,"WITHINGS_Kilo"    ,""       ,""," kg",false,false,false,1);
+      $this->RegisterProfile(1,"WITHINGS_Blutdruck","",""," mmHg");
+
+
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableString("gender"     , "Geschlecht","~String",2);
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
-			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"~Valve" ,3);
+			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_Groesse" ,3);
 
-      //$parent = IPS_GetParent($id);
-      //print_r($this);
-      $parent = $this['InstanceID:protected'];
-      
+      $parent = IPS_GetParent($id);
+            
       $CatID = $this->CreateKategorie("Blutdruck",$parent);
       if ( $CatID === false )
         throw new Exception("Kategorie Blutdruck nicht definiert");
@@ -48,19 +52,19 @@
       $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","~Valve",1);
+        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_Blutdruck",1);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableInteger("systolicblood", "Systolic","~Valve",2);
+        $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_Blutdruck",2);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableInteger("heartpulse", "Puls","~Valve",3);
+        $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_Puls",3);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
@@ -83,19 +87,19 @@
       $VariablenID = @IPS_GetVariableIDByName("Gewicht",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("weight", "Gewicht","~Valve.F",1);
+        $id = $this->RegisterVariableFloat("weight", "Gewicht","WITHINGS_Kilo",1);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","~Valve.F",3);
+        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","WITHINGS_Kilo",3);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
 			if ($VariablenID === false)
         {
-        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","~Valve.F",2);
+        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","WITHINGS_Kilo",2);
         IPS_SetParent($id,$CatID);
         }
       $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
@@ -211,7 +215,34 @@
       fclose($datei);
       }
 
-
+    //**************************************************************************
+    //  0 - Bool
+    //  1 - Integer
+    //  2 - Float
+    //  3 - String
+    //**************************************************************************    
+    protected function RegisterProfile($Typ, $Name, $Icon, $Prefix, $Suffix, $MinValue=false, $MaxValue=false, $StepSize=false, $Digits=0) 
+      {
+      if(!IPS_VariableProfileExists($Name)) 
+        {
+        IPS_CreateVariableProfile($Name, $Typ);  
+        } 
+      else 
+        {
+        $profile = IPS_GetVariableProfile($Name);
+        if($profile['ProfileType'] != $Typ)
+          throw new Exception("Variable profile type does not match for profile ".$Name);
+        }
+        
+      IPS_SetVariableProfileIcon($Name, $Icon);
+      IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+      IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+		  if ( $Typ == 2 )
+			 IPS_SetVariableProfileDigits($Name, $Digits);
+      }
+    
+    
+    
     protected function RegisterTimer($Name, $Interval, $Script,$Position = 99)
       {
       $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
