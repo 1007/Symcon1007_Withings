@@ -50,7 +50,10 @@
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableInteger("gender"    , "Geschlecht","WITHINGS_M_Gender",2);
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
+
 			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
+      AC_SetLoggingStatus($ArchivID,$id,true);
+      IPS_ApplyChanges($ArchivID);
 
       $parent = IPS_GetParent($id);
             
