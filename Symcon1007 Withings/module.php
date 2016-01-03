@@ -47,21 +47,71 @@
       $CatID = $this->CreateKategorie("Waage",$parent);
       if ( $CatID === false )
         throw new Exception("Kategorie Waage nicht definiert");
-			$id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","~Valve",1);
-      IPS_SetParent($id,$CatID);
-			$id = $this->RegisterVariableInteger("systolicblood", "Systolic","~Valve",2);
-      IPS_SetParent($id,$CatID);
-			$id = $this->RegisterVariableInteger("heartpulse", "Puls","~Valve",3);
-      IPS_SetParent($id,$CatID);
-			$id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
-      IPS_SetParent($id,$CatID);
       
-         
+      $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","~Valve",1);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableInteger("systolicblood", "Systolic","~Valve",2);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableInteger("heartpulse", "Puls","~Valve",3);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+        IPS_SetParent($id,$CatID);
+        }
+               
       $CatID = $this->CreateKategorie("Blutdruck",$parent); 
       if ( $CatID === false )
         throw new Exception("Kategorie Blutdruck nicht definiert");
  
-			
+      $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Gewicht",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableFloat("weight", "Gewicht","~Valve.F",1);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","~Valve.F",1);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","~Valve.F",1);
+        IPS_SetParent($id,$CatID);
+        }
+      $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
+			if ($VariablenID === false)
+        {
+        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","~Valve.F",1);
+        IPS_SetParent($id,$CatID);
+        }
+
+
+
+
+
 			//Lets register a variable with action   ????
 			//$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
 			//$this->EnableAction("Withings");
