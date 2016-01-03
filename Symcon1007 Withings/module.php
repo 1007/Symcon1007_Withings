@@ -419,7 +419,7 @@
   
   //****************************************************************************
   
-protected function function DoUser($ModulID,$data)
+protected  function DoUser($ModulID,$data)
 	{
 	$Tage = array("Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag");
 	
@@ -443,7 +443,7 @@ protected function function DoUser($ModulID,$data)
 	}
 	
 	
-protected function function DoGroesse($ModulID,$data)
+protected function DoGroesse($ModulID,$data)
 	{
 	$data = @$data['measuregrps'][0]['measures'][0];
 	if ( count($data) != 3 )
@@ -459,7 +459,7 @@ protected function function DoGroesse($ModulID,$data)
 
 	}
 	
-protected function function DoGewicht($ModulID,$data)
+protected  function DoGewicht($ModulID,$data)
 	{
 	$gewichtdatum 	= false;
 	$gewicht       = 0;
@@ -529,7 +529,7 @@ protected function function DoGewicht($ModulID,$data)
 
 	}
 	
-protected function function DoBlutdruck($ModulID,$data)
+protected  function DoBlutdruck($ModulID,$data)
 	{
 	$diastolic     = 0;
 	$systolic      = 0;
@@ -604,7 +604,7 @@ protected function	API_MeasureGetmeas ( $userid, $publickey , &$measuregrps, $st
 	return (true);
 	}
 
-protected function function API_AccountGetuserslist ( $email, $password , &$userslist )
+protected  function API_AccountGetuserslist ( $email, $password , &$userslist )
 	{
 	$userslist = Array ();
 
@@ -623,7 +623,7 @@ protected function function API_AccountGetuserslist ( $email, $password , &$user
 
 	}
 
-protected function function CurlCall ( $service , &$result=null )
+protected  function CurlCall ( $service , &$result=null )
 	{
 	
 	$APIURL = 'http://wbsapi.withings.net/';
