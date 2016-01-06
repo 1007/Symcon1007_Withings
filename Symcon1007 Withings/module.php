@@ -13,7 +13,7 @@
       parent::Create();
     
       $this->RegisterPropertyInteger("Intervall", 21600);  
-      $this->RegisterPropertyBoolean("BodyMeasures", true);  
+      $this->RegisterPropertyBoolean("BodyMeasures", false);  
       $this->RegisterPropertyBoolean("BloodMeasures", false);  
       $this->RegisterPropertyString("Username", "user@user.de");  
       $this->RegisterPropertyString("Userpassword", "123456");  
@@ -56,99 +56,101 @@
       IPS_ApplyChanges($ArchivID);
 
       $parent = IPS_GetParent($id);
+
+      if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
+        {
             
-      $CatID = $this->CreateKategorie("Blutdruck",$parent);
-      if ( $CatID === false )
-        throw new Exception("Kategorie Blutdruck nicht definiert");
+        $CatID = $this->CreateKategorie("Blutdruck",$parent);
+        if ( $CatID === false )
+          throw new Exception("Kategorie Blutdruck nicht definiert");
       
-      $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
-			if ($VariablenID === false)
+        $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_M_Puls",3);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+          IPS_SetParent($id,$CatID);
+          }
+      }
+       
+
+      if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
         {
-        $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_M_Puls",3);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
-        IPS_SetParent($id,$CatID);
-        }
                
-      $CatID = $this->CreateKategorie("Waage",$parent); 
-      if ( $CatID === false )
-        throw new Exception("Kategorie Waage nicht definiert");
+        $CatID = $this->CreateKategorie("Waage",$parent); 
+        if ( $CatID === false )
+          throw new Exception("Kategorie Waage nicht definiert");
  
-      $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
-        IPS_SetParent($id,$CatID);
+        $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Gewicht",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableFloat("weight", "Gewicht","WITHINGS_M_Kilo",1);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","WITHINGS_M_Kilo",3);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","WITHINGS_M_Kilo",2);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","WITHINGS_M_Prozent",4);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
+        $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
+        if ($VariablenID === false)
+          {
+          $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_Prozent",5);
+          AC_SetLoggingStatus($ArchivID,$id,true);
+          IPS_ApplyChanges($ArchivID);
+          IPS_SetParent($id,$CatID);
+          }
         }
-      $VariablenID = @IPS_GetVariableIDByName("Gewicht",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableFloat("weight", "Gewicht","WITHINGS_M_Kilo",1);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","WITHINGS_M_Kilo",3);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","WITHINGS_M_Kilo",2);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","WITHINGS_M_Prozent",4);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-      $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
-			if ($VariablenID === false)
-        {
-        $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_Prozent",5);
-        AC_SetLoggingStatus($ArchivID,$id,true);
-        IPS_ApplyChanges($ArchivID);
-        IPS_SetParent($id,$CatID);
-        }
-
-
-
-
-			//Lets register a variable with action   ????
-			//$this->RegisterVariableInteger("Withings", "Test", "~Intensity.100");
-			//$this->EnableAction("Withings");
       
 	    //Timer erstellen
       $this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
