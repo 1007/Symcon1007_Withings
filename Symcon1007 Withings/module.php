@@ -231,16 +231,18 @@
 	     // User
 	     $this->DoUser($ModulID,$data);
 
+	     // Groesse
+	     $limit      = 1;     
+	     $meastype   = 4;
+	     $devtype   	= 1;
+	     $this->API_MeasureGetmeas ( $personid, $publickey, $data, $startdate,$enddate,$meastype,$devtype,$limit);
+	     $this->DoGroesse($ModulID,$data);
+
+
         if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
           {
           $this->Logging("BodyMeasures Daten werden geholt.");
 
-	       // Groesse
-	       $limit      = 1;     
-	       $meastype   = 4;
-	       $devtype   	= 1;
-	       $this->API_MeasureGetmeas ( $personid, $publickey, $data, $startdate,$enddate,$meastype,$devtype,$limit);
-	       $this->DoGroesse($ModulID,$data);
 
 	       // Gewicht
 	       $limit      = 4;
