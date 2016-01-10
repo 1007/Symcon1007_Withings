@@ -25,7 +25,8 @@
 
     { "type": "Label"             , "label":  "Fehlerlogging" },
     { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings/Withings.log)" },
-
+  ]
+  
   "actions":
   [
     { "type": "Button", "label": "Update", "onClick": "WIT_Update($id);" },
@@ -38,6 +39,6 @@
         { "code": 202, "icon": "error",  "caption": "Userdaten falsch" },
     ]
 
-  ]
+
 
 }
