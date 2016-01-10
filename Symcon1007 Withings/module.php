@@ -222,8 +222,12 @@
       IPS_LogMessage(__FILE__,$ArchivID."-".$id."-".$status);
       $ArchivID = intval($ArchivID);
       $id = intval($id);    
-      AC_SetLoggingStatus($ArchivID,$id,$status);
-      IPS_ApplyChanges($ArchivID);     
+      $x = AC_SetLoggingStatus($ArchivID,$id,true);
+      if ( $x )
+        IPS_ApplyChanges($ArchivID);     
+      else
+        IPS_LogMessage(__FILE__,"Fehler:".$ArchivID."-".$id."-".$status);
+      
       }
 
     private function KategorieEnable($Parent,$Name,$status)
