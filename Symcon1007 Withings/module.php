@@ -231,8 +231,16 @@
     public function Destroy()
       {
       $this->UnregisterTimer("WIT_UpdateTimer");
-      $this->Logging("Destroy");
-      IPS_Logmessage(basename(__FILE__),"Modul wird geloescht");  
+      $this->RegisterVariableInteger("diastolicblood");
+      $this->RegisterVariableInteger("systolicblood");
+      $this->RegisterVariableInteger("heartpulse");
+      $this->RegisterVariableInteger("weight");
+      $this->RegisterVariableInteger("fatfree");
+      $this->RegisterVariableInteger("fatmassweight");
+      $this->RegisterVariableInteger("fatradio");
+      $this->RegisterVariableInteger("bmi");
+
+       
       //Never delete this line!
       parent::Destroy();
       }
