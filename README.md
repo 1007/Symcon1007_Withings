@@ -42,11 +42,15 @@ Zugangsdaten fuer Withings:
 Modul aktivieren
 
 Gewichtswerte holen
+
 Gewichtswerte loggen
+
 Gewichtswerte im Webfront anzeigen
 
 Blutdruckwerte holen
+
 Blutdruckwerte loggen
+
 Blutdruckwerte im Webfront anzeigen
 
 Abfrageintervall in Sekunden
