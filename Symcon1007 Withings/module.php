@@ -271,6 +271,7 @@
       if ( !$users )
 	     {
 	     $this->Logging("Fehler beim Holen der Username und Passwort ueberpruefen");
+       $this->SetStatus(102);
        return;
 	     }
 
@@ -290,6 +291,7 @@
 	   if ( !$gefunden )
 	     {
 	     $this->Logging("User Shortname ".$User." nicht gefunden.");
+       $this->SetStatus(102);
        return;
 	     }
 
