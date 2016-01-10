@@ -231,6 +231,7 @@
     public function Destroy()
       {
       $this->UnregisterTimer("WIT_UpdateTimer");
+      $this->Logging("Destroy");
         
       //Never delete this line!
       parent::Destroy();

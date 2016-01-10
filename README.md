@@ -14,7 +14,8 @@
 
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
-und speichert sie in Variablen.
+und speichert sie in Variablen. Daten werden standarmaessig nicht geloggt.
+Dies kann aber aktiviert werden.
                                                                                                                   #
 ## 2. Systemanforderungen
 - IP-Symcon ab Version 4.x
@@ -53,7 +54,7 @@ Logging einschalten ( Logdatei in Ordner ../logs/Withings)
 
 ## 5. Visualisierung
 Um die Daten im Webfront darzustellen einfach die Instance innerhalb einer
-Kategorie verlinken
+Kategorie verlinken. 
 
 ## 6. Datenhandling
 Um Daten von einer anderen Variable zu uebernehmen ist zuerst das 
