@@ -218,7 +218,9 @@
 
 
     private function VariablenLogging($ArchivID,$id,$status)
-      {      
+      {  
+      IPS_LogMessage(__FILE__,$ArchivID."-".$id."-".$status);
+          
       AC_SetLoggingStatus($ArchivID,$id,$status);
       IPS_ApplyChanges($ArchivID);     
       }
