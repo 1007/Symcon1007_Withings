@@ -175,7 +175,9 @@
         
         $id = IPS_GetVariableIDByName("BMI",$CatID);
         $this->VariablenLogging($ArchivID,$id,$logging);
-
+        
+        IPS_ApplyChanges($ArchivID);
+        
         }
         
       $status = $this->ReadPropertyBoolean("BodyVisible");
@@ -224,9 +226,10 @@
       $id = intval($id);    
       $x = AC_SetLoggingStatus($ArchivID,$id,true);
       
+      /*
       if ( $x )
         IPS_ApplyChanges($ArchivID);     
-      else
+      else */
         IPS_LogMessage(__FILE__,"Fehler:".$ArchivID."-".$id."-".$status);
       
       }
