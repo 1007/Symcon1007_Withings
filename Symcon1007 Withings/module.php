@@ -92,16 +92,16 @@
           }
       }
       
-      $VariablenLogging = $this->ReadPropertyBoolean("BloodLogging");
+      $logging = $this->ReadPropertyBoolean("BloodLogging");
 
       $id = IPS_GetVariableIDByName("Diastolic",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
       
       $id = IPS_GetVariableIDByName("Systolic",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
         
       $id = IPS_GetVariableIDByName("Puls",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BloodVisible");
       KategorieEnable($parent,"Blutdruck",$status);
@@ -153,22 +153,22 @@
         }
 
 
-      $VariablenLogging = $this->ReadPropertyBoolean("BodyLogging");
+      $logging = $this->ReadPropertyBoolean("BodyLogging");
 
       $id = IPS_GetVariableIDByName("Gewicht",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
       
       $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
         
       $id = IPS_GetVariableIDByName("Fett Anteil",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
 
       $id = IPS_GetVariableIDByName("Fett Prozent",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
         
       $id = IPS_GetVariableIDByName("BMI",$CatID)
-      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BodyVisible");
       KategorieEnable($parent,"Waage",$status);
