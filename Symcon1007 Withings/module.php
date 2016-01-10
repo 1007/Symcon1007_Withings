@@ -231,15 +231,6 @@
     public function Destroy()
       {
       $this->UnregisterTimer("WIT_UpdateTimer");
-      $this->RegisterVariableInteger("diastolicblood");
-      $this->RegisterVariableInteger("systolicblood");
-      $this->RegisterVariableInteger("heartpulse");
-      $this->RegisterVariableInteger("weight");
-      $this->RegisterVariableInteger("fatfree");
-      $this->RegisterVariableInteger("fatmassweight");
-      $this->RegisterVariableInteger("fatradio");
-      $this->RegisterVariableInteger("bmi");
-
        
       //Never delete this line!
       parent::Destroy();
