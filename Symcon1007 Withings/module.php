@@ -97,7 +97,7 @@
       $id = IPS_GetVariableIDByName("Diastolic",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
       
-      $id = IPS_GetVariableIDByName("Systolic",$CatID)
+      $id = IPS_GetVariableIDByName("Systolic",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
         
       $id = IPS_GetVariableIDByName("Puls",$CatID)
