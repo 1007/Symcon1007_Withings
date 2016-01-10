@@ -232,7 +232,7 @@
       {
       $this->UnregisterTimer("WIT_UpdateTimer");
       $this->Logging("Destroy");
-        
+      IPS_Logmessage(basename(__FILE__),"Modul wird geloescht");  
       //Never delete this line!
       parent::Destroy();
       }

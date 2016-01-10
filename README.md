@@ -61,7 +61,7 @@ Um Daten von einer anderen Variable zu uebernehmen ist zuerst das
 "Loggen der Werte" zu deaktivieren. Bereits geloeschte Daten im ArchivHandler
 loeschen. Dann Werte von alter Variablen in die neue mit 
 "Datensaetze ueberfuehren" uebernehmen. Logging wieder einschalten.
-Variable Neu-Aggregieren nicht vergessen.
+Variable Neu-Aggregieren nicht vergessen ( Versionsabhaengig ).
 Ein Abwaehlen des Loggen loescht keine Daten. Dies muss wenn gewollt
 mit Hand gemacht werden.
 
