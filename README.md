@@ -9,7 +9,8 @@
 3. [Installation](#3-installation)
 4. [Konfiguration](#4-konfiguration)
 5. [Visualisierung](#5-visualisierung)
-6. [Changelog](#6-changelog) 
+6. [Datenhandling] (#6-data)
+7. [Changelog](#7-changelog) 
 
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
@@ -54,7 +55,16 @@ Logging einschalten ( Logdatei in Ordner ../logs/Withings)
 Um die Daten im Webfront darzustellen einfach die Instance innerhalb einer
 Kategorie verlinken
 
-## 6. Changelog
+## 6. Datenhandling
+Um Daten von einer anderen Variable zu uebernehmen ist zuerst das 
+"Loggen der Werte" zu deaktivieren. Bereits geloeschte Daten im ArchivHandler
+loeschen. Dann Werte von alter Variablen in die neue mit 
+"Datensaetze ueberfuehren" uebernehmen. Logging wieder einschalten.
+Variable Neu-Aggregieren nicht vergessen.
+Ein Abwaehlen des Loggen loescht keine Daten. Dies muss wenn gewollt
+mit Hand gemacht werden.
+
+## 7. Changelog
 Version 2.1:
   - Erster Release
 Version 2.2:
