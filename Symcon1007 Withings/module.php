@@ -98,16 +98,18 @@
       if ( $CatID )
         {
         $id = IPS_GetVariableIDByName("Diastolic",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
-      
+        //$this->VariablenLogging($ArchivID,$id,$logging);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
+        
         $id = IPS_GetVariableIDByName("Systolic",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
+        //$this->VariablenLogging($ArchivID,$id,$logging);
         
         $id = IPS_GetVariableIDByName("Puls",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
+        //$this->VariablenLogging($ArchivID,$id,$logging);
 
         $status = $this->ReadPropertyBoolean("BloodVisible");
-        $this->KategorieEnable($parent,"Blutdruck",$status);
+        //$this->KategorieEnable($parent,"Blutdruck",$status);
         }
 
       if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
