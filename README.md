@@ -10,7 +10,8 @@
 4. [Konfiguration](#4-konfiguration)
 5. [Visualisierung](#5-visualisierung)
 6. [Datenhandling] (#6-data)
-7. [Changelog](#7-changelog) 
+7. [Probleme](#7-problems)
+8. [Changelog](#8-changelog)
 
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
@@ -65,7 +66,12 @@ Variable Neu-Aggregieren nicht vergessen ( Versionsabhaengig ).
 Ein Abwaehlen des Loggen loescht keine Daten. Dies muss wenn gewollt
 mit Hand gemacht werden.
 
-## 7. Changelog
+## 7. Probleme
+Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
+Daten bleiben erhalten, werden im Archiv-Handler aber als
+"Objekt #xxxxx existiert nicht" angezeigt.
+
+## 8. Changelog
 Version 2.1:
   - Erster Release
 Version 2.2:
