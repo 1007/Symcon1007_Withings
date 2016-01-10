@@ -106,7 +106,7 @@
       $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BloodVisible");
-      KategorieEnable($parent,"Blutdruck",$status);
+      $this->KategorieEnable($parent,"Blutdruck",$status);
 
 
       if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
@@ -174,7 +174,7 @@
       $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BodyVisible");
-      KategorieEnable($parent,"Waage",$status);
+      $this->KategorieEnable($parent,"Waage",$status);
 
       
 	    //Timer erstellen
