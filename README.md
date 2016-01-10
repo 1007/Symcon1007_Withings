@@ -9,8 +9,8 @@
 3. [Installation](#3-installation)
 4. [Konfiguration](#4-konfiguration)
 5. [Visualisierung](#5-visualisierung)
-6. [Datenhandling] (#6-data)
-7. [Probleme](#7-problems)
+6. [Datenhandling] (#6-datenhandling)
+7. [Probleme](#7-probleme)
 8. [Changelog](#8-changelog)
 
 ## 1. Funktionsumfang
