@@ -158,16 +158,16 @@
       $id = IPS_GetVariableIDByName("Gewicht",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
       
-      $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID)
+      $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("Fett Anteil",$CatID)
+      $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
 
-      $id = IPS_GetVariableIDByName("Fett Prozent",$CatID)
+      $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("BMI",$CatID)
+      $id = IPS_GetVariableIDByName("BMI",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BodyVisible");
