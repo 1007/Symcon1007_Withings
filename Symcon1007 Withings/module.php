@@ -100,7 +100,7 @@
       $id = IPS_GetVariableIDByName("Systolic",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("Puls",$CatID)
+      $id = IPS_GetVariableIDByName("Puls",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
 
       $status = $this->ReadPropertyBoolean("BloodVisible");
