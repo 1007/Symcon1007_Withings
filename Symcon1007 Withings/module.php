@@ -97,18 +97,20 @@
       $logging = $this->ReadPropertyBoolean("BloodLogging");
       if ( $CatID )
         {
-        $id = IPS_GetVariableIDByName("Diastolic",$CatID);
-        //$this->VariablenLogging($ArchivID,$id,$logging);
+        if ( $logging )
+          $this->Logging("BloodLogging wird eingeschaltet");
+        else
+          $this->Logging("BloodLogging wird eingeschaltet");
+
+        $id = IPS_GetVariableIDByName("Diastolic",$CatID);        
         AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
         
-        $id = IPS_GetVariableIDByName("Systolic",$CatID);
-        //$this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Systolic",$CatID);        
         AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
         
         $id = IPS_GetVariableIDByName("Puls",$CatID);
-        //$this->VariablenLogging($ArchivID,$id,$logging);
         AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
 
@@ -167,23 +169,31 @@
 
       if ( $CatID )
         {
+        if ( $logging )
+          $this->Logging("BodyLogging wird eingeschaltet");
+        else
+          $this->Logging("BodyLogging wird eingeschaltet");
+
         $id = IPS_GetVariableIDByName("Gewicht",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
       
         $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
-        
-        $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
-
-        $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
-        
-        $id = IPS_GetVariableIDByName("BMI",$CatID);
-        $this->VariablenLogging($ArchivID,$id,$logging);
-        
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
         
+        $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
+
+        $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
+        
+        $id = IPS_GetVariableIDByName("BMI",$CatID);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
+       
         }
         
       $status = $this->ReadPropertyBoolean("BodyVisible");
@@ -224,21 +234,6 @@
       parent::Destroy();
       }
 
-
-    protected function VariablenLogging($ArchivID,$id,$status)
-      {  
-      IPS_LogMessage(__FILE__,$ArchivID."-".$id."-".$status);
-      $ArchivID1 = intval($ArchivID);
-      $ArchivID2 = intval($ArchivID);
-      $id = intval($id);    
-      $x = AC_SetLoggingStatus($ArchivID1,$id,$status);
-      
-      
-        IPS_ApplyChanges($ArchivID2);     
-      
-        IPS_LogMessage(__FILE__,"Fehler:".$ArchivID."-".$id."-".$status);
-      
-      }
 
     private function KategorieEnable($Parent,$Name,$status)
       {      
