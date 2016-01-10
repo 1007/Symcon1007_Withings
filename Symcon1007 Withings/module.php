@@ -100,7 +100,7 @@
         if ( $logging )
           $this->Logging("BloodLogging wird eingeschaltet");
         else
-          $this->Logging("BloodLogging wird eingeschaltet");
+          $this->Logging("BloodLogging wird ausgeschaltet");
 
         $id = IPS_GetVariableIDByName("Diastolic",$CatID);        
         AC_SetLoggingStatus($ArchivID,$id,$logging);
@@ -117,6 +117,9 @@
         $status = $this->ReadPropertyBoolean("BloodVisible");
         $this->KategorieEnable($parent,"Blutdruck",$status);
         }
+
+
+      $CatID = false;
 
       if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
         {
@@ -165,14 +168,13 @@
 
 
       $logging = $this->ReadPropertyBoolean("BodyLogging");
-      $CatID = false;
 
       if ( $CatID )
         {
         if ( $logging )
           $this->Logging("BodyLogging wird eingeschaltet");
         else
-          $this->Logging("BodyLogging wird eingeschaltet");
+          $this->Logging("BodyLogging wird ausgeschaltet");
 
         $id = IPS_GetVariableIDByName("Gewicht",$CatID);
         AC_SetLoggingStatus($ArchivID,$id,$logging);
