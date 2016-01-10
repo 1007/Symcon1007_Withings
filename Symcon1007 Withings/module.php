@@ -222,14 +222,14 @@
     private function VariablenLogging($ArchivID,$id,$status)
       {  
       IPS_LogMessage(__FILE__,$ArchivID."-".$id."-".$status);
-      $ArchivID = intval($ArchivID);
+      $ArchivID1 = intval($ArchivID);
+      $ArchivID2 = intval($ArchivID);
       $id = intval($id);    
-      $x = AC_SetLoggingStatus($ArchivID,$id,true);
+      $x = AC_SetLoggingStatus($ArchivID1,$id,$status);
       
-      /*
-      if ( $x )
-        IPS_ApplyChanges($ArchivID);     
-      else */
+      
+        IPS_ApplyChanges($ArchivID2);     
+      
         IPS_LogMessage(__FILE__,"Fehler:".$ArchivID."-".$id."-".$status);
       
       }
