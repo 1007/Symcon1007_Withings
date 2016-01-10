@@ -39,8 +39,12 @@ Zugangsdaten fuer Withings:
 Modul aktivieren
 
 Gewichtswerte holen
+Gewichtswerte loggen
+Gewichtswerte im Webfront anzeigen
 
 Blutdruckwerte holen
+Blutdruckwerte loggen
+Blutdruckwerte im Webfront anzeigen
 
 Abfrageintervall in Sekunden
 
@@ -53,4 +57,6 @@ Kategorie verlinken
 ## 6. Changelog
 Version 2.1:
   - Erster Release
-
+Version 2.2:
+  - Werte werden nicht mehr automatisch geloggt
+  - Anzeige im Webfront waehlbar

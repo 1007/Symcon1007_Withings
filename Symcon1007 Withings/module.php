@@ -21,7 +21,12 @@
       $this->RegisterPropertyBoolean("Logging", false);  
       $this->RegisterPropertyBoolean("Modulaktiv", true);  
       $this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
-        
+      $this->RegisterPropertyBoolean("BloodLogging", false);  
+      $this->RegisterPropertyBoolean("BloodVisible", false);  
+      $this->RegisterPropertyBoolean("BodyLogging" , false);  
+      $this->RegisterPropertyBoolean("BodyVisible" , false);  
+
+
       }
     
 
@@ -50,11 +55,8 @@
 			$id = $this->RegisterVariableString("name"       , "Name"      ,"~String",0);
 			$id = $this->RegisterVariableInteger("gender"    , "Geschlecht","WITHINGS_M_Gender",2);
 			$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","~String",1);
-
 			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
-      AC_SetLoggingStatus($ArchivID,$id,true);
-      IPS_ApplyChanges($ArchivID);
-
+ 
       $parent = IPS_GetParent($id);
 
       if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
@@ -67,25 +69,19 @@
         $VariablenID = @IPS_GetVariableIDByName("Diastolic",$CatID);  
         if ($VariablenID === false)
           {
-          $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",1);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
+          $id = $this->RegisterVariableInteger("diastolicblood", "Diastolic","WITHINGS_M_Blutdruck",2);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("Systolic",$CatID);  
         if ($VariablenID === false)
           {
-          $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",2);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
+          $id = $this->RegisterVariableInteger("systolicblood", "Systolic","WITHINGS_M_Blutdruck",1);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_M_Puls",3);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);  
@@ -95,7 +91,21 @@
           IPS_SetParent($id,$CatID);
           }
       }
-       
+      
+      $VariablenLogging = $this->ReadPropertyBoolean("BloodLogging");
+
+      $id = IPS_GetVariableIDByName("Diastolic",$CatID);
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      
+      $id = IPS_GetVariableIDByName("Systolic",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+        
+      $id = IPS_GetVariableIDByName("Puls",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+
+      $status = $this->ReadPropertyBoolean("BloodVisible");
+      KategorieEnable($parent,"Blutdruck",$status);
+
 
       if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
         {
@@ -114,43 +124,55 @@
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableFloat("weight", "Gewicht","WITHINGS_M_Kilo",1);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);  
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableFloat("fatfree", "Fettfrei Anteil","WITHINGS_M_Kilo",3);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("Fett Anteil",$CatID);  
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableFloat("fatmassweight", "Fett Anteil","WITHINGS_M_Kilo",2);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("Fett Prozent",$CatID);  
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableFloat("fatradio", "Fett Prozent","WITHINGS_M_Prozent",4);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
         if ($VariablenID === false)
           {
           $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_Prozent",5);
-          AC_SetLoggingStatus($ArchivID,$id,true);
-          IPS_ApplyChanges($ArchivID);
           IPS_SetParent($id,$CatID);
           }
         }
+
+
+      $VariablenLogging = $this->ReadPropertyBoolean("BodyLogging");
+
+      $id = IPS_GetVariableIDByName("Gewicht",$CatID);
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+      
+      $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+        
+      $id = IPS_GetVariableIDByName("Fett Anteil",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+
+      $id = IPS_GetVariableIDByName("Fett Prozent",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+        
+      $id = IPS_GetVariableIDByName("BMI",$CatID)
+      $this->VariablenLogging($ArchivID,$id,$VariablenLogging);
+
+      $status = $this->ReadPropertyBoolean("BodyVisible");
+      KategorieEnable($parent,"Waage",$status);
+
       
 	    //Timer erstellen
       $this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
@@ -186,6 +208,26 @@
       parent::Destroy();
       }
 
+
+    private function VariablenLogging($ArchivID,$id,$status)
+      {      
+      AC_SetLoggingStatus($ArchivID,$id,$status);
+      IPS_ApplyChanges($ArchivID);     
+      }
+
+    private function KategorieEnable($Parent,$Name,$status)
+      {      
+      if ( $Parent == 0 OR $Parent == false )
+        return false;
+      $id = @IPS_GetCategoryIDByName($Name,$Parent);  
+      if ( $id === false)
+        {}
+      else
+        {
+        IPS_SetHidden($id, $status);
+        return $id;           
+        }
+      }
 
 
     protected function UpdateUserData()
