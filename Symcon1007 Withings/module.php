@@ -271,7 +271,7 @@
       if ( !$users )
 	     {
 	     $this->Logging("Fehler beim Holen der Username und Passwort ueberpruefen");
-       $this->SetStatus(102);
+       $this->SetStatus(202);
        return;
 	     }
 
@@ -291,13 +291,13 @@
 	   if ( !$gefunden )
 	     {
 	     $this->Logging("User Shortname ".$User." nicht gefunden.");
-       $this->SetStatus(102);
+       $this->SetStatus(202);
        return;
 	     }
 
 	     $startdate 	= 0;     // Startdatum
 	     $enddate 	= 0;     // Endedatum
-
+       $this->SetStatus(102);
 	     // User
 	     $this->DoUser($ModulID,$data);
 
