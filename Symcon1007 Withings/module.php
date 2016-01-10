@@ -223,6 +223,7 @@
       $ArchivID = intval($ArchivID);
       $id = intval($id);    
       $x = AC_SetLoggingStatus($ArchivID,$id,true);
+      
       if ( $x )
         IPS_ApplyChanges($ArchivID);     
       else
@@ -239,7 +240,11 @@
         {}
       else
         {
-        IPS_SetHidden($id, $status);
+        if ( $status == true )
+          IPS_SetHidden($id, false);
+        else
+          IPS_SetHidden($id, true);
+          
         return $id;           
         }
       }
