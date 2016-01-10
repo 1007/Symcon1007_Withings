@@ -58,7 +58,9 @@
 			$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
  
       $parent = IPS_GetParent($id);
-
+      
+      $CatID = false;
+      
       if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
         {
             
@@ -154,6 +156,7 @@
 
 
       $logging = $this->ReadPropertyBoolean("BodyLogging");
+      $CatID = false;
 
       $id = IPS_GetVariableIDByName("Gewicht",$CatID);
       $this->VariablenLogging($ArchivID,$id,$logging);
