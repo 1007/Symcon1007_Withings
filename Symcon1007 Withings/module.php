@@ -95,19 +95,20 @@
       }
       
       $logging = $this->ReadPropertyBoolean("BloodLogging");
-
-      $id = IPS_GetVariableIDByName("Diastolic",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+      if ( $CatID )
+        {
+        $id = IPS_GetVariableIDByName("Diastolic",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
       
-      $id = IPS_GetVariableIDByName("Systolic",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Systolic",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("Puls",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Puls",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
 
-      $status = $this->ReadPropertyBoolean("BloodVisible");
-      $this->KategorieEnable($parent,"Blutdruck",$status);
-
+        $status = $this->ReadPropertyBoolean("BloodVisible");
+        $this->KategorieEnable($parent,"Blutdruck",$status);
+        }
 
       if ( $this->ReadPropertyBoolean("BodyMeasures") == true )
         {
@@ -158,21 +159,25 @@
       $logging = $this->ReadPropertyBoolean("BodyLogging");
       $CatID = false;
 
-      $id = IPS_GetVariableIDByName("Gewicht",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+      if ( $CatID )
+        {
+        $id = IPS_GetVariableIDByName("Gewicht",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
       
-      $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
 
-      $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
         
-      $id = IPS_GetVariableIDByName("BMI",$CatID);
-      $this->VariablenLogging($ArchivID,$id,$logging);
+        $id = IPS_GetVariableIDByName("BMI",$CatID);
+        $this->VariablenLogging($ArchivID,$id,$logging);
 
+        }
+        
       $status = $this->ReadPropertyBoolean("BodyVisible");
       $this->KategorieEnable($parent,"Waage",$status);
 
