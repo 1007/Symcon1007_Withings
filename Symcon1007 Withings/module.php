@@ -219,7 +219,7 @@
       }
 
 
-    private function VariablenLogging($ArchivID,$id,$status)
+    protected function VariablenLogging($ArchivID,$id,$status)
       {  
       IPS_LogMessage(__FILE__,$ArchivID."-".$id."-".$status);
       $ArchivID1 = intval($ArchivID);
