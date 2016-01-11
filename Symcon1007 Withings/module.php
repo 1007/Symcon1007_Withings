@@ -651,7 +651,7 @@ protected  function DoBlutdruck($ModulID,$data)
 	{
 	$diastolic     = 0;
 	$systolic      = 0;
-	$puls          = 0;
+	$pulse         = 0;
 
 	$CatID = @IPS_GetCategoryIDByName("Blutdruck",$ModulID);
 
