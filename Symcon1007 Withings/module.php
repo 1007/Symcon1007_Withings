@@ -181,7 +181,7 @@
             } 
 
           }
-
+      }
 
       $logging = $this->ReadPropertyBoolean("BodyLogging");
 
