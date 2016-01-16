@@ -6,7 +6,7 @@
     { "type": "Label"             , "label":  "Withings Zugangsdaten" },
     { "type": "ValidationTextBox" , "name" :  "Username", "caption": "Username" },
     { "type": "PasswordTextBox"   , "name" :  "Userpassword", "caption": "Userpasswort" },
-    { "type": "ValidationTextBox" , "name" :  "User Kurzname ( 3stellig )", "caption": "User" },
+    { "type": "ValidationTextBox" , "name" :  "User", "caption": "User Kurzname ( 3stellig )" },
     { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
 
     { "type": "Label"             , "label":  "------- Withings Messwerte Waage -------" },
