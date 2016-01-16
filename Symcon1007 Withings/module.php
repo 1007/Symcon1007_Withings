@@ -13,7 +13,8 @@
       parent::Create();
     
       $this->RegisterPropertyInteger("Intervall", 21600);  
-      $this->RegisterPropertyBoolean("BodyMeasures", false);  
+      $this->RegisterPropertyBoolean("BodyMeasures", false);
+      $this->RegisterPropertyBoolean("BodyPuls", false);  
       $this->RegisterPropertyBoolean("BloodMeasures", false);  
       $this->RegisterPropertyString("Username", "user@user.de");  
       $this->RegisterPropertyString("Userpassword", "123456");  
@@ -169,7 +170,17 @@
           {
           @IPS_SetVariableCustomProfile($VariablenID,"WITHINGS_M_BMI");
           }
-        }
+ 
+        if ( $this->ReadPropertyBoolean("BodyPuls") == true )
+          {
+          $VariablenID = @IPS_GetVariableIDByName("Puls",$CatID);  
+          if ($VariablenID === false)
+            {
+            $id = $this->RegisterVariableInteger("heartpulse", "Puls","WITHINGS_M_Puls",3);
+            IPS_SetParent($id,$CatID);
+            } 
+
+          }
 
 
       $logging = $this->ReadPropertyBoolean("BodyLogging");
@@ -201,6 +212,10 @@
         AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
        
+        $id = IPS_GetVariableIDByName("Puls",$CatID);
+        AC_SetLoggingStatus($ArchivID,$id,$logging);
+        IPS_ApplyChanges($ArchivID);
+
         }
         
       $status = $this->ReadPropertyBoolean("BodyVisible");
@@ -758,6 +773,8 @@ protected  function CurlCall ( $service , &$result=null )
 	$this->Logging($APIURL.$service);
 	$output = curl_exec($s);
    curl_close($s);
+   
+  $this->Logging($output);
 
 	$result = json_decode ( $output , TRUE );
 
