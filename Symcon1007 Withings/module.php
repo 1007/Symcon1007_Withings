@@ -165,6 +165,10 @@
           $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_BMI",5);
           IPS_SetParent($id,$CatID);
           }
+        else
+          {
+          @IPS_SetVariableCustomProfile($VariablenID,"WITHINGS_M_BMI");
+          }
         }
 
 
