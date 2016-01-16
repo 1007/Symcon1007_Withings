@@ -45,6 +45,7 @@
       $this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
       $this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
       $this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
+      $this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
       $this->RegisterProfile(1,"WITHINGS_M_Blutdruck","",""," mmHg");
       $this->RegisterProfileGender("WITHINGS_M_Gender", "", "", "", Array(
                                              Array(0, "maennlich",  "", 0x0000FF),
@@ -161,7 +162,7 @@
         $VariablenID = @IPS_GetVariableIDByName("BMI",$CatID);          
         if ($VariablenID === false)
           {
-          $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_Prozent",5);
+          $id = $this->RegisterVariableFloat("bmi", "BMI","WITHINGS_M_BMI",5);
           IPS_SetParent($id,$CatID);
           }
         }
