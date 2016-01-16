@@ -11,6 +11,7 @@
 
     { "type": "Label"             , "label":  "------- Withings Messwerte Waage -------" },
     { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte" },
+    { "type": "CheckBox"          , "name" :  "BodyPuls",       "caption": "Waage mit Pulsmessung" },
     { "type": "CheckBox"          , "name" :  "BodyLogging",    "caption": "Variablenlogging aktiv" },
     { "type": "CheckBox"          , "name" :  "BodyVisible",    "caption": "Kategorie sichtbar" },
 
