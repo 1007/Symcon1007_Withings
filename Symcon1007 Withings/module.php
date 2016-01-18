@@ -212,10 +212,12 @@
         AC_SetLoggingStatus($ArchivID,$id,$logging);
         IPS_ApplyChanges($ArchivID);
        
-        $id = IPS_GetVariableIDByName("Puls",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-
+        $id = @IPS_GetVariableIDByName("Puls",$CatID);
+        if ( $id > 0 )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
         }
         
       $status = $this->ReadPropertyBoolean("BodyVisible");
