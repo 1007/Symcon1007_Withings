@@ -686,7 +686,7 @@ protected  function DoGewicht($ModulID,$data)
 	   SetValueFloat($id,$bmi);
 	$id = @IPS_GetVariableIDByName("Puls",$CatID);
 	if ( $id > 0 )
-	   SetValueFloat($id,$puls);
+	   SetValueInteger($id,$puls);
 
 	}
 	
