@@ -2,7 +2,7 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings v2.2 #######" },
+    { "type": "Label"             , "label":  "####### Withings v2.3 #######" },
     { "type": "Label"             , "label":  "Withings Zugangsdaten" },
     { "type": "ValidationTextBox" , "name" :  "Username", "caption": "Username" },
     { "type": "PasswordTextBox"   , "name" :  "Userpassword", "caption": "Userpasswort" },

@@ -35,13 +35,15 @@ Auswahlliste Sonstige ( Withings)
 Zugangsdaten fuer Withings:
 - Benutzername
 - Userpasswort
-- Kurzname des Benutzers
+- Kurzname des Benutzers  ( 3 stellig )
     
 #####Folgende Einstellungen sind individuell
 
 Modul aktivieren
 
 Gewichtswerte holen
+
+Waage mit Pulsmessung
 
 Gewichtswerte loggen
 
@@ -81,3 +83,6 @@ Version 2.1:
 Version 2.2:
   - Werte werden nicht mehr automatisch geloggt
   - Anzeige im Webfront waehlbar
+Version 2.3:
+  - Waage mit Pulsmessung
+  
