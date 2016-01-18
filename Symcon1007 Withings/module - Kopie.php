@@ -606,8 +606,7 @@ protected  function DoGewicht($ModulID,$data)
 	$fettprozent   = 0;
 	$bmi           = 0;
 	$groesse       = 0;
-	$puls          = 0;
-  
+	
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
 	   $groesse = GetValueInteger($id);
@@ -618,56 +617,37 @@ protected  function DoGewicht($ModulID,$data)
 	if ( $CatID === false )
 	   return;
 
-	$data = $data['measuregrps'];
-	
-	$time = @$data[0]['date'];
+	$time = @$data['measuregrps'][0]['date'];
 
-	foreach($data as $d)
+	$data = @$data['measuregrps'][0]['measures'];
+
+	if ( count($data) != 4 )
 	   {
-	   $daten = $d['measures'];
-	   
-		$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
-		
-		if ( $id > 0 )
-	   	{
-	   	$old = GetValueInteger($id);
-	   	if ( $old == $time )    // keine neue Daten
-	      	return false;
-	   	SetValueInteger($id,$time);
-			}
-
-		foreach($daten as $messung)
-	   	{
-	   	
-			$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
-
-			if ( $messung['type'] == 1 AND $gewicht == 0)
-				{
-				$gewicht = round ($val,2);
-				}
-			if ( $messung['type'] == 5 AND $fettfrei == 0)
-				{
-				$fettfrei = round ($val,2);
-				}
-			if ( $messung['type'] == 6 AND $fettprozent == 0)
-				{
-				$fettprozent = round ($val,2);
-				}
-			if ( $messung['type'] == 8 AND $fettanteil == 0)
-				{
-				$fettanteil = round ($val,2);
-				}
-			if ( $messung['type'] == 11 AND $puls == 0)
-				{
-				$puls = round ($val,2);
-				}
-
-	   	}
+	   $this->Logging("Fehler bei DoGewicht ".count($data));
+	   //return;
 		}
 
+	$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
+	if ( $id > 0 )
+	   {
+	   $old = GetValueInteger($id);
+	   if ( $old == $time )    // keine neue Daten
+	      return false;
+	   SetValueInteger($id,$time);
+		}
 
+	foreach($data as $messung)
+	   {
+		$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
 
-  $bmi = round($gewicht/(($groesse/100)*($groesse/100)),2);
+		if ( $messung['type'] == 1 )  $gewicht 		= round ($val,2);
+		if ( $messung['type'] == 5 )  $fettfrei 		= round ($val,2);
+		if ( $messung['type'] == 6 )  $fettprozent 	= round ($val,2);
+		if ( $messung['type'] == 8 )  $fettanteil  	= round ($val,2);
+
+	   }
+
+   $bmi = round($gewicht/(($groesse/100)*($groesse/100)),2);
 
 	$id = IPS_GetVariableIDByName("Gewicht",$CatID);
 	if ( $id > 0 )
@@ -684,9 +664,6 @@ protected  function DoGewicht($ModulID,$data)
 	$id = IPS_GetVariableIDByName("BMI",$CatID);
 	if ( $id > 0 )
 	   SetValueFloat($id,$bmi);
-	$id = @IPS_GetVariableIDByName("Puls",$CatID);
-	if ( $id > 0 )
-	   SetValueFloat($id,$puls);
 
 	}
 	
