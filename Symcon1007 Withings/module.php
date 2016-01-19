@@ -105,17 +105,26 @@
           $this->Logging("BloodLogging wird ausgeschaltet");
 
         $id = IPS_GetVariableIDByName("Diastolic",$CatID);        
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-        
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
         $id = IPS_GetVariableIDByName("Systolic",$CatID);        
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-        
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
         $id = IPS_GetVariableIDByName("Puls",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
         $status = $this->ReadPropertyBoolean("BloodVisible");
         $this->KategorieEnable($parent,"Blutdruck",$status);
         }
@@ -193,31 +202,50 @@
           $this->Logging("BodyLogging wird ausgeschaltet");
 
         $id = IPS_GetVariableIDByName("Gewicht",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-      
-        $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-        
-        $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-
-        $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-        
-        $id = IPS_GetVariableIDByName("BMI",$CatID);
-        AC_SetLoggingStatus($ArchivID,$id,$logging);
-        IPS_ApplyChanges($ArchivID);
-       
-        $id = @IPS_GetVariableIDByName("Puls",$CatID);
-        if ( $id > 0 )
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
           {
           AC_SetLoggingStatus($ArchivID,$id,$logging);
           IPS_ApplyChanges($ArchivID);
           }
+          
+        $id = IPS_GetVariableIDByName("Fettfrei Anteil",$CatID);
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
+        $id = IPS_GetVariableIDByName("Fett Anteil",$CatID);
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
+        $id = IPS_GetVariableIDByName("Fett Prozent",$CatID);
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+                 
+        $id = IPS_GetVariableIDByName("BMI",$CatID);
+        if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+          {
+          AC_SetLoggingStatus($ArchivID,$id,$logging);
+          IPS_ApplyChanges($ArchivID);
+          }
+          
+        $id = @IPS_GetVariableIDByName("Puls",$CatID);
+        if ( $id > 0 )
+          {
+          if ( AC_GetLoggingStatus($ArchivID,$id) != $logging )
+            {
+            AC_SetLoggingStatus($ArchivID,$id,$logging);
+            IPS_ApplyChanges($ArchivID);
+            }
+          }
+          
         }
         
       $status = $this->ReadPropertyBoolean("BodyVisible");
@@ -610,6 +638,8 @@ protected  function DoGewicht($ModulID,$data)
 	$groesse       = 0;
 	$puls          = 0;
   
+  $this->Logging("Gewichtsdaten werden ausgewertet.");
+  
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
 	   $groesse = GetValueInteger($id);
@@ -618,12 +648,17 @@ protected  function DoGewicht($ModulID,$data)
 	$CatID = @IPS_GetCategoryIDByName("Waage",$ModulID);
 	
 	if ( $CatID === false )
+    {
+     $this->Logging("CatID ist auf FALSE!");
 	   return;
-
+    }
+    
 	$data = $data['measuregrps'];
 	
 	$time = @$data[0]['date'];
 
+  $this->Logging("Zeitstempel der Daten : ".$time);
+  
 	foreach($data as $d)
 	   {
 	   $daten = $d['measures'];
@@ -634,7 +669,11 @@ protected  function DoGewicht($ModulID,$data)
 	   	{
 	   	$old = GetValueInteger($id);
 	   	if ( $old == $time )    // keine neue Daten
-	      	return false;
+        {
+	       $this->Logging("Keine neuen Daten : ".$old);
+        	return false;
+        
+        }
 	   	SetValueInteger($id,$time);
 			}
 
@@ -642,6 +681,8 @@ protected  function DoGewicht($ModulID,$data)
 	   	{
 	   	
 			$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
+
+      $this->Logging("Messung Type : ".$messung['type']);
 
 			if ( $messung['type'] == 1 AND $gewicht == 0)
 				{
