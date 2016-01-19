@@ -673,7 +673,7 @@ protected  function DoGewicht($ModulID,$data)
 	   	if ( $old == $time )    // keine neue Daten
         {
 	       $this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
-        	return false;
+        	//return false;
         
         }
 	   	SetValueInteger($id,$time);
