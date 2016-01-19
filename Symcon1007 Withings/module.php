@@ -682,7 +682,7 @@ protected  function DoGewicht($ModulID,$data)
 	   	
 			$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
 
-      $this->Logging("Messung Type : ".$messung['type']);
+      $this->Logging("Messung Type : ".$messung['type']." : " .$val);
 
 			if ( $messung['type'] == 1 AND $gewicht == 0)
 				{
