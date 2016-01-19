@@ -657,7 +657,7 @@ protected  function DoGewicht($ModulID,$data)
 	
 	$time = @$data[0]['date'];
 
-  $this->Logging("Zeitstempel der Daten : ".$time);
+  $this->Logging("Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time));
   
 	foreach($data as $d)
 	   {
@@ -670,7 +670,7 @@ protected  function DoGewicht($ModulID,$data)
 	   	$old = GetValueInteger($id);
 	   	if ( $old == $time )    // keine neue Daten
         {
-	       $this->Logging("Keine neuen Daten : ".$old);
+	       $this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
         	return false;
         
         }
