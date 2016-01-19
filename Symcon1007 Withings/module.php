@@ -663,6 +663,7 @@ protected  function DoGewicht($ModulID,$data)
 	foreach($data as $d)
 	   {
 	   $daten = $d['measures'];
+    $this->Logging("Anzahl der Messungen : ".count($daten));
 	   
 		$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
 		
