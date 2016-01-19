@@ -658,6 +658,7 @@ protected  function DoGewicht($ModulID,$data)
 	$time = @$data[0]['date'];
 
   $this->Logging("Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time));
+  $this->Logging("Anzahl der Messgruppen : ".count($data));
   
 	foreach($data as $d)
 	   {
