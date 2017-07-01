@@ -616,6 +616,8 @@ protected function DoGroesse($ModulID,$data)
 	   //return;
 		}
 	$Groesse = $data['value'];
+  $Unit = $data['unit'];
+  $Groesse = $Groesse * pow(10,$Unit) * 100;
 
 	$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
 	if ( $id > 0 )
