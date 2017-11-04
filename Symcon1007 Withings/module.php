@@ -672,10 +672,12 @@ protected  function DoGewicht($ModulID,$data)
 		if ( $id > 0 )
 	   	{
 	   	$old = GetValueInteger($id);
+      $this->Logging("Alte Daten : ".date('d.m.Y H:i:s',$old));
+      $this->Logging("Neue Daten : ".date('d.m.Y H:i:s',$time));
 	   	if ( $old == $time )    // keine neue Daten
         {
 	       $this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
-        	return false;
+        	//return false;
         
         }
 	   	SetValueInteger($id,$time);
@@ -762,8 +764,17 @@ protected  function DoBlutdruck($ModulID,$data)
 	if ( $id > 0 )
 	   {
 	   $old = GetValueInteger($id);
+
+      $this->Logging("Alte Daten : ".date('d.m.Y H:i:s',$old));
+      $this->Logging("Neue Daten : ".date('d.m.Y H:i:s',$time));
+
 	   if ( $old == $time )    // keine neue Daten
-	      return false;
+        {
+        $this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
+	      //return false;
+        
+        }
+        
 	   SetValueInteger($id,$time);
 		}
 
