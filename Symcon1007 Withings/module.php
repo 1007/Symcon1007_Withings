@@ -675,7 +675,7 @@ protected  function DoGewicht($ModulID,$data)
 	   	if ( $old == $time )    // keine neue Daten
         {
 	       $this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
-        	//return false;
+        	return false;
         
         }
 	   	SetValueInteger($id,$time);
@@ -742,7 +742,7 @@ protected  function DoBlutdruck($ModulID,$data)
 	$diastolic     = 0;
 	$systolic      = 0;
 	$pulse         = 0;
-
+  
 	$CatID = @IPS_GetCategoryIDByName("Blutdruck",$ModulID);
 
 	if ( $CatID === false )
@@ -770,7 +770,7 @@ protected  function DoBlutdruck($ModulID,$data)
 	foreach($data as $messung)
 	   {
 		$val = $messung['value'];
-
+    $val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] ); 
 		if ( $messung['type'] == 9 )  $diastolic 		= $val;
 		if ( $messung['type'] == 10 ) $systolic 		= $val;
 		if ( $messung['type'] == 11 ) $pulse 			= $val;
@@ -795,10 +795,10 @@ protected function	API_MeasureGetmeas ( $userid, $publickey , &$measuregrps, $st
 	$string="measure?action=getmeas&userid=".$userid."&publickey=".$publickey;
 	$string="measure?action=getmeas&userid=".$userid."&publickey=".$publickey;
 
-	if ( $meastype );
+	if ( $meastype )
   		$string.="&meastype=".$meastype;
 
-	if ( $devtype );
+	if ( $devtype )
   		$string.="&devtype=".$devtype;
 
 	if ( $limit )
@@ -835,7 +835,7 @@ protected  function CurlCall ( $service , &$result=null )
 	{
 	
 	$APIURL = 'http://wbsapi.withings.net/';
-
+  $APIURL = 'https://api.health.nokia.com/';
 	$s = curl_init();
 	curl_setopt($s,CURLOPT_URL,$APIURL.$service);
    curl_setopt($s,CURLOPT_POST,false);
