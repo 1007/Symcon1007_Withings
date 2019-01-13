@@ -47,27 +47,35 @@
 		//Never delete this line!
 		parent::ApplyChanges();
 
-	    $ArchivID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}");
-      	$ArchivID = $ArchivID[0];
+	  $ArchivID = IPS_GetInstanceListByModuleID("{43192F0B-135B-4CE7-A0A7-1475603F3060}");
+    $ArchivID = $ArchivID[0];
 
-      	$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
-      	$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
-      	$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
-      	$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
-      	$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
-      	$this->RegisterProfile(1,"WITHINGS_M_Blutdruck","",""," mmHg");
-      	$this->RegisterProfileGender("WITHINGS_M_Gender", "", "", "", Array(
+    $this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
+    $this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
+    $this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
+    $this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
+    $this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
+    $this->RegisterProfile(1,"WITHINGS_M_Blutdruck","",""," mmHg");
+
+    $this->RegisterProfileGender("WITHINGS_M_Gender", "", "", "", Array(
                                              Array(0, "maennlich",  "", 0x0000FF),
                                              Array(1, "weiblich",   "", 0xFF0000)
                                             ));
+
+    $this->RegisterProfileBatterie("WITHINGS_M_Batterie", "", "", "", Array(
+                                             Array(0, "Schwach < 30%",  "", 0xFF0000),
+                                             Array(1, "Mittel > 30%",   "", 0xFFFF00),
+                                             Array(2, "Gut > 75%",      "", 0x00FF00)
+                                            ));
+
 		$id = $this->RegisterVariableString("name"       , "Name"      ,"",0);
 		$id = $this->RegisterVariableInteger("gender"    , "Geschlecht","WITHINGS_M_Gender",2);
 		$id = $this->RegisterVariableString("birthdate"  , "Geburtstag","",1);
 		$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
  
-      	$parent = IPS_GetParent($id);
+    $parent = IPS_GetParent($id);
       
-      	$CatID = false;
+    $CatID = false;
       
       	if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
         	{
@@ -358,6 +366,24 @@
 		  $this->Logging($output);
     	
     	$data = json_decode($output,TRUE); 
+ 
+   		if ( !array_key_exists('status',$data) == TRUE )
+    		{
+    		$this->SendDebug("GetDevice","Status: unbekannt",0);
+    		return;
+    		}
+    
+  		$status = $data['status'];
+  
+  		$this->SendDebug("GetDevice","Status:".$status,0);
+ 
+  		$id = $this->GetIDForIdent("name");
+  
+  		$ModulID = IPS_GetParent($id);
+  
+  		$data = $data['body'];
+  	
+  		$this->DoDevice($ModulID,$data);
     
 		}
 
@@ -647,26 +673,52 @@
     //
     //**************************************************************************    
     protected function RegisterProfileGender($Name, $Icon, $Prefix, $Suffix, $Associations) 
-    	{
-        if ( sizeof($Associations) === 0 )
-        	{
-            $MinValue = 0;
-            $MaxValue = 0;
-        	}
-        else 
-        	{
-            $MinValue = $Associations[0][0];
-            $MaxValue = $Associations[sizeof($Associations)-1][0];
-        	}
+      {
+      if ( sizeof($Associations) === 0 )
+        {
+        $MinValue = 0;
+        $MaxValue = 0;
+        }
+      else 
+        {
+        $MinValue = $Associations[0][0];
+        $MaxValue = $Associations[sizeof($Associations)-1][0];
+        }
 
-        $this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+      $this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
 
-        foreach($Associations as $Association) 
-        	{
-            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
-        	}
+      foreach($Associations as $Association) 
+        {
+        IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
 
     	}
+
+    //**************************************************************************
+    //
+    //**************************************************************************    
+    protected function RegisterProfileBatterie($Name, $Icon, $Prefix, $Suffix, $Associations) 
+      {
+      if ( sizeof($Associations) === 0 )
+        {
+        $MinValue = 0;
+        $MaxValue = 0;
+        }
+      else 
+        {
+        $MinValue = $Associations[0][0];
+        $MaxValue = $Associations[sizeof($Associations)-1][0];
+        }
+
+      $this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+      foreach($Associations as $Association) 
+        {
+        IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
+
+    	}
+
 
     //**************************************************************************
     //  Create    Kategorie
@@ -885,6 +937,88 @@
 	     		SetValueInteger($id,$Groesse);
     		}
 		}
+
+    //**************************************************************************
+    //
+    //**************************************************************************    
+	 protected function DoDevice($ModulID,$data)
+		{
+    $this->SendDebug("DoDevice","Devices werden ausgewertet.",0);
+
+		$data = @$data['devices'];
+		if ( count($data) != 3 )
+	     {
+	   		$this->Logging("Fehler bei DoDevice ".count($data));
+        $this->SendDebug("DoDevice","Fehler bei DoDevice ".count($data),0);
+
+	   		//return;
+		  }
+		
+    foreach($data as $device)
+      {
+        
+        $devicetyp      = @$device['type'];
+        $devicemodel    = @$device['model'];
+        $devicebattery  = @$device['battery'];
+        $deviceid       = @$device['deviceid'];
+        $devicetimezone = @$device['timezone'];
+        
+        $this->SendDebug("DoDevice : ","Type     : ".$devicetyp,0);
+        $this->SendDebug("DoDevice : ","Modell   : ".$devicemodel,0);
+        $this->SendDebug("DoDevice : ","Batterie : ".$devicebattery,0);
+        $this->SendDebug("DoDevice : ","Deviceid : ".$deviceid,0);
+        $this->SendDebug("DoDevice : ","Zeitzone : ".$devicetimezone,0);
+      
+        if ( $devicebattery == 'low' OR $devicebattery == 'medium' OR $devicebattery == 'high')
+          {
+          
+          $name = "Batterie " . $devicemodel;
+          
+          $this->SendDebug("DoDevice",$name."-".$devicebattery,0);
+          $id = $this->RegisterVariableInteger($deviceid   , $name ,"WITHINGS_M_Batterie",2);      
+          
+          if ( $id > 0 )
+            {
+            if ( $devicebattery == 'low' )
+              {
+              $v =  GetValueInteger($id);
+     		      if ( $v != 0)
+	     		    SetValueInteger($id,0);
+              }            
+            if ( $devicebattery == 'medium' )
+              {
+              $v =  GetValueInteger($id);
+     		      if ( $v != 1)
+	     		    SetValueInteger($id,1);
+              }            
+            if ( $devicebattery == 'high' )
+              {
+              $v =  GetValueInteger($id);
+     		      if ( $v != 2)
+	     		    SetValueInteger($id,2);
+              }            
+              
+              
+              
+            }
+            
+          }
+      }
+      
+      
+    return;
+    $Groesse = $data['value'];
+  	$Unit = $data['unit'];
+  	$Groesse = $Groesse * pow(10,$Unit) * 100;
+
+		$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
+		if ( $id > 0 )
+    		{
+     		$v =  GetValueInteger($id);
+     		if ( $v != $Groesse)
+	     		SetValueInteger($id,$Groesse);
+    		}
+		}
 	
     //**************************************************************************
     //
@@ -919,18 +1053,25 @@
 	
 		$time = @$data[0]['date'];
 
-  		$this->Logging("Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time));
-      $this->SendDebug("DoGewicht","Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time),0);
+    $this->Logging("Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time));
+    $this->SendDebug("DoGewicht","Zeitstempel der Daten : ".date('d.m.Y H:i:s',$time),0);
  
-  		$this->Logging("Anzahl der Messgruppen : ".count($data));
-      $this->SendDebug("DoGewicht","Anzahl der Messgruppen : ".count($data),0);
+  	$this->Logging("Anzahl der Messgruppen : ".count($data));
+    $this->SendDebug("DoGewicht","Anzahl der Messgruppen : ".count($data),0);
+ 
+    if ( count($data) == 0 )
+      {
+      $this->SendDebug("DoGewicht","Keine Messgruppen gefunden. Abbruch",0);
+      return false;
+      
+      }
  
 		foreach($data as $d)
-	   		{
-	   		$daten = $d['measures'];
-    		$this->Logging("Anzahl der Messungen : ".count($daten));
+	   {
+	   	$daten = $d['measures'];
+    	$this->Logging("Anzahl der Messungen : ".count($daten));
 	   
-			$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
+			 $id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
 		
 			if ( $id > 0 )
 	   			{
@@ -942,7 +1083,7 @@
 	       			$this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
               $this->SendDebug("DoGewicht","Keine neuen Daten : ".date('d.m.Y H:i:s',$old),0);
 
-        			//return false;
+        			return false;
         
         			}
           else
@@ -950,12 +1091,12 @@
 				}
 
 			foreach($daten as $messung)
-	   			{
+	   	 {
  	   	
-				$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
+			 $val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
 
-      	$this->Logging("Messung Type : ".$messung['type']." : " .$val);
-        $this->SendDebug("DoGewicht","Messung Type : ".$messung['type']." : " .$val,0);
+      $this->Logging("Messung Type : ".$messung['type']." : " .$val);
+      $this->SendDebug("DoGewicht","Messung Type : ".$messung['type']." : " .$val,0);
        
 
 				if ( $messung['type'] == 1 AND $gewicht == 0)
@@ -1049,7 +1190,7 @@
         		{
         		$this->Logging("Keine neuen Daten : ".date('d.m.Y H:i:s',$old));
             $this->SendDebug("DoBlutdruck","Keine neuen Daten : ".date('d.m.Y H:i:s',$old),0);
-	      		//return false;
+	      		return false;
         		}
         else
 	   		  SetValueInteger($id,$time);
