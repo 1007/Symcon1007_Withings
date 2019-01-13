@@ -12,6 +12,7 @@
 6. [Datenhandling] (#6-datenhandling)
 7. [Probleme](#7-probleme)
 8. [Changelog](#8-changelog)
+9. [ToDo Liste](#9-todo)
 
 ## 1. Funktionsumfang
 Diese Modul holt die Gewichtsdaten und Blutdruckdaten vom Withingsserver
@@ -20,7 +21,7 @@ Dies kann aber aktiviert werden.
                                                                                                                   #
 ## 2. Systemanforderungen
 - IP-Symcon ab Version 4.x
-
+- Connect Modul mit funktionierender "ipmagic" Adresse
 ## 3. Installation
 Über die Kern-Instanz "Module Control" folgende URL hinzufügen:
 
@@ -30,13 +31,14 @@ Instanz hinzufuegen.
 Auswahlliste Sonstige ( Withings)
 
 ## 4. Konfiguration
-#####Folgende Einstellungen sind noetig
+Als erstes ueber den Button "Authentifizierung" die
+OAuth2-Authentifizierung anstossen.
+Eine Webseite ( Withings ) wird automatisch geoeffnet.
+Wenn noch nicht angemeldet bitte anmelden.
+Dann Withingsuser waehlen wenn mehrere Personen im Haushalt.
+Den Zugriff der APP bestaetigen.
+Bei Problemen gibt das Debugfenster eine Menge Infos.
 
-Zugangsdaten fuer Withings:
-- Benutzername
-- Userpasswort
-- Kurzname des Benutzers  ( 3 stellig )
-    
 #####Folgende Einstellungen sind individuell
 
 Modul aktivieren
@@ -77,6 +79,10 @@ Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
 Daten bleiben erhalten, werden im Archiv-Handler aber als
 "Objekt #xxxxx existiert nicht" angezeigt.
 
+In der API ueber OAuth2 gibt es im Moment noch keinen Zugriff
+auf Name,Groesse. Deshalb bei neuer Instanz werden diese Variablen
+leer bleiben.
+
 ## 8. Changelog
 Version 2.1:
   - Erster Release
@@ -85,4 +91,12 @@ Version 2.2:
   - Anzeige im Webfront waehlbar
 Version 2.3:
   - Waage mit Pulsmessung
+Version 3.0  
+  - Umstellung auf OAuth2
+ 
+## 9. ToDo Liste
+Da jetzt mit OAuth2 Zugriff erfolgt ist jetzt auch Zugriff auf
+  Geraete Batteriestand.
+  Schlafdaten
+  Bewegungsdaten
   
