@@ -76,6 +76,79 @@
     $parent = IPS_GetParent($id);
       
     $CatID = false;
+
+    // Bettsensor
+    /*
+        	$CatID = $this->CreateKategorie("Bettsensor",$parent);
+        	if ( $CatID === false )
+          		throw new Exception("Kategorie Bettsensor nicht definiert");
+        	
+          $VariablenID = @IPS_GetVariableIDByName("Schlafdauer",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Schlafdauer", "Schlafdauer","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Startdatum",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Startdatum", "Startdatum","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Enddatum",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Enddatum", "Enddatum","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Aktualisierungsdatum",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Aktualisierungsdatum", "Aktualisierungsdatum","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Wachphasen",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Wachphasen", "Wachphasen","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Leichtschlafphasen",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Leichtschlafphasen", "Leichtschlafphasen","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Tiefschlafphasen",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Tiefschlafphasen", "Tiefschlafphasen","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Schlafunterbrechungen",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Schlafunterbrechungen", "Schlafunterbrechungen","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Einschlafzeit",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Einschlafzeit", "Einschlafzeit","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+          $VariablenID = @IPS_GetVariableIDByName("Aufstehzeit",$CatID);  
+        	if ($VariablenID === false)
+          		{
+          		$id = $this->RegisterVariableInteger("Aufstehzeit", "Aufstehzeit","",2);
+          		IPS_SetParent($id,$CatID);
+          		}
+
+      */
+
+
+     //
+     
       
       	if ( $this->ReadPropertyBoolean("BloodMeasures") == true )
         	{
@@ -336,7 +409,7 @@
         
       	$this->GetMeas();
       	       
-      	
+      	//$this->GetSleepSummary();
       	}
   
     //******************************************************************************
@@ -397,6 +470,7 @@
   		$meastype = 0 ;
   		$category = 1;
   		$startdate = time()- 24*60*60;
+      
   		$enddate = time();
   
 		  $url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
@@ -437,6 +511,63 @@
   	
   		$this->DoGewicht($ModulID,$data);
   		$this->DoBlutdruck($ModulID,$data);
+		}
+
+
+  	//******************************************************************************
+  	//	GetSleepSummary
+  	//******************************************************************************
+  	function GetSleepSummary()
+		{
+  		$access_token = $this->ReadPropertyString("Userpassword");;
+	
+  		$meastype = 0 ;
+  		$category = 1;
+  		$startdate = time()- 24*60*60;
+  		$enddate = time();
+  
+      $startdate = date("Y-m-d",$startdate);
+      $enddate   = date("Y-m-d",$enddate);
+    
+		  $url = "https://wbsapi.withings.net/v2/sleep?action=getsummary&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
+
+  		$this->SendDebug("GetSleepSummary:",$url,0);
+			
+		  $curl = curl_init($url);
+	          
+		  curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+	
+		  $output = curl_exec($curl);
+	
+		  $info = curl_getinfo($curl);
+	
+		  curl_close($curl);
+		
+  		$this->SendDebug("Answer:",$output,0);
+
+      
+		  $this->Logging($output);
+  
+  		$data = json_decode($output,TRUE); 
+	
+  		if ( !array_key_exists('status',$data) == TRUE )
+    		{
+    		$this->SendDebug("GetSleepSummary","Status: unbekannt",0);
+    		return;
+    		}
+    
+  		$status = $data['status'];
+  
+  		$this->SendDebug("GetSleepSummary","Status:".$status,0);
+ 
+  		$id = $this->GetIDForIdent("name");
+  
+  		$ModulID = IPS_GetParent($id);
+  
+  		$data = $data['body'];
+  	
+  		$this->DoSleepSummary($ModulID,$data);
+  		
 		}
 
       
@@ -941,6 +1072,97 @@
     //**************************************************************************
     //
     //**************************************************************************    
+	 protected function DoSleepSummary($ModulID,$data)
+		{
+    $this->SendDebug("DoSleepSummary","Schlaf wird ausgewertet.",0);
+
+		$data = @$data['series'];
+		if ( count($data) != 2 )
+	     {
+	   		$this->Logging("Fehler bei DoSleepSummary ".count($data));
+        $this->SendDebug("DoSleepSummary","Fehler bei DoSleepSummary ".count($data),0);
+
+	   		return;
+		  }
+		
+    foreach($data as $sleep)
+      {
+       $sleepmodel      = @$sleep['model'];
+       $sleepstartdate  = @$sleep['startdate'];
+       $sleependdate    = @$sleep['enddate'];
+       $sleepmodified   = @$sleep['modified'];
+       $sleepdauer      = $sleependdate -$sleepstartdate;
+      
+      $this->SendDebug("DoSleepSummary","Modell : ".$sleepmodel,0);
+      $this->SendDebug("DoSleepSummary","Startdatum : ".date("d-m-Y H:i:s",$sleepstartdate),0);
+      $this->SendDebug("DoSleepSummary","Enddatum : "  .date("d-m-Y H:i:s",$sleependdate),0);
+      $this->SendDebug("DoSleepSummary","Modifieddatum : "  .date("d-m-Y H:i:s",$sleepmodified),0);
+      $this->SendDebug("DoSleepSummary","Schlafdauer : "  . $this->FormatTimeMinuten($sleepdauer),0);
+      
+      
+      $sleepwakeupduration    = @$sleep['data']['wakeupduration'];
+      $sleeplightsleepduration= @$sleep['data']['lightsleepduration'];
+      $sleepdeepsleepduration = @$sleep['data']['deepsleepduration'];
+      $sleepwakeupcount       = @$sleep['data']['wakeupcount'];
+      $sleepdurationtosleep   = @$sleep['data']['durationtosleep'];
+      $sleepdurationtowakeup  = @$sleep['data']['durationtowakeup'];
+
+      $this->SendDebug("DoSleepSummary","Wachphasen : "           .$this->FormatTimeMinuten($sleepwakeupduration). " Minuten",0);
+      $this->SendDebug("DoSleepSummary","Leichtschlafphasen : "   .$this->FormatTimeMinuten($sleeplightsleepduration)." Minuten",0);
+      $this->SendDebug("DoSleepSummary","Tiefschlafphasen : "     .$this->FormatTimeMinuten($sleepdeepsleepduration) . " Minuten",0);
+      $this->SendDebug("DoSleepSummary","Schlafunterbrechungen : ".$sleepwakeupcount,0);
+      $this->SendDebug("DoSleepSummary","Einschlafzeit : "        .$this->FormatTimeMinuten($sleepdurationtosleep) . " Minuten",0);
+      $this->SendDebug("DoSleepSummary","Aufstehzeit : "          .$this->FormatTimeMinuten($sleepdurationtowakeup) . " Minuten",0);
+      
+      }
+
+		$CatID = @IPS_GetCategoryIDByName("Bettsensor",$ModulID);
+	
+		if ( $CatID === false )
+    		{
+     		$this->Logging("CatID ist auf FALSE!");
+        $this->SendDebug("DoSleepSummary","CatID FALSE ! ",0);
+
+	   		return;
+    		}
+
+ 		$id = @IPS_GetVariableIDByName("Schlafdauer",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepdauer/60);
+ 		$id = @IPS_GetVariableIDByName("Startdatum",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepstartdate);
+ 		$id = @IPS_GetVariableIDByName("Enddatum",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleependdate);
+ 		$id = @IPS_GetVariableIDByName("Aktualisierungsdatum",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepmodified);
+ 		$id = @IPS_GetVariableIDByName("Wachphasen",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepwakeupduration);
+ 		$id = @IPS_GetVariableIDByName("Leichtschlafphasen",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleeplightsleepduration);
+ 		$id = @IPS_GetVariableIDByName("Tiefschlafphasen",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepdeepsleepduration);
+ 		$id = @IPS_GetVariableIDByName("Schlafunterbrechungen",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepwakeupcount);
+ 		$id = @IPS_GetVariableIDByName("Einschlafzeit",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepdurationtosleep);
+ 		$id = @IPS_GetVariableIDByName("Aufstehzeit",$CatID);
+		if ( $id > 0 )
+	   		SetValueInteger($id,$sleepdurationtowakeup);
+
+      
+    }
+
+    //**************************************************************************
+    //
+    //**************************************************************************    
 	 protected function DoDevice($ModulID,$data)
 		{
     $this->SendDebug("DoDevice","Devices werden ausgewertet.",0);
@@ -1171,12 +1393,22 @@
 	
 		$data = @$data['measuregrps'][0]['measures'];
 
-		if ( @count($data) != 3 )
+    if ( @count($data) == 0 )
+      {
+      $this->SendDebug("DoBlutdruck","Keine Messgruppen gefunden. Abbruch",0);
+      return false;
+      
+      }
+
+
+		if ( @count($data) != 3 ) 
 	   		{
 	   		$this->Logging("Fehler bei DoBlutdruck ".count($data));
-     		$this->SendDebug("DoBlutdruck","Fehler bei DoBlutdruck.Anzahl ungleich 3",0);
-	   		return;
+     		$this->SendDebug("DoBlutdruck","Fehler bei DoBlutdruck.Anzahl ungleich 3 (".count($data).")",0);
+	   		//return;
 			}
+
+
 
 		$id = @IPS_GetVariableIDByName("DatumUhrzeit",$CatID);
 		if ( $id > 0 )
@@ -1485,6 +1717,22 @@
     return true;
     	
 		}
+
+	//******************************************************************************
+	//	
+	//******************************************************************************
+	private function FormatTimeMinuten($time) 
+    {
+    $hour = intval($time/3600);
+    $minuten = intval(($time-($hour*3600))/60);
+    
+    $time = $hour."H".$minuten."M";
+    
+    return $time;
+    
+    
+    }
+
 		
 	}
 
