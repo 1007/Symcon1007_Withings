@@ -15,6 +15,7 @@
     { "type": "CheckBox"          , "name" :  "BloodLogging",  "caption": "Schlafsensorwerte" },
 
     { "type": "Label"             , "label":  "---------- Withings Messwerte Aktivitaeten" },
+    { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" },
 
     
     { "type": "Label"             , "label":  "---------- Einstellungen" },

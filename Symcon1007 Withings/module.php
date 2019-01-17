@@ -34,7 +34,7 @@
 		$this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
 		$this->RegisterPropertyBoolean("BloodLogging", false);    // in V3.0 ist das  Sleep aktiv
 		$this->RegisterPropertyBoolean("BloodVisible", false);  
-		$this->RegisterPropertyBoolean("BodyLogging" , false);  
+		$this->RegisterPropertyBoolean("BodyLogging" , false);  // in V3.0 ist das  Activity aktiv
 		$this->RegisterPropertyBoolean("BodyVisible" , false);  
 		}
 
@@ -120,6 +120,8 @@
 		$this->GetMeas();
 		
 		$this->GetSleepSummary();
+
+		$this->GetActivity();
 
 		}
 
@@ -227,6 +229,68 @@
 		$data = $data['body'];
 
 		$this->DoMeas($ModulID,$data);
+
+		}
+
+	//******************************************************************************
+	//  GetActivity
+	//******************************************************************************
+	protected function GetActivity()
+		{
+
+		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
+			return;
+
+		$access_token = $this->ReadPropertyString("Userpassword");;
+
+		$meastype = 0 ;
+		$category = 1;
+		$startdate = time()- 24*60*60*5;
+		$enddate = time();
+
+		$startdate = date("Y-m-d",$startdate);
+		$enddate   = date("Y-m-d",$enddate);
+
+		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
+
+		$this->SendDebug("Getactivity:",$url,0);
+
+		$curl = curl_init($url);
+
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+
+		$output = curl_exec($curl);
+
+		$info = curl_getinfo($curl);
+
+		curl_close($curl);
+
+		$this->SendDebug("Answer:",$output,0);
+
+		$this->Logging($output);
+
+		$data = json_decode($output,TRUE);
+
+		if ( !array_key_exists('status',$data) == TRUE )
+			{
+			$this->SendDebug("Getactivity","Status: unbekannt",0);
+			return;
+			}
+
+		$status = $data['status'];
+
+		$this->SendDebug("Getactivity","Status:".$status,0);
+
+		if ( $status != 0)
+			return;
+
+		$id = $this->GetIDForIdent("name");
+
+		$ModulID = IPS_GetParent($id);
+
+		$data = $data['body'];
+
+		//$this->DoMeas($ModulID,$data);
 
 		}
 
@@ -724,7 +788,7 @@
 		// Alle Messgruppen durchgehen
 		foreach($measuregrps as $daten)
 			{
-			$time 		= @$daten['date'];
+			$time 		  = @$daten['date'];
 			$deviceid 	= @$daten['deviceid'];
 			$messungen 	= @$daten['measures'];
 
@@ -739,11 +803,12 @@
 			foreach($messungen as $messung)
 				{
 				$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
-				$this->SendDebug("DoMeas","Messung Type : ".$messung['type']." : " .$val,0);
+				$this->SendDebug("DoMeas","Messung Type : ".$messung['type']." : " .$val ."-".date('l jS \of F Y h:i:s A',$time),0);
 
 				switch ($messung['type'])
 					{
 					case 1 :	$gewicht = round ($val,2);
+										$TimestampWaage = $time;
 								break;
 					case 4 :	$groesse = round ($val,2);
 								break;
@@ -756,6 +821,7 @@
 					case 9 :	$diastolic = $val;
 								break;
 					case 10 :	$systolic = $val;
+          					$TimestampBlutdruck = $time;
 								break;
 					case 11:	$puls = $val;
 								break;
@@ -786,10 +852,9 @@
 		if ( $groesse !=  0)
 			$bmi = @round($gewicht/(($groesse/100)*($groesse/100)),2);
 
-    //				$id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
+		//				$id = $this->RegisterVariableInteger("timestamp", "DatumUhrzeit","~UnixTimestamp",0);
 
-		//if(isset($gewicht))				$this->SetValueToVariable($CatIdWaage,"Gewicht",$gewicht,"~UnixTimestamp");
-
+		if(isset($TimestampWaage))$this->SetValueToVariable($CatIdWaage,"DatumUhrzeit"							,intval($TimestampWaage)				,"~UnixTimestamp");
 		if(isset($gewicht))				$this->SetValueToVariable($CatIdWaage,"Gewicht"										,floatval($gewicht)				,"WITHINGS_M_Kilo");
 		if(isset($fettfrei))			$this->SetValueToVariable($CatIdWaage,"Fettfrei Anteil"						,floatval($fettfrei)			,"WITHINGS_M_Kilo");
 		if(isset($fettprozent))		$this->SetValueToVariable($CatIdWaage,"Fett Prozent"							,floatval($fettprozent)		,"WITHINGS_M_Prozent");
@@ -799,9 +864,10 @@
 		if(isset($pulswellen))		$this->SetValueToVariable($CatIdWaage,"Pulswellengeschwindigkeit"	,intval($pulswellen));
 		if(isset($knochenmasse))	$this->SetValueToVariable($CatIdWaage,"Knochenmasse"							,floatval($knochenmasse)	,"WITHINGS_M_Kilo");
 
-		if(isset($diastolic))			$this->SetValueToVariable($CatIdBlutdruck,"Diastolic"							,intval($diastolic)	,"WITHINGS_M_Blutdruck");
-		if(isset($systolic))			$this->SetValueToVariable($CatIdBlutdruck,"Systolic"							,intval($systolic)	,"WITHINGS_M_Blutdruck");
-		if(isset($puls))					$this->SetValueToVariable($CatIdBlutdruck,"Puls"									,intval($puls)			,"WITHINGS_M_Puls");
+		if(isset($TimestampBlutdruck))$this->SetValueToVariable($CatIdBlutdruck,"DatumUhrzeit"							,intval($TimestampBlutdruck)				,"~UnixTimestamp");
+		if(isset($diastolic))			$this->SetValueToVariable($CatIdBlutdruck,"Diastolic"							,intval($diastolic)				,"WITHINGS_M_Blutdruck");
+		if(isset($systolic))			$this->SetValueToVariable($CatIdBlutdruck,"Systolic"							,intval($systolic)				,"WITHINGS_M_Blutdruck");
+		if(isset($puls))					$this->SetValueToVariable($CatIdBlutdruck,"Puls"									,intval($puls)						,"WITHINGS_M_Puls");
 
 		}
 
