@@ -45,17 +45,9 @@ Modul aktivieren
 
 Gewichtswerte holen
 
-Waage mit Pulsmessung
-
-Gewichtswerte loggen
-
-Gewichtswerte im Webfront anzeigen
-
 Blutdruckwerte holen
 
-Blutdruckwerte loggen
-
-Blutdruckwerte im Webfront anzeigen
+Schlafsensorwerte holen
 
 Abfrageintervall in Sekunden
 
@@ -63,25 +55,27 @@ Logging einschalten ( Logdatei in Ordner ../logs/Withings)
 
 ## 5. Visualisierung
 Um die Daten im Webfront darzustellen einfach die Instance innerhalb einer
-Kategorie verlinken. 
+Kategorie verlinken. Sollen bestimmte Werte nicht angezeigt werden die
+Variable haendisch auf unsichtbar setzen.
 
 ## 6. Datenhandling
-Um Daten von einer anderen Variable zu uebernehmen ist zuerst das 
-"Loggen der Werte" zu deaktivieren. Bereits geloeschte Daten im ArchivHandler
-loeschen. Dann Werte von alter Variablen in die neue mit 
-"Datensaetze ueberfuehren" uebernehmen. Logging wieder einschalten.
-Variable Neu-Aggregieren nicht vergessen ( Versionsabhaengig ).
-Ein Abwaehlen des Loggen loescht keine Daten. Dies muss wenn gewollt
-mit Hand gemacht werden.
-
+Die Namen der erkannten Geraete zB
+	Aura Sensor V2
+	Withings Blood Pressure Monitor V2
+	Withings WBS01
+koennen nach dem Erstellen umbennant werden.
+Identifizierung ueber die Ident.
+Das Loggen der Daten kann fuer jede Variable einzeln im Tree
+bestimmt werden.
 ## 7. Probleme
 Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
 Daten bleiben erhalten, werden im Archiv-Handler aber als
 "Objekt #xxxxx existiert nicht" angezeigt.
 
 In der API ueber OAuth2 gibt es im Moment noch keinen Zugriff
-auf Name,Groesse. Deshalb bei neuer Instanz werden diese Variablen
-leer bleiben.
+auf Name,Groesse,Geschlecht,Geburtstag. Deshalb bei neuer Instanz werden diese
+Variablen leer bleiben. Unbedingt darauf achten die Groesse einzutragen.
+Sonst bleibt der BMI leer.
 
 ## 8. Changelog
 Version 2.1:
@@ -96,7 +90,8 @@ Version 3.0
  
 ## 9. ToDo Liste
 Da jetzt mit OAuth2 Zugriff erfolgt ist jetzt auch Zugriff auf
-  Geraete Batteriestand.
-  Schlafdaten
   Bewegungsdaten
+	Geraete ueber die DeviceID verwalten.
+	Pulswerte fuer Waage und Blutdruck noch nicht getrennt.
+
   
