@@ -63,6 +63,12 @@
 
 		$this->RegisterProfile(1,"WITHINGS_M_Minuten","",""," Minuten");
 
+		$this->RegisterProfile(1,"WITHINGS_M_Schritte","",""," Schritte");
+		$this->RegisterProfile(1,"WITHINGS_M_Kalorien","",""," kcal");
+		$this->RegisterProfile(1,"WITHINGS_M_Meter","",""," Meter");
+
+
+
 		}
 
 
@@ -290,7 +296,7 @@
 
 		$data = $data['body'];
 
-		//$this->DoMeas($ModulID,$data);
+		$this->DoActivity($ModulID,$data);
 
 		}
 
@@ -668,6 +674,77 @@
 
 	}
 
+
+	//**************************************************************************
+	//
+	//**************************************************************************
+	 protected function DoActivity($ModulID,$data)
+		{
+		$this->SendDebug("DoActivity","Aktivitaeten werden ausgewertet.",0);
+
+		// "Activity" isdas Ident fuer externe Daten in Withings deviceid = null
+		$InstanceIDActivity = @$this->GetIDForIdent ("Activity");
+		if ( $InstanceIDActivity === FALSE )
+			$InstanceIDActivity = $this->CreateDummyInstance("Activity","Activity","Daten von externen APPs");
+
+		if ( $InstanceIDActivity === false )
+			{
+			$this->SendDebug("DoActivity","InstanceID Activity nicht vorhanden. Abbruch",0);
+			return;
+			}
+
+		$data 		= @$data['activities'];
+		$deviceid	= @$device['deviceid'];
+
+		if ( @count($data) == 0 )
+			{
+			$this->SendDebug("DoActivity","Keine Activity gefunden. Abbruch",0);
+			return false;
+			}
+		else
+			$this->SendDebug("DoActivity","Anzahl der Serien : ".count($data),0);
+
+		// Bei diesen Daten ist der neueste als letztes
+		foreach($data as $activity)
+			{
+			$activitydate				= @$activity['date'];
+			$activitysteps				= @$activity['steps'];
+			$activitydistance			= @$activity['distance'];
+			$activityelevation			= @$activity['elevation'];
+			$activitysoft				= @$activity['soft'];
+			$activitymoderate			= @$activity['moderate'];
+			$activityintense			= @$activity['intense'];
+			$activitycalories			= @$activity['calories'];
+			$activitytotalcalories		= @$activity['totalcalories'];
+			$activitybrand				= @$activity['brand'];
+
+			
+
+		$this->SendDebug("DoActivity","Datum : ".				$activitydate,0);
+		$this->SendDebug("DoActivity","Schritte : ".			$activitysteps,0);
+		$this->SendDebug("DoActivity","Distanze : ".			$activitydistance,0);
+		$this->SendDebug("DoActivity","Hoehe : ".				$activityelevation,0);
+		$this->SendDebug("DoActivity","Soft : ".				$activitysoft,0);
+		$this->SendDebug("DoActivity","Moderate : ".			$activitymoderate,0);
+		$this->SendDebug("DoActivity","Intense : ".				$activityintense,0);
+		$this->SendDebug("DoActivity","Kalorien : ".			$activitycalories,0);
+		$this->SendDebug("DoActivity","Gesamtkalorien : ".		$activitytotalcalories,0);
+		$this->SendDebug("DoActivity","Brand : ".				$activitybrand,0);
+}
+		if(isset($activitydate))			$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"			,intval(strtotime ($activitydate)),"~UnixTimestamp",1 );
+		if(isset($activitysteps))			$this->SetValueToVariable($InstanceIDActivity,"Schritte"			,intval($activitysteps),"WITHINGS_M_Schritte",2 );
+		if(isset($activitydistance))		$this->SetValueToVariable($InstanceIDActivity,"Distanze"			,intval($activitydistance),"WITHINGS_M_Meter",3 );
+		if(isset($activityelevation))		$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"			,intval($activityelevation),"WITHINGS_M_Meter",4 );
+		if(isset($activitycalories))		$this->SetValueToVariable($InstanceIDActivity,"Aktivitaetskalorien"	,intval($activitycalories),"WITHINGS_M_Kalorien",10 );
+		if(isset($activitytotalcalories))	$this->SetValueToVariable($InstanceIDActivity,"Gesamtkalorien"		,intval($activitytotalcalories),"WITHINGS_M_Kalorien",11 );
+		if(isset($activitysoft))			$this->SetValueToVariable($InstanceIDActivity,"Geringe Aktivitaet"	,intval($activitysoft/60 ),"WITHINGS_M_Minuten",20 );
+		if(isset($activitymoderate))		$this->SetValueToVariable($InstanceIDActivity,"Mittlere Aktivitaet"	,intval($activitymoderate/60 ),"WITHINGS_M_Minuten",21 );
+		if(isset($activityintense))			$this->SetValueToVariable($InstanceIDActivity,"Hohe Aktivitaet"		,intval($activityintense/60 ),"WITHINGS_M_Minuten",22 );
+
+
+
+	}
+
 	//**************************************************************************
 	// Auswertung Geraeteinfos
 	//**************************************************************************
@@ -860,7 +937,7 @@
 		if(isset($fettprozent))		$this->SetValueToVariable($CatIdWaage,"Fett Prozent"							,floatval($fettprozent)		,"WITHINGS_M_Prozent");
 		if(isset($fettanteil))		$this->SetValueToVariable($CatIdWaage,"Fett Anteil"								,floatval($fettanteil)		,"WITHINGS_M_Kilo");
 		if(isset($puls))					$this->SetValueToVariable($CatIdWaage,"Puls"											,intval($puls)						,"WITHINGS_M_Puls");
-		if(isset($bmi))						$this->SetValueToVariable($CatIdWaage,"BMI"												,intval($bmi)							,"WITHINGS_M_BMI");
+		if(isset($bmi))						$this->SetValueToVariable($CatIdWaage,"BMI"												,floatval($bmi)							,"WITHINGS_M_BMI");
 		if(isset($pulswellen))		$this->SetValueToVariable($CatIdWaage,"Pulswellengeschwindigkeit"	,intval($pulswellen));
 		if(isset($knochenmasse))	$this->SetValueToVariable($CatIdWaage,"Knochenmasse"							,floatval($knochenmasse)	,"WITHINGS_M_Kilo");
 
@@ -1058,6 +1135,18 @@
 				IPS_SetParent($VariableID,$CatID);
 			}
 
+		// $array = $this->GetVariable ( $VariablenID );
+		// $array = @IPS_GetObjectIDByIdent($ident,$CatID);
+		// print_r($array);
+		// $oldprofil = $array['VariableProfile'];
+		$oldprofil = "?";
+		// if ( $oldprofil != $profil )
+			{
+			$this->SendDebug("SetValueToVariable","Variableprofil hat sich geandert : ".$VariableID."-".$oldprofil."->".$profil,0);			
+			// $this->RegisterAllProfile();
+			IPS_SetVariableCustomProfile($VariableID,$profil);	
+			}
+		
 		if ( $value > 0 AND $VariableID > 0 )
 			SetValue($VariableID,$value);
 		}
