@@ -2,24 +2,24 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings v3.0 #######" },
-    { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
+    { "type": "Label"             , "label":  "####### Withings v3.1 #######" },
+    { "type": "Button"            , "caption": "Dokumentation", "onClick": "echo 'https://github.com/1007/Symcon1007_Withings'" },
 
-    { "type": "Label"             , "label":  "--------- Withings Messwerte Waage" },
-    { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte" },
+    { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
+ 
+    { "type": "Label"             , "label":  "---------- Datenauswahl" },
     
-    { "type": "Label"             , "label":  "---------- Withings Messwerte Blutdruck" },
+    { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte/Temperaturen" },
+    
     { "type": "CheckBox"          , "name" :  "BloodMeasures",  "caption": "Blutdruckwerte" },
 
-    { "type": "Label"             , "label":  "---------- Withings Messwerte Schlafsensor" },
     { "type": "CheckBox"          , "name" :  "BloodLogging",  "caption": "Schlafsensorwerte" },
 
-    { "type": "Label"             , "label":  "---------- Withings Messwerte Aktivitaeten" },
     { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" },
 
-    
+        
     { "type": "Label"             , "label":  "---------- Einstellungen" },
-    { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden Intervall Update" },
+    { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
 
     { "type": "Label"             , "label":  "---------- Logging" },
     { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings/Withings.log)" } 
