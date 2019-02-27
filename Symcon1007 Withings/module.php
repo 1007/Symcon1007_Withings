@@ -943,14 +943,14 @@
 
 			}
 
-		// letzte Daten in Variable schreiben ( besser vielleicht nicht)
-                /*
+		// letzte Daten in Variable schreiben ( besser vielleicht nicht) besser ohne Logging machen
+                
 		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))  ,"~UnixTimestamp"		,1	,false,false,"timestamp");
 		if(isset($activitycalories))		$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
 		if(isset($activitydistance))		$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
 		if(isset($activityelevation))		$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
 		if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)             ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
-                */
+                
 
                 $this->Reaggregieren($InstanceIDActivity);
 
@@ -1492,7 +1492,7 @@
 	//******************************************************************************
 	//
 	//******************************************************************************
-	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false)
+	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false)
 		{
 
                 $Reaggieren = false;
@@ -1595,7 +1595,7 @@
 	//******************************************************************************
 	protected function SaveDataToDatabase($Variable,$Timestamp,$Value)
 		{
-
+//                 return;
 		//$this->SendDebug("SaveDataToDatabase","SaveDataToDatabase",0);
                 $Reaggregieren = false;
                 
@@ -1678,9 +1678,15 @@
                                     {
                                     $this->SendDebug("SaveDataToDatabase","Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp) ." Timestamp -> ".date('d.m.Y H:i:s ',$Timestamp),0);
                                     // $this->SendDebug("SaveDataToDatabase","Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp ),0);
-                                    AC_AddLoggedValues($archiveID, $Variable,[['TimeStamp' => $Timestamp, 'Value' 	=> $Value]]);
                                     
-                                    $Text = date('d.m.Y H:i:s ',$Timestamp) . $Variable . " - ".$Value;
+                                    $status = @AC_AddLoggedValues($archiveID, $Variable,[['TimeStamp' => $Timestamp, 'Value' 	=> $Value]]);
+                                    if ( $status == true )
+                                        $statustext = "OK";
+                                    else 
+                                        {
+                                        $statustext = "NOK";
+                                        }
+                                    $Text = date('d.m.Y H:i:s ',$Timestamp) . $Variable . " - ".$Value." Status : ".$statustext;
                                     $this->LoggingExt($Text,"WithingsDataToDatabase.log");
                                     } 
                                 
@@ -1715,7 +1721,7 @@
 	//**************************************************************************
 	 protected function Reaggregieren($Instanze)
 		{
-		return;
+//		return;
                 $this->SendDebug("Reaggregieren","Reaggregiere Data in Database.",0);
                 
                 $childs = IPS_GetChildrenIDs($Instanze);
