@@ -2,9 +2,10 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings v3.1 #######" },
-    { "type": "Button"            , "caption": "Dokumentation", "onClick": "echo 'https://github.com/1007/Symcon1007_Withings'" },
-
+    { "type": "Label"             , "label":  "####### Withings V 4.0 #######" },
+    
+    { "type": "Button"            , "caption": "Dokumentation", "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/4.0';" },
+    
     { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
  
     { "type": "Label"             , "label":  "---------- Datenauswahl" },
@@ -29,7 +30,7 @@
   ],
   
   "actions":
-  [
+  [  
     { "type": "Button", "label": "Authentifizierung anfordern", "onClick": "echo WIT_Authentifizierung($id);" },
     { "type": "Button", "label": "Update Data",                 "onClick": "WIT_Update($id);" },
     { "type": "Button", "label": "Refresh Tokens",              "onClick": "WIT_RefreshTokens($id);" }
