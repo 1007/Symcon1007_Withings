@@ -935,21 +935,21 @@
                         //echo "\n".$Text ;
                         $this->LoggingExt($Text,$file="WithingsExt2.log");
 
-			if(isset($activitydate))	$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval($key)                       ,"~UnixTimestamp"		,1	,true,$key,"timestamp");
+			// if(isset($activitydate))	$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval($key)                       ,"~UnixTimestamp"		,1	,true,$key,"timestamp");
 			if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,true,$key,"kalorien");
-			if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"         ,3	,true,$key,"distanze");
-			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,true,$key,"hoehenmeter");
-			if(isset($activitysteps))	$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)             ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
+			if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"       ,3	,true,$key,"distanze");
+			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"	,4	,true,$key,"hoehenmeter");
+			if(isset($activitysteps))	$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
 
 			}
 
 		// letzte Daten in Variable schreiben ( besser vielleicht nicht) besser ohne Logging machen
                 
-		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))  ,"~UnixTimestamp"		,1	,false,false,"timestamp");
+		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"		,1	,false,false,"timestamp");
 		if(isset($activitycalories))		$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
-		if(isset($activitydistance))		$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
-		if(isset($activityelevation))		$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
-		if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)             ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
+		if(isset($activitydistance))		$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"	,3	,false,false,"distanze");
+		if(isset($activityelevation))		$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"	,4	,false,false,"hoehenmeter");
+		if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
                 
 
                 $this->Reaggregieren($InstanceIDActivity);
@@ -1726,17 +1726,37 @@
                 
                 $childs = IPS_GetChildrenIDs($Instanze);
                 
+                $array = array();
+                
                 foreach($childs as $child )
+                    {
+                    $status = AC_GetLoggingStatus($this->GetArchivID(),$child);
+                    if ( $status == true )
+                        {
+                        $array[] = $child;
+                        
+                        }
+                        
+                    }
+                    
+                $count = count($array);
+                $childs = $array;
+                $random = rand(0,$count-1);
+                
+                $child = $childs[$random];
+                
+                
+                //foreach($childs as $child )
                     {
                     $status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
 
                     if ( $status )
                         {
-                        $this->SendDebug("Reaggregieren","Erfolgreich -> " .$child ,0);
+                        $this->SendDebug("Reaggregieren","Erfolgreich -> [".$random."]" .$child ,0);
                         }
                     else 
                         {
-                        $this->SendDebug("Reaggregieren","Fehlgeschlagen -> " .$child ,0);
+                        $this->SendDebug("Reaggregieren","Fehlgeschlagen -> [".$random."]" .$child ,0);
                         }    
                     }
 		}
