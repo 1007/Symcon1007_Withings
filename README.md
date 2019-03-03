@@ -1,4 +1,4 @@
-### IP-Symcon Modul // Withings
+﻿### IP-Symcon Modul // Withings
 ---
 ## Dokumentation
 
@@ -154,6 +154,8 @@ Zeitstempel in die Datenbank eingetragen werden.
 Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
 Daten bleiben erhalten, werden im Archiv-Handler aber als
 "Objekt #xxxxx existiert nicht" angezeigt.
+Bei der Synchronisierung von den Smartphone Aktivitaeten haengt es
+machmal.. Abhilfe APP (Health Mate ) neu starten.
 
 In der API ueber OAuth2 gibt es im Moment noch keinen Zugriff
 auf Name,Groesse,Geschlecht,Geburtstag.
