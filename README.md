@@ -97,7 +97,7 @@ Das Loggen der Daten kann/muss fuer jede Variable einzeln im Tree bestimmt werde
 		Knochenmasse
 		Fettfrei Anteil
 		Puls 
-		Pulswellengeschwindigkeit ( zZ von Withings deaktiviert )
+		Pulswellengeschwindigkeit
 		Fett Prozent
 		BMI
 	Aura Sensor V2

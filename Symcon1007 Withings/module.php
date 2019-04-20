@@ -753,6 +753,8 @@
 			$sleepwakeupcount       = @$sleep['data']['wakeupcount'];
 			$sleepdurationtosleep   = @$sleep['data']['durationtosleep'];
 			$sleepdurationtowakeup  = @$sleep['data']['durationtowakeup'];
+			$sleepremduration       = @$sleep['data']['remsleepduration'];
+
 
 
 
@@ -780,6 +782,8 @@
 		if(isset($sleepwakeupcount))		$this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,""                     ,9  ,false,false,"schlafunterbrechungen");
 		if(isset($sleepdurationtosleep))	$this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,false,false,"einschlafzeit");
 		if(isset($sleepdurationtowakeup))	$this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,false,false,"aufstehzeit");
+		if(isset($sleepremduration))		$this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7  ,false,false,"remschlafphasen");
+
 
 
 	}
@@ -1274,7 +1278,7 @@
 							
 							case 91 :	$pulswellen = $value;
 										$ID = $this->CheckOldVersionCatID("pulswave",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,intval($pulswellen) ,"" ,1,false,99,"pulswave");
+										$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,false,99,"pulswave");
                 						break;
 					                    
                                                             
