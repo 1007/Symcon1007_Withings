@@ -54,6 +54,7 @@
 		{
 		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
+    $this->RegisterProfile(1,"WITHINGS_M_Atmung"     ,"Graph"  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
@@ -403,7 +404,9 @@
 		$startdate = date("Y-m-d",$startdate);
 		$enddate   = date("Y-m-d",$enddate);
 
-		$url = "https://wbsapi.withings.net/v2/sleep?action=getsummary&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
+		$datafields = "wakeupduration,lightsleepduration,deepsleepduration,remsleepduration,wakeupcount,durationtosleep,durationtowakeup,hr_average,hr_min,hr_max,rr_average,rr_min,rr_max";
+
+		$url = "https://wbsapi.withings.net/v2/sleep?action=getsummary&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate."&data_fields=".$datafields;
 
 		$this->SendDebug("GetSleepSummary:",$url,0);
 
@@ -754,7 +757,12 @@
 			$sleepdurationtosleep   = @$sleep['data']['durationtosleep'];
 			$sleepdurationtowakeup  = @$sleep['data']['durationtowakeup'];
 			$sleepremduration       = @$sleep['data']['remsleepduration'];
-
+			$sleephraverage         = @$sleep['data']['hr_average'];
+			$sleephrmin         		= @$sleep['data']['hr_min'];
+			$sleephrmax             = @$sleep['data']['hr_max'];
+			$sleeprraverage         = @$sleep['data']['rr_average'];
+			$sleeprrmin         		= @$sleep['data']['rr_min'];
+			$sleeprrmax             = @$sleep['data']['rr_max'];
 
 
 
@@ -783,6 +791,12 @@
 		if(isset($sleepdurationtosleep))	$this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,false,false,"einschlafzeit");
 		if(isset($sleepdurationtowakeup))	$this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,false,false,"aufstehzeit");
 		if(isset($sleepremduration))		$this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7  ,false,false,"remschlafphasen");
+		if(isset($sleephraverage))		$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Durchschnitt"        ,$sleephraverage      		,"WITHINGS_M_Puls"   ,10  ,false,false,"herzschlagdurchschnitt");
+		if(isset($sleephrmin))		$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Minimal"        ,$sleephrmin      		,"WITHINGS_M_Puls"   ,11  ,false,false,"herzschlagminimal");
+		if(isset($sleephrmax))		$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Maximal"        ,$sleephrmax      		,"WITHINGS_M_Puls"   ,12  ,false,false,"herzschlagmaximal");
+		if(isset($sleeprraverage))		$this->SetValueToVariable($InstanceIDSleep,"Atmung Durchschnitt"        ,$sleeprraverage      		,"WITHINGS_M_Atmung"   ,15  ,false,false,"atemzuegedurchschnitt");
+		if(isset($sleeprrmin))		$this->SetValueToVariable($InstanceIDSleep,"Atmung Minimal"        ,$sleeprrmin      		,"WITHINGS_M_Atmung"   ,16  ,false,false,"atemzuegeminimal");
+		if(isset($sleeprrmax))		$this->SetValueToVariable($InstanceIDSleep,"Atmung Maximal"        ,$sleeprrmax      		,"WITHINGS_M_Atmung"   ,17  ,false,false,"atemzuegemaximal");
 
 
 
