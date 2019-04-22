@@ -622,7 +622,11 @@
 			{
 			$profile = IPS_GetVariableProfile($Name);
 			if($profile['ProfileType'] != $Typ)
-				throw new Exception("Variable profile type does not match for profile ".$Name);
+				{
+				IPS_Logmessage("Withingsmodul","Profil falsch : " . $Name);
+				//throw new Exception("Variable profile type does not match for profile ".$Name);
+
+				}
 			}
 
 		IPS_SetVariableProfileIcon($Name, $Icon);
