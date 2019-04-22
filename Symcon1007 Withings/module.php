@@ -1760,8 +1760,15 @@
                         }
                         
                     }
-                    
-                $count = count($array);
+
+                $count = @count($array);
+
+								if ( $count == false )
+									{
+                  $this->SendDebug("Reaggregieren","Count = FALSE",0);
+									return;
+									}
+
                 $childs = $array;
                 $random = rand(0,$count-1);
                 
