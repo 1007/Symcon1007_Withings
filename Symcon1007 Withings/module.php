@@ -1,4 +1,4 @@
-<?
+<?php
     
 //******************************************************************************
 //	Name		:	Withings Modul.php
@@ -1555,20 +1555,58 @@
 		if ($VariableID === false)
 			{
 			$this->SendDebug("SetValueToVariable","VariableID nicht vorhanden : ".$CatID."-".$name."-".$profil,0);
+
+			$profiltype = IPS_GetVariableProfile($profil);
+      $profiltype = $profiltype['ProfileType'];
+
+			IPS_Logmessage("Withings Modul","Variable wird angelegt Typ : " . $profiltype." - " .$profil);
+
 			if ( is_int($value) == true )
-				$VariableID = $this->RegisterVariableInteger( $VarIdent, $name,$profil,$position);
+				{
+				if ( $profiltype == 1 )
+					$VariableID = $this->RegisterVariableInteger( $VarIdent, $name,$profil,$position);
+				else
+					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 1 ".$profil);
+
+
+				}
+
 			if ( is_string($value) == true )
-				$VariableID = $this->RegisterVariableString($VarIdent, $name,$profil,$position);
+				{
+				if ( $profiltype == 3 )
+					$VariableID = $this->RegisterVariableString($VarIdent, $name,$profil,$position);
+				else
+					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 3 ".$profil);
+
+				}
+
 			if ( is_float($value) == true )
-				$VariableID = $this->RegisterVariableFloat( $VarIdent, $name,$profil,$position);
+				{
+				if ( $profiltype == 2 )
+					$VariableID = $this->RegisterVariableFloat( $VarIdent, $name,$profil,$position);
+				else
+					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 2 ".$profil);
+
+
+				}
+
 			if ( is_bool($value) == true )
-				$VariableID = $this->RegisterVariableBool( $VarIdent, $name,$profil,$position);
-			if ( isset($VariableID) )
-                            {
+				{
+				if ( $profiltype == 0 )
+					$VariableID = $this->RegisterVariableBool( $VarIdent, $name,$profil,$position);
+				else
+					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 0 ".$profil);
+
+				}
+
+
+			if ( $VariableID == true )
+      	{
 				IPS_SetParent($VariableID,$CatID);
-                            }    
+        }
+
                                 
-                        }
+		}
 
 		// $array = $this->GetVariable ( $VariablenID );
 		// $array = @IPS_GetObjectIDByIdent($ident,$CatID);
@@ -1791,4 +1829,5 @@
 		}
 
 	}
-?>
+
+
