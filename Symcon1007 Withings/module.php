@@ -74,6 +74,8 @@
 		$this->RegisterProfile(1,"WITHINGS_M_Minuten","",""," Minuten");
 
 		$this->RegisterProfile(1,"WITHINGS_M_Schritte","",""," Schritte");
+		$this->RegisterProfile(1,"WITHINGS_M_Anzahl","","","");
+		
 		$this->RegisterProfile(2,"WITHINGS_M_Kalorien","",""," kcal",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Meter","",""," Meter",false,false,false,2);
 
@@ -156,6 +158,8 @@
                 
                 $this->SendDebug("Update Data","Update Data Laufzeit         -> ".($endtime - $starttime) ,0);
                 
+		// $this->SubscribeHook();
+		
 		}
 
 	//******************************************************************************
@@ -791,7 +795,7 @@
 		if(isset($sleepwakeupduration))		$this->SetValueToVariable($InstanceIDSleep,"Wachphasen"             ,$sleepwakeupduration/60        ,"WITHINGS_M_Minuten"   ,8  ,false,false,"wachphasen");
 		if(isset($sleeplightsleepduration))	$this->SetValueToVariable($InstanceIDSleep,"Leichtschlafphasen"     ,$sleeplightsleepduration/60    ,"WITHINGS_M_Minuten"   ,6  ,false,false,"leichtschlafphasen");
 		if(isset($sleepdeepsleepduration))	$this->SetValueToVariable($InstanceIDSleep,"Tiefschlafphasen"       ,$sleepdeepsleepduration/60     ,"WITHINGS_M_Minuten"   ,7  ,false,false,"tiefschlafphasen");
-		if(isset($sleepwakeupcount))		$this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,""                     ,9  ,false,false,"schlafunterbrechungen");
+		if(isset($sleepwakeupcount))		$this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,"WITHINGS_M_Anzahl"                     ,9  ,false,false,"schlafunterbrechungen");
 		if(isset($sleepdurationtosleep))	$this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,false,false,"einschlafzeit");
 		if(isset($sleepdurationtowakeup))	$this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,false,false,"aufstehzeit");
 		if(isset($sleepremduration))		$this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7  ,false,false,"remschlafphasen");
@@ -1762,8 +1766,59 @@
 		return	$Reaggregieren ;
 
 		}
+	
+	//**************************************************************************
+	// Subscribe Hook
+	//**************************************************************************
+	protected function SubscribeHook()
+		{
+		
+		$access_token = $this->ReadPropertyString("Userpassword");
 
- protected function GetArchivID()
+		$startdate = date("Y-m-d",time() - 24*60*60*5);
+		$enddate   = date("Y-m-d",time());
+		$callbackurl = urlencode("https://5618f6766a2fe6943e9ec98ddeac4bc4.ipmagic.de/hook/Withings4IPSymcon13906");
+
+		// $callbackurl = urlencode("https://home.inisnet.de:82");
+
+
+		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=44&comment=Kommentar";
+		$this->SendDebug("Subscribe:",$url,0);
+
+		$curl = curl_init($url);
+
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+
+		$output = curl_exec($curl);
+
+		curl_close($curl);
+
+		$this->SendDebug("Answer:",$output,0);
+
+
+		
+			
+		}
+		
+	//**************************************************************************
+	// Hook Data auswerten
+	//**************************************************************************
+	protected function ProcessHookData()
+		{
+		header("HTTP/1.1 200 OK");
+		http_response_code(200);
+
+		
+		// print_r($_IPS);
+		$s = "Webhook";
+		IPS_LogMessage(basename(__FILE__),$s);
+		}
+
+	//**************************************************************************
+	//
+	//**************************************************************************
+	 protected function GetArchivID()
 	{
 	$guid = "{43192F0B-135B-4CE7-A0A7-1475603F3060}";
 	$array = IPS_GetInstanceListByModuleID($guid);
