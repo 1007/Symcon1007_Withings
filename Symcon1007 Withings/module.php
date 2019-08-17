@@ -753,6 +753,8 @@
 		$this->SendDebug("DoDevice","Devices werden ausgewertet.",0);
 
 		$data = @$data['devices'];
+    if ( $data == false )
+      return;
 		if ( count($data) == 0  )
 			{
 			$this->Logging("Fehler bei DoDevice ".count($data));
