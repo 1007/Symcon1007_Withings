@@ -739,6 +739,9 @@
 		$data 		= @$data['series'];
 		$deviceid	= @$device['deviceid'];
 
+    if ( $data == false )
+			return;
+      
 		if ( count($data) == 0 )
 			{
 			$this->SendDebug("DoSleepSummary","Keine Schlafdaten gefunden. Abbruch",0);				
