@@ -37,12 +37,12 @@
 		$this->RegisterPropertyBoolean("BodyLogging" , false);  // in V3.0 ist das  Activity aktiv
 		$this->RegisterPropertyBoolean("BodyVisible" , false);  
 		
-                $this->RegisterPropertyBoolean("CheckBoxMeas" , false);
-                $this->RegisterPropertyBoolean("CheckBoxSleepSummary" , false);
-                $this->RegisterPropertyBoolean("CheckBoxActivity" , false);
-                $this->RegisterPropertyBoolean("CheckBoxIntradayactivity" , false);
+        $this->RegisterPropertyBoolean("CheckBoxMeas" , false);
+        $this->RegisterPropertyBoolean("CheckBoxSleepSummary" , false);
+        $this->RegisterPropertyBoolean("CheckBoxActivity" , false);
+        $this->RegisterPropertyBoolean("CheckBoxIntradayactivity" , false);
                 
-                $this->RegisterPropertyString("AccessToken", "");
+        $this->RegisterPropertyString("AccessToken", "");
                 
                 }
 
@@ -53,7 +53,7 @@
 		{
 		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
-    $this->RegisterProfile(1,"WITHINGS_M_Atmung"     ,"Graph"  ,""," Atemzuege/Minute");
+    	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
@@ -124,38 +124,41 @@
 	public function Update()
 		{
 		if ( $this->ReadPropertyBoolean("Modulaktiv") == false )
-                    {
-                    return;
-                    }
-                set_time_limit (5 * 60);
+        	{
+            return;
+            }
+		
+		set_time_limit (5 * 60);
                 
-                $starttime = time();            
+        $starttime = time();            
+		
 		$this->Logging("Update");
 		$this->SendDebug("Update Data","Update Data START        -> ".date('d.m.Y H:i:s ',time() ),0);
 		
 		if ( $this->RefreshTokens() == FALSE )
-                    {
-                    return;
-                    }
-                $this->SendDebug("Update Data","Update Data Get Device   -> ".date('d.m.Y H:i:s ',time() ),0);
+            {
+            return;
+            }
+		
+		$this->SendDebug("Update Data","Update Data Get Device   -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetDevice();   
                 
-                $this->SendDebug("Update Data","Update Data Get Meas     -> ".date('d.m.Y H:i:s ',time() ),0);
+        $this->SendDebug("Update Data","Update Data Get Meas     -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetMeas();
 		
-                $this->SendDebug("Update Data","Update Data Get Sleep    -> ".date('d.m.Y H:i:s ',time() ),0);
+        $this->SendDebug("Update Data","Update Data Get Sleep    -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetSleepSummary();
 
-                $this->SendDebug("Update Data","Update Data Get Activity -> ".date('d.m.Y H:i:s ',time() ),0);
+        $this->SendDebug("Update Data","Update Data Get Activity -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetActivity();
 
-                $this->SendDebug("Update Data","Update Data Get Intra    -> ".date('d.m.Y H:i:s ',time() ),0);
+        $this->SendDebug("Update Data","Update Data Get Intra    -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetIntradayactivity();
 		
-                $this->SendDebug("Update Data","Update Data ENDE         -> ".date('d.m.Y H:i:s ',time()),0);
-                $endtime = time();
+        $this->SendDebug("Update Data","Update Data ENDE         -> ".date('d.m.Y H:i:s ',time()),0);
+        $endtime = time();
                 
-                $this->SendDebug("Update Data","Update Data Laufzeit         -> ".($endtime - $starttime) ,0);
+        $this->SendDebug("Update Data","Update Data Laufzeit     -> ".($endtime - $starttime) ,0);
                 
 		// $this->SubscribeHook();
 		
@@ -172,6 +175,9 @@
 		$url = "https://wbsapi.withings.net/v2/user?action=getdevice&access_token=".$access_token;
 
 		$this->SendDebug("GetDevice:",$url,0);
+		$this->Logging("GetDevice");
+		$this->Logging($url);
+
 
 		$curl = curl_init($url);
 
@@ -214,20 +220,24 @@
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyMeasures") == false AND $this->ReadPropertyBoolean("BloodMeasures") == false)
-                    {   
-                    return;
-                    }
+        	{   
+            return;
+            }
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
 		$category = 1;
 
-                $startdate = time()- 24*60*60*5;
+        $startdate = time()- 24*60*60*5;
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
 
 		$this->SendDebug("GetMeas:",$url,0);
+
+		$this->Logging("GetMeas");
+		$this->Logging($url);
+
 
 		$curl = curl_init($url);
 
@@ -254,9 +264,9 @@
 		$this->SendDebug("GetMeas","Status:".$status,0);
 
 		if ( $status != 0)
-                    {
-                    return;
-                    }
+        	{
+            return;
+            }
 
 		$id = $this->GetIDForIdent("name");
 
@@ -313,9 +323,9 @@
 		$this->SendDebug("Getactivity","Status:".$status,0);
 
 		if ( $status != 0)
-                    {
-                    return;
-                    }
+            {
+            return;
+            }
 
 		$id = $this->GetIDForIdent("name");
 
@@ -334,9 +344,9 @@
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
-                    {
-                    return;
-                    }
+        	{
+            return;
+            }
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
@@ -346,7 +356,7 @@
 		$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
 
 		$this->SendDebug("Getintradayactivity:",$url,0);
-                $this->SendDebug("Getintradayactivity:",date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
+        $this->SendDebug("Getintradayactivity:",date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
 
 		$curl = curl_init($url);
 
@@ -375,9 +385,9 @@
 		$this->SendDebug("Getintradayactivity","Status:".$status,0);
 
 		if ( $status != 0)
-                    {
-                    return;
-                    }
+        	{
+            return;
+            }
                     
 		$id = $this->GetIDForIdent("name");
 
@@ -736,11 +746,11 @@
 			}
 		
 		$data 		= @$data['series'];
-		$deviceid	= @$device['deviceid'];
+		//$deviceid	= @$device['deviceid'];
 
-    if ( $data == false )
+		if ( $data == false )
 			return;
-      
+
 		if ( count($data) == 0 )
 			{
 			$this->SendDebug("DoSleepSummary","Keine Schlafdaten gefunden. Abbruch",0);				
@@ -768,10 +778,10 @@
 			$sleepdurationtowakeup  = @$sleep['data']['durationtowakeup'];
 			$sleepremduration       = @$sleep['data']['remsleepduration'];
 			$sleephraverage         = @$sleep['data']['hr_average'];
-			$sleephrmin         		= @$sleep['data']['hr_min'];
+			$sleephrmin         	= @$sleep['data']['hr_min'];
 			$sleephrmax             = @$sleep['data']['hr_max'];
 			$sleeprraverage         = @$sleep['data']['rr_average'];
-			$sleeprrmin         		= @$sleep['data']['rr_min'];
+			$sleeprrmin         	= @$sleep['data']['rr_min'];
 			$sleeprrmax             = @$sleep['data']['rr_max'];
 
 
@@ -832,7 +842,7 @@
 			}
 
 		$data 		= @$data['activities'];
-		$deviceid	= @$device['deviceid'];
+		//$deviceid	= @$device['deviceid'];
 
 		if ( @count($data) == 0 )
 			{
@@ -1111,12 +1121,26 @@
 		// Alle Messgruppen durchgehen
 		foreach($measuregrps as $daten)
 			{
-			$time 		= @$daten['date'];
+      		$this->SendDebug("DoMeas","---------------------------------------",0);
+
+			$time 		  = @$daten['date'];
 			$deviceid 	= @$daten['deviceid'];
 			$messungen 	= @$daten['measures'];
-                        
-                        
-                        $InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+      		$model 	    = @$daten['model'];
+
+			$timestring = date("d.m.Y H:i:s",$time);
+                                    
+      		$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+
+			if ($InstanceIDDeviceID == false )
+				{
+         		$this->SendDebug("DoMeas","Keine ID gefunden : " . $deviceid . "--".$model ,0);
+				//$InstanceIDDeviceID = "19f734a3ed8be9124ca5ce14a99701c1a7a453c1"; // Sonder
+				$InstanceIDDeviceID = @$this->GetIDForIdent("19f734a3ed8be9124ca5ce14a99701c1a7a453c1");
+				}
+			else
+			   $this->SendDebug("DoMeas","ID gefunden : " . $InstanceIDDeviceID . "--".$model,0);
+
 
 			if ( @count($messungen) == 0 )
 				{
@@ -1124,7 +1148,7 @@
 				continue;
 				}
 
-			$this->SendDebug("DoMeas","DeviceID .: ".$deviceid,0);
+			$this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
 			// Alle Messungen durchgehen
 			foreach($messungen as $messung)
 				{
@@ -1450,6 +1474,7 @@
 	private function FetchAccessToken($Token = "", $Expires = 0) 
 		{
 		$this->SendDebug("FetchAccessToken", "Benutze Refresh Token um neuen Access Token zu holen : " . $Token, 0);
+		$this->Logging("Benutze Refresh Token um neuen Access Token zu holen : " . $this->ReadPropertyString("User"));
 			
 		$options = array(
 					"http" => array(
@@ -1496,7 +1521,10 @@
 		$this->SendDebug("FetchAccessToken", "Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires), 0);
 		$this->SendDebug("FetchAccessToken", "OK! Speichere Access Token . ".$token, 0);
 		
-			
+		$this->Logging("UserID : " .$userid );
+		$this->Logging("Access Token : " .$token . " " ."Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires) );
+		
+		
 		IPS_SetProperty($this->InstanceID , "Userpassword", $token);
 		IPS_ApplyChanges($this->InstanceID);
 		
@@ -1513,7 +1541,7 @@
 		$minuten = intval(($time-($hour*3600))/60);
 		$time = $hour."H".$minuten."M";
 
-                return $time;
+        return $time;
                 
 		}
 
@@ -1523,7 +1551,7 @@
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false)
 		{
 
-                $Reaggieren = false;
+		$Reaggieren = false;
 
 		if ( $profil != false )
                     {
@@ -1563,7 +1591,7 @@
 			$this->SendDebug("SetValueToVariable","VariableID nicht vorhanden : ".$CatID."-".$name."-".$profil,0);
 
 			$profiltype = IPS_GetVariableProfile($profil);
-      $profiltype = $profiltype['ProfileType'];
+      		$profiltype = $profiltype['ProfileType'];
 
 			IPS_Logmessage("Withings Modul","Variable wird angelegt Typ : " . $profiltype." - " .$profil);
 
@@ -1827,7 +1855,7 @@
 	$archive_id =  @$array[0];
 	if ( !isset($archive_id) )
 		{
-		$this->SendDebug("GetArchivID","Archive Control nicht gefunden!");
+		$this->SendDebug("GetArchivID","Archive Control nicht gefunden!",0);
 		return false;
 		}
 	return $archive_id;
