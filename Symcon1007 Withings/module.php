@@ -31,7 +31,8 @@
 		$this->RegisterPropertyString("User", "XXX");             // in V3.0 ist das das Refresh Token
 		$this->RegisterPropertyBoolean("Logging", false);  
 		$this->RegisterPropertyBoolean("Modulaktiv", true);  
-		$this->RegisterTimer("WIT_UpdateTimer", 0, 'WIT_Update($_IPS[\'TARGET\']);');
+		$this->RegisterTimerOld("WIT_UpdateTimerOld", 0, 'WIT_Update($_IPS[\'TARGET\']);');
+		$this->RegisterTimer("WIT_UpdateTimer", 3600000, 'WIT_Update($_IPS["TARGET"]);');
 		$this->RegisterPropertyBoolean("BloodLogging", false);    // in V3.0 ist das  Sleep aktiv
 		$this->RegisterPropertyBoolean("BloodVisible", false);  
 		$this->RegisterPropertyBoolean("BodyLogging" , false);  // in V3.0 ist das  Activity aktiv
@@ -98,8 +99,9 @@
 		$id = $this->RegisterVariableString( "birthdate" , "Geburtstag","",1);
 		$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
 
-		//Timer erstellen
-		$this->SetTimerInterval("WIT_UpdateTimer", $this->ReadPropertyInteger("Intervall"));
+		//Timer stellen
+		$interval = $this->ReadPropertyInteger("Intervall") * 1000 ;
+		$this->SetTimerInterval("WIT_UpdateTimer", $interval);
 
 		//Update
 		//$this->Update();
@@ -653,7 +655,7 @@
 	//**************************************************************************
 	//
 	//**************************************************************************    
-	protected function RegisterTimer($Name, $Interval, $Script,$Position = 99)
+	protected function RegisterTimerOld($Name, $Interval, $Script,$Position = 99)
 		{
 		$id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
 		if ($id === false)
@@ -709,8 +711,13 @@
 	//**************************************************************************
 	//
 	//**************************************************************************    
-	protected function SetTimerInterval($Name, $Interval)
+	protected function SetTimerIntervalOld($Name, $Interval)
 		{
+
+		
+		
+		return;
+
 		$id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
 		if ($id === false)
 			throw new Exception('Timer not present', E_USER_WARNING);
@@ -855,18 +862,18 @@
 		// Bei diesen Daten ist der neueste als letztes
 		foreach($data as $activity)
 			{
-			$activitydate		= @$activity['date'];
-			$activitysteps		= @$activity['steps'];
-			$activitydistance	= @$activity['distance'];
-			$activityelevation	= @$activity['elevation'];
-			$activitysoft		= @$activity['soft'];
-			$activitymoderate	= @$activity['moderate'];
-			$activityintense	= @$activity['intense'];
-			$activitycalories	= @$activity['calories'];
+			$activitydate			= @$activity['date'];
+			$activitysteps			= @$activity['steps'];
+			$activitydistance		= @$activity['distance'];
+			$activityelevation		= @$activity['elevation'];
+			$activitysoft			= @$activity['soft'];
+			$activitymoderate		= @$activity['moderate'];
+			$activityintense		= @$activity['intense'];
+			$activitycalories		= @$activity['calories'];
 			$activitytotalcalories  = @$activity['totalcalories'];
-			$activitybrand		= @$activity['brand'];
+			$activitybrand			= @$activity['brand'];
 
-                        /*
+            /*
 			$this->SendDebug("DoActivity","Datum : ".		$activitydate,0);
 			$this->SendDebug("DoActivity","Schritte : ".		$activitysteps,0);
 			$this->SendDebug("DoActivity","Distanze : ".		$activitydistance,0);
@@ -877,7 +884,7 @@
 			$this->SendDebug("DoActivity","Kalorien : ".		$activitycalories,0);
 			$this->SendDebug("DoActivity","Gesamtkalorien : ".	$activitytotalcalories,0);
 			$this->SendDebug("DoActivity","Brand : ".		$activitybrand,0);
-                        */
+            */
 
 			$timestamp = intval(strtotime ($activitydate));
 
@@ -896,12 +903,12 @@
 			}
 
 		// letzte Daten in Variable schreiben
-		if(isset($activitydate))                $this->SetValueToVariable($InstanceIDActivity,"Updatezeit"		,intval(strtotime ($activitydate))  ,"~UnixTimestamp"       ,1  ,false,false,"timestamp"	);
-		if(isset($activitysteps))               $this->SetValueToVariable($InstanceIDActivity,"Schritte"		,intval($activitysteps)             ,"WITHINGS_M_Schritte"  ,2	,false,false,"schritte");
-		if(isset($activitydistance))            $this->SetValueToVariable($InstanceIDActivity,"Distanze"		,floatval($activitydistance)          ,"WITHINGS_M_Meter"     ,3	,false,false,"distanze");
-		if(isset($activityelevation))           $this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"		,floatval($activityelevation)         ,"WITHINGS_M_Meter"     ,4	,false,false,"hoehenmeter");
-		if(isset($activitycalories))            $this->SetValueToVariable($InstanceIDActivity,"Aktivitaetskalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"  ,10	,false,false,"aktivitaetskalorien");
-		if(isset($activitytotalcalories))       $this->SetValueToVariable($InstanceIDActivity,"Gesamtkalorien"		,floatval($activitytotalcalories)     ,"WITHINGS_M_Kalorien"  ,11	,false,false,"gesamtkalorien");
+		if(isset($activitydate))                $this->SetValueToVariable($InstanceIDActivity,"Updatezeit"			,intval(strtotime ($activitydate))  ,"~UnixTimestamp"       ,1  ,false,false,"timestamp"	);
+		if(isset($activitysteps))               $this->SetValueToVariable($InstanceIDActivity,"Schritte"			,intval($activitysteps)             ,"WITHINGS_M_Schritte"  ,2	,false,false,"schritte");
+		if(isset($activitydistance))            $this->SetValueToVariable($InstanceIDActivity,"Distanze"			,floatval($activitydistance)        ,"WITHINGS_M_Meter"     ,3	,false,false,"distanze");
+		if(isset($activityelevation))           $this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"			,floatval($activityelevation)       ,"WITHINGS_M_Meter"     ,4	,false,false,"hoehenmeter");
+		if(isset($activitycalories))            $this->SetValueToVariable($InstanceIDActivity,"Aktivitaetskalorien"	,floatval($activitycalories)        ,"WITHINGS_M_Kalorien"  ,10	,false,false,"aktivitaetskalorien");
+		if(isset($activitytotalcalories))       $this->SetValueToVariable($InstanceIDActivity,"Gesamtkalorien"		,floatval($activitytotalcalories)   ,"WITHINGS_M_Kalorien"  ,11	,false,false,"gesamtkalorien");
 		if(isset($activitysoft))                $this->SetValueToVariable($InstanceIDActivity,"Geringe Aktivitaet"	,intval($activitysoft/60 )          ,"WITHINGS_M_Minuten"   ,20	,false,false,"geringeaktivitaet");
 		if(isset($activitymoderate))            $this->SetValueToVariable($InstanceIDActivity,"Mittlere Aktivitaet"	,intval($activitymoderate/60 )      ,"WITHINGS_M_Minuten"   ,21	,false,false,"mittlereaktivitaet");
 		if(isset($activityintense))             $this->SetValueToVariable($InstanceIDActivity,"Hohe Aktivitaet"		,intval($activityintense/60 )       ,"WITHINGS_M_Minuten"   ,22	,false,false,"hoheaktivitaet");
@@ -943,7 +950,7 @@
 		// Bei diesen Daten ist der neueste als letztes ???
 		$keys = array_keys($data);
                 
-                 $this->LoggingExt("Start",$file="WithingsExt2.log",true );
+        $this->LoggingExt("Start",$file="WithingsExt2.log",true );
                  
 		foreach($keys as $key)
 			{
@@ -976,21 +983,21 @@
 			// if(isset($activitydate))	$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval($key)                       ,"~UnixTimestamp"		,1	,true,$key,"timestamp");
 			if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,true,$key,"kalorien");
 			if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"       ,3	,true,$key,"distanze");
-			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"	,4	,true,$key,"hoehenmeter");
-			if(isset($activitysteps))	$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
+			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,true,$key,"hoehenmeter");
+			if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"		,intval($activitysteps)           ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
 
 			}
 
 		// letzte Daten in Variable schreiben ( besser vielleicht nicht) besser ohne Logging machen
                 
-		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"		,1	,false,false,"timestamp");
-		if(isset($activitycalories))		$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
-		if(isset($activitydistance))		$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"	,3	,false,false,"distanze");
-		if(isset($activityelevation))		$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"	,4	,false,false,"hoehenmeter");
+		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"			,1	,false,false,"timestamp");
+		if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
+		if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
+		if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
 		if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
                 
 
-                $this->Reaggregieren($InstanceIDActivity);
+        $this->Reaggregieren($InstanceIDActivity);
 
 	}
 
@@ -1012,10 +1019,10 @@
 		
 		foreach($data as $device)
 			{
-			$devicetyp	= @$device['type'];
+			$devicetyp		= @$device['type'];
 			$devicemodel	= @$device['model'];
 			$devicebattery	= @$device['battery'];
-			$deviceid	= @$device['deviceid'];
+			$deviceid		= @$device['deviceid'];
 			$devicetimezone	= @$device['timezone'];
 
 			$this->SendDebug("DoDevice : ","Type     : ".$devicetyp,0);
@@ -1158,8 +1165,6 @@
 				$arraydatas[$messung['type']][$InstanceIDDeviceID] = round($val,2);
 				$arraytimes[$messung['type']][$InstanceIDDeviceID] = $time;
 
-				
-
 				switch ($messung['type'])
 					{ 
 					case 1 :	$gewicht = round ($val,2);
@@ -1238,8 +1243,7 @@
                         {
                         $value = $arraydatas[$key][$deviceID];
                     	$updatetime = $arraytimes[$key][$deviceID];
-                    
-                        
+                            
                         switch ($key)
                             { 
                             case 1 :	$gewicht = $value;
@@ -1253,8 +1257,7 @@
 											}
 										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
-                
-										
+                										
 										break;
 										
                             case 4 :	$groesse = $value;
@@ -1381,7 +1384,8 @@
                     }
                 return $ID;    
                 }
-        //******************************************************************************
+	
+	//******************************************************************************
 	//	
 	//******************************************************************************
 	private function RegisterOAuth($WebOAuth) 
@@ -1683,17 +1687,15 @@
                 }
 		
 
-
 	//******************************************************************************
 	//
 	//******************************************************************************
 	protected function SaveDataToDatabase($Variable,$Timestamp,$Value)
 		{
-//                 return;
-		//$this->SendDebug("SaveDataToDatabase","SaveDataToDatabase",0);
-                $Reaggregieren = false;
+        $Reaggregieren = false;
                 
-                $archiveID = $this->GetArchivID();
+        $archiveID = $this->GetArchivID();
+		
 		if ( $archiveID == false )
                     {   
                     return;
@@ -1809,9 +1811,6 @@
 		$enddate   = date("Y-m-d",time());
 		$callbackurl = urlencode("https://5618f6766a2fe6943e9ec98ddeac4bc4.ipmagic.de/hook/Withings4IPSymcon13906");
 
-		// $callbackurl = urlencode("https://home.inisnet.de:82");
-
-
 		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=44&comment=Kommentar";
 		$this->SendDebug("Subscribe:",$url,0);
@@ -1825,10 +1824,7 @@
 		curl_close($curl);
 
 		$this->SendDebug("Answer:",$output,0);
-
-
 		
-			
 		}
 		
 	//**************************************************************************
@@ -1838,7 +1834,6 @@
 		{
 		header("HTTP/1.1 200 OK");
 		http_response_code(200);
-
 		
 		// print_r($_IPS);
 		$s = "Webhook";
