@@ -55,6 +55,8 @@ Schlafsensorwerte holen
 
 Aktivitaetswerte holen
 
+Benachrichtigungen (Beta)
+
 Abfrageintervall in Sekunden ( empfohlen 3600 )
 
 Logging einschalten ( Logdatei in Ordner ../logs/Withings)
