@@ -164,6 +164,9 @@ auf Name,Groesse,Geschlecht,Geburtstag.
 Deshalb bei neuer Instanz werden diese Variablen leer bleiben.
 Unbedingt darauf achten die Groesse einzutragen sonst bleibt der BMI leer.
 
+Withings weist ipmagic Adressen als callbackurl fuer Benachrichtigungen
+im Moment noch ab.
+
 ## 9. Changelog
 Version 2.1:
   - Erster Release
