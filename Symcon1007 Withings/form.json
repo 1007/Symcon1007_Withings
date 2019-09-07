@@ -18,6 +18,10 @@
 
     { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" },
 
+    { "type": "CheckBox"          , "name" :  "BodyVisible",  "caption": "Benachrichtigungen (Beta)" },
+
+
+
         
     { "type": "Label"             , "label":  "---------- Einstellungen" },
     { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
@@ -34,6 +38,7 @@
     { "type": "Button", "label": "Authentifizierung anfordern", "onClick": "echo WIT_Authentifizierung($id);" },
     { "type": "Button", "label": "Update Data",                 "onClick": "WIT_Update($id);" },
     { "type": "Button", "label": "Refresh Tokens",              "onClick": "WIT_RefreshTokens($id);" }
+
   ],
 
 

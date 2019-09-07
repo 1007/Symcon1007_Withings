@@ -26,17 +26,16 @@
 		$this->RegisterPropertyBoolean("BodyMeasures", false);
 		$this->RegisterPropertyBoolean("BodyPuls", false);  
 		$this->RegisterPropertyBoolean("BloodMeasures", false);  
-		$this->RegisterPropertyString("Username", "XXX");         // in V3.0 ist das die UserID
-		$this->RegisterPropertyString("Userpassword", "123456");  // in V3.0 ist das das Access Token
-		$this->RegisterPropertyString("User", "XXX");             // in V3.0 ist das das Refresh Token
+		$this->RegisterPropertyString("Username", "XXX");         	// in V3.0 ist das die UserID
+		$this->RegisterPropertyString("Userpassword", "123456");  	// in V3.0 ist das das Access Token
+		$this->RegisterPropertyString("User", "XXX");             	// in V3.0 ist das das Refresh Token
 		$this->RegisterPropertyBoolean("Logging", false);  
 		$this->RegisterPropertyBoolean("Modulaktiv", true);  
-		$this->RegisterTimerOld("WIT_UpdateTimerOld", 0, 'WIT_Update($_IPS[\'TARGET\']);');
 		$this->RegisterTimer("WIT_UpdateTimer", 3600000, 'WIT_Update($_IPS["TARGET"]);');
-		$this->RegisterPropertyBoolean("BloodLogging", false);    // in V3.0 ist das  Sleep aktiv
+		$this->RegisterPropertyBoolean("BloodLogging", false);    	// in V3.0 ist das  Sleep aktiv
 		$this->RegisterPropertyBoolean("BloodVisible", false);  
-		$this->RegisterPropertyBoolean("BodyLogging" , false);  // in V3.0 ist das  Activity aktiv
-		$this->RegisterPropertyBoolean("BodyVisible" , false);  
+		$this->RegisterPropertyBoolean("BodyLogging" , false);  	// in V3.0 ist das  Activity aktiv
+		$this->RegisterPropertyBoolean("BodyVisible" , false);  	// in V4.0 ist das Notify aktiv
 		
         $this->RegisterPropertyBoolean("CheckBoxMeas" , false);
         $this->RegisterPropertyBoolean("CheckBoxSleepSummary" , false);
@@ -44,6 +43,11 @@
         $this->RegisterPropertyBoolean("CheckBoxIntradayactivity" , false);
                 
         $this->RegisterPropertyString("AccessToken", "");
+        $this->RegisterPropertyString("RefreshToken", "");
+        $this->RegisterPropertyString("UserID", "");
+		$this->RegisterPropertyBoolean("Activityaktiv" , false);  	// in V3.0 ist das  Activity aktiv
+		$this->RegisterPropertyBoolean("Notifyaktiv" , false);  	// in V4.0 ist das Notify aktiv
+        
                 
                 }
 
@@ -104,7 +108,7 @@
 		$this->SetTimerInterval("WIT_UpdateTimer", $interval);
 
 		//Update
-		//$this->Update();
+		// $this->Update();
 
 		}
 
@@ -135,7 +139,7 @@
         $starttime = time();            
 		
 		$this->Logging("Update");
-		$this->SendDebug("Update Data","Update Data START        -> ".date('d.m.Y H:i:s ',time() ),0);
+		$this->SendDebug("Update Data","Update Data START        -> ".date('d.m.Y H:i:s ',time() )."[".$this->InstanceID."]",0);
 		
 		if ( $this->RefreshTokens() == FALSE )
             {
@@ -156,15 +160,90 @@
 
         $this->SendDebug("Update Data","Update Data Get Intra    -> ".date('d.m.Y H:i:s ',time() ),0);
 		$this->GetIntradayactivity();
+		         
+		$this->SubscribeHook();
+
+		$this->GetNotifyList(1);
+		$this->GetNotifyList(4);
+		$this->GetNotifyList(16);
+		$this->GetNotifyList(44);
+		$this->GetNotifyList(46);
 		
-        $this->SendDebug("Update Data","Update Data ENDE         -> ".date('d.m.Y H:i:s ',time()),0);
-        $endtime = time();
-                
-        $this->SendDebug("Update Data","Update Data Laufzeit     -> ".($endtime - $starttime) ,0);
-                
-		// $this->SubscribeHook();
 		
+		if ( $this->ReadPropertyBoolean("BodyVisible") == false )
+			$this->DoNotifyRevokeAll();
+		else
+			$this->GetNotifySubscribe();	
+
+		$this->SendDebug("Update Data","Update Data ENDE         -> ".date('d.m.Y H:i:s ',time()),0);
+		$endtime = time();
+		
+		$this->SendDebug("Update Data","Update Data Laufzeit     -> ".($endtime - $starttime) . " Sekunden" ,0);
+        
 		}
+
+	//******************************************************************************
+	//	Erstelle Hook
+	//******************************************************************************
+	protected function SubscribeHook()
+		{
+		$WebHook = "/hook/Withings".$this->InstanceID;
+
+		$ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
+		if (count($ids) > 0) 
+			{
+			$hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
+			$found = false;
+			foreach ($hooks as $index => $hook) 
+				{
+				if ($hook['Hook'] == $WebHook) 
+					{
+					if ($hook['TargetID'] == $this->InstanceID) 
+						{
+						$this->SendDebug(__FUNCTION__,"Hook bereits vorhanden : ". $hook['TargetID'], 0);
+						return;		// bereits vorhanden
+						}
+					$hooks[$index]['TargetID'] = $this->InstanceID;
+					$found = true;
+					}
+				}
+				
+				if (!$found) 
+					{
+					$hooks[] = ['Hook' => $WebHook, 'TargetID' => $this->InstanceID];
+					}
+				$this->SendDebug(__FUNCTION__, $WebHook ." erstellt" , 0);
+				IPS_SetProperty($ids[0], 'Hooks', json_encode($hooks));
+				IPS_ApplyChanges($ids[0]);
+			}
+		}
+
+		//******************************************************************************
+		// Hook loeschen
+		//******************************************************************************
+		protected function UnregisterHook()
+			{
+			$WebHook = "/hook/Withings".$this->InstanceID;
+
+			$ids = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}');
+			if (count($ids) > 0) {
+				$hooks = json_decode(IPS_GetProperty($ids[0], 'Hooks'), true);
+				$found = false;
+				foreach ($hooks as $index => $hook) {
+					if ($hook['Hook'] == $WebHook) {
+						$found = $index;
+						break;
+					}
+				}
+	
+				if ($found !== false) {
+					array_splice($hooks, $index, 1);
+					IPS_SetProperty($ids[0], 'Hooks', json_encode($hooks));
+					IPS_ApplyChanges($ids[0]);
+				}
+			}
+		}
+
 
 	//******************************************************************************
 	//	Getdevice
@@ -476,6 +555,8 @@
 		{
 		$this->UnregisterTimer("WIT_UpdateTimer");
 
+		$this->UnregisterHook();
+
 		//Never delete this line!
 		parent::Destroy();
 		}
@@ -535,8 +616,8 @@
 	//**************************************************************************
 	private function CreateDummyInstance($Name,$Ident,$DeviceTyp)
 		{
-		$id = $this->GetIDForIdent("WIT_UpdateTimer");
-		$ModulID = IPS_GetParent($id);
+		
+		$ModulID = $this->InstanceID;
 		$InsID = IPS_CreateInstance("{485D0419-BE97-4548-AA9C-C083EB82E61E}");
 		IPS_SetName($InsID, $Name);
 		IPS_SetParent($InsID, $ModulID);
@@ -652,48 +733,7 @@
 			IPS_SetVariableProfileDigits($Name, $Digits);
 		}
 
-	//**************************************************************************
-	//
-	//**************************************************************************    
-	protected function RegisterTimerOld($Name, $Interval, $Script,$Position = 99)
-		{
-		$id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-		if ($id === false)
-			$id = 0;
-		if ($id > 0)
-			{
-			if (!IPS_EventExists($id))
-				throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_WARNING);
-			if (IPS_GetEvent($id)['EventType'] <> 1)
-				{
-				IPS_DeleteEvent($id);
-				$id = 0;
-				}
-			}
-		if ($id == 0)
-			{
-			$id = IPS_CreateEvent(1);
-			IPS_SetParent($id, $this->InstanceID);
-			IPS_SetIdent($id, $Name);
-			}
-
-		IPS_SetName($id, $Name);
-		IPS_SetHidden($id, true);
-		IPS_SetEventScript($id, $Script);
-		IPS_SetPosition($id,$Position);
-
-		if ($Interval > 0)
-			{
-			IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-			IPS_SetEventActive($id, true);
-			} 
-		else
-			{
-			IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
-			IPS_SetEventActive($id, false);
-			}
-		}
-
+	
 	//**************************************************************************
 	//
 	//**************************************************************************    
@@ -838,7 +878,7 @@
 		$this->SendDebug("DoActivity","Aktivitaeten werden ausgewertet.",0);
 
 		// "Activity" isdas Ident fuer externe Daten in Withings deviceid = null
-		$InstanceIDActivity = @$this->GetIDForIdent ("Activity");
+		$InstanceIDActivity = @$this->GetIDForIdent("Activity");
 		if ( $InstanceIDActivity === FALSE )
 			$InstanceIDActivity = $this->CreateDummyInstance("Activity","Activity","Daten von externen APPs");
 
@@ -1125,12 +1165,15 @@
 		// Neueste nach hinten
 		$measuregrps = array_reverse ( $measuregrps  );
 
+		$text = "Start";
+		$this->LoggingExt($text,"Messungen.log",true);
+
 		// Alle Messgruppen durchgehen
 		foreach($measuregrps as $daten)
 			{
-      		$this->SendDebug("DoMeas","---------------------------------------",0);
+      		// $this->SendDebug("DoMeas","---------------------------------------",0);
 
-			$time 		  = @$daten['date'];
+			$time 		= @$daten['date'];
 			$deviceid 	= @$daten['deviceid'];
 			$messungen 	= @$daten['measures'];
       		$model 	    = @$daten['model'];
@@ -1141,26 +1184,30 @@
 
 			if ($InstanceIDDeviceID == false )
 				{
-         		$this->SendDebug("DoMeas","Keine ID gefunden : " . $deviceid . "--".$model ,0);
-				//$InstanceIDDeviceID = "19f734a3ed8be9124ca5ce14a99701c1a7a453c1"; // Sonder
-				$InstanceIDDeviceID = @$this->GetIDForIdent("19f734a3ed8be9124ca5ce14a99701c1a7a453c1");
+         		$this->SendDebug("DoMeas"," Keine ID gefunden Daten Handeingabe oder Withings API-Fehler : " . $deviceid . "--".$model." - ".$timestring ,0);
+				continue ;
 				}
 			else
-			   $this->SendDebug("DoMeas","ID gefunden : " . $InstanceIDDeviceID . "--".$model,0);
+				{
+			   // $this->SendDebug("DoMeas","ID gefunden : " . $InstanceIDDeviceID . "--".$model,0);
 
-
+				}
+				
 			if ( @count($messungen) == 0 )
 				{
 				$this->SendDebug("DoMeas","Keine Messungen gefunden. Weiter",0);
 				continue;
 				}
 
-			$this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
+			// $this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
 			// Alle Messungen durchgehen
 			foreach($messungen as $messung)
 				{
 				$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
+				
 				// $this->SendDebug("DoMeas","Messung Type : ".$messung['type']." : " .$val ."-".date('l jS \of F Y h:i:s A',$time),0);
+				$text = date('d.m.Y H:i:s',$time) ." Messung Type : ".$messung['type']." : " .$val ;
+				$this->LoggingExt($text,"Messungen.log");
 
 				$arraydatas[$messung['type']][$InstanceIDDeviceID] = round($val,2);
 				$arraytimes[$messung['type']][$InstanceIDDeviceID] = $time;
@@ -1798,22 +1845,97 @@
 		return	$Reaggregieren ;
 
 		}
+
+	//**************************************************************************
+	// Notify List
+	//**************************************************************************
+	protected function GetNotifyList($appli="")
+		{
+		// $this->SendDebug(__FUNCTION__,"Start",0);
+		
+		$access_token = $this->ReadPropertyString("Userpassword");
+
+		$url = "https://wbsapi.withings.net/notify?action=list&access_token=".$access_token."&appli=".$appli;
+		$output = $this->DoCurl($url);		
+		$data = json_decode($output,TRUE);
+		$data = @$data['body'];
+		$data = $this->DoNotifyList($data);
+		
+		return $data;
+		
+		}
+
+
+	//******************************************************************************
+	//	Abfrage welche Benachrichtigungen aktiv
+	//******************************************************************************
+	function DoNotifyList($data)
+		{
+		
+		if ( $data == false )
+			return false ;
+			
+			
+		$data = @$data['profiles'];
+
+		if ( @count($data) == 0 )
+			{
+			// $this->SendDebug(__FUNCTION__,"Keine Profile gefunden. Abbruch",0);
+			return false;
+			}
+		else
+			{
+			//$this->SendDebug(__FUNCTION__,"Anzahl der Profile : ".count($data),0);
+			}
+
+		foreach($data as $profil )
+			{
+			$applikation = @$profil['appli'];	
+			$callbackurl = @$profil['callbackurl'];	
+			$comment     = @$profil['comment'];	
+				
+			$s = "[".$applikation."][".$callbackurl."][".$comment."]";
+			$this->SendDebug(__FUNCTION__,$s,0);
+			}
+			
+		return ( $data );
+			
+		}
+		
+	//**************************************************************************
+	//	
+	//**************************************************************************
+	public function DoNotifyRevokeAll()
+		{
+		$data = $this->GetNotifyList();
+		if ( $data == false )
+			return;
+
+		foreach($data as $profil )
+			{
+			$applikation = @$profil['appli'];	
+			$callbackurl = @$profil['callbackurl'];	
+			$comment     = @$profil['comment'];	
+				
+			$s = "[".$applikation."][".$callbackurl."][".$comment."]";
+			$this->SendDebug(__FUNCTION__,$s,0);
+			
+			$this->GetRevokeNotifyList($applikation,$callbackurl);
+			}
+			
+		}
 	
+
 	//**************************************************************************
-	// Subscribe Hook
+	// Revoke Notify List
 	//**************************************************************************
-	protected function SubscribeHook()
+	protected function GetRevokeNotifyList($applikation,$callbackurl)
 		{
 		
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$startdate = date("Y-m-d",time() - 24*60*60*5);
-		$enddate   = date("Y-m-d",time());
-		$callbackurl = urlencode("https://5618f6766a2fe6943e9ec98ddeac4bc4.ipmagic.de/hook/Withings4IPSymcon13906");
-
-		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=44&comment=Kommentar";
-		$this->SendDebug("Subscribe:",$url,0);
+		$url = "https://wbsapi.withings.net/notify?action=revoke&access_token=".$access_token."&appli=".$applikation."&callbackurl=".$callbackurl;
+		$this->SendDebug(__FUNCTION__,$url,0);
 
 		$curl = curl_init($url);
 
@@ -1823,21 +1945,109 @@
 
 		curl_close($curl);
 
-		$this->SendDebug("Answer:",$output,0);
+		$this->SendDebug(__FUNCTION__,$output,0);
+		
+		$data = json_decode($output,TRUE);
+		
+		$data = @$data['body'];
+		
 		
 		}
+		
+	//**************************************************************************
+	// Notify Subscribe
+	//**************************************************************************
+	protected function GetNotifySubscribe()
+		{
+		
+		$access_token = $this->ReadPropertyString("Userpassword");
+
+		$startdate = date("Y-m-d",time() - 24*60*60*5);
+		$enddate   = date("Y-m-d",time());
+		
+		$ipsymconconnectid = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}")[0]; 
+		$connectinfo = CC_GetUrl($ipsymconconnectid);
+				
+		$callbackurl = urlencode($connectinfo."/hook/Withings".$this->InstanceID."/");
+		
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=1&comment=SubscribeWeight";
+		IPS_Logmessage("..",time());
+		$this->DoCurl($url,true);
+		IPS_Logmessage("..",time());
+		
+		$this->LoggingExt($url,__FUNCTION__);
+		return;
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=4&comment=SubscribeHeart";
+		$this->DoCurl($url,true);
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=16&comment=SubscribeActivity";
+		$this->DoCurl($url,true);
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=44&comment=SubscribeSleep";
+		$this->DoCurl($url,true);
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=46&comment=SubscribeUser";
+		$this->DoCurl($url,true);
+				
+		}
+		
+	//******************************************************************************
+	//	Curl Abfrage ausfuehren
+	//******************************************************************************
+	function DoCurl($url,$debug=false)
+		{
+		if($debug == true)
+			$this->SendDebug(__FUNCTION__,$url,0);
+
+		$curl = curl_init($url);
+
+		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+
+		$output = curl_exec($curl);
+
+		curl_close($curl);
+
+		if($debug == true)
+			$this->SendDebug(__FUNCTION__,$output,0);
+			
+		return $output;
+					
+		}	
 		
 	//**************************************************************************
 	// Hook Data auswerten
 	//**************************************************************************
 	protected function ProcessHookData()
 		{
+		GLOBAL $_IPS;
+
 		header("HTTP/1.1 200 OK");
-		http_response_code(200);
 		
-		// print_r($_IPS);
+		
+		http_response_code(200);
+
+		IPS_LogMessage("WebHook GET", print_r($_GET, true));
+		IPS_LogMessage("WebHook POST", print_r($_POST, true));
+		IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
+		IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
+
+
+		 return true ;
+		
+		var_dump($_IPS);
+		var_dump($_SERVER);
+		var_dump($_GET);
+		var_dump($_POST); 
+		
+
+		
 		$s = "Webhook";
-		IPS_LogMessage(basename(__FILE__),$s);
+		IPS_LogMessage(basename(__FUNCTION__),$s);
+		
+		echo file_get_contents("php://input");
+		
+		
+		$this->LoggingExt(file_get_contents("php://input"),__FUNCTION__);
+		
+		
+		
 		}
 
 	//**************************************************************************
