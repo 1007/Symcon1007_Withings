@@ -79,8 +79,6 @@
 		$this->RegisterProfile(2,"WITHINGS_M_Kalorien","",""," kcal",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Meter","",""," Meter",false,false,false,2);
 
-
-
 		}
 
 
@@ -103,7 +101,7 @@
 		$interval = $this->ReadPropertyInteger("Intervall") * 1000 ;
 		$this->SetTimerInterval("WIT_UpdateTimer", $interval);
 
-		//Update
+		//Update !! Achtung Endlos moeglicherweise
 		//$this->Update();
 
 		}
