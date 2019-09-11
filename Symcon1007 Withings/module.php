@@ -1971,9 +1971,9 @@
 		$callbackurl = urlencode($connectinfo."/hook/Withings".$this->InstanceID."/");
 		
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=1&comment=SubscribeWeight";
-		IPS_Logmessage("..",time());
+		
 		$this->DoCurl($url,true);
-		IPS_Logmessage("..",time());
+		
 		
 		$this->LoggingExt($url,__FUNCTION__);
 		return;
