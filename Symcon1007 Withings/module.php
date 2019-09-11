@@ -269,14 +269,7 @@
 		$this->Logging("GetDevice");
 		$this->Logging($url);
 
-
-		$curl = curl_init($url);
-
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-
-		$output = curl_exec($curl);
-
-		curl_close($curl);
+		$output = $this->DoCurl($url);
 
 		$this->SendDebug("Answer:",$output,0);
 
@@ -290,9 +283,6 @@
 			return;
 			}
 
-		$status = $data['status'];
-
-		$this->SendDebug("GetDevice","Status:".$status,0);
 
 		$id = $this->GetIDForIdent("name");
 
@@ -329,15 +319,8 @@
 		$this->Logging("GetMeas");
 		$this->Logging($url);
 
-
-		$curl = curl_init($url);
-
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-
-		$output = curl_exec($curl);
-
-		curl_close($curl);
-
+		$output = $this->DoCurl($url);
+		
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->Logging($output);
@@ -351,8 +334,6 @@
 			}
 
 		$status = $data['status'];
-
-		$this->SendDebug("GetMeas","Status:".$status,0);
 
 		if ( $status != 0)
         	{
@@ -389,13 +370,8 @@
 
 		$this->SendDebug("Getactivity:",$url,0);
 
-		$curl = curl_init($url);
+		$output = $this->DoCurl($url);
 
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-
-		$output = curl_exec($curl);
-
-		curl_close($curl);
 
 		$this->SendDebug("Answer:",$output,0);
 
@@ -411,7 +387,6 @@
 
 		$status = $data['status'];
 
-		$this->SendDebug("Getactivity","Status:".$status,0);
 
 		if ( $status != 0)
             {
@@ -449,15 +424,7 @@
 		$this->SendDebug("Getintradayactivity:",$url,0);
         $this->SendDebug("Getintradayactivity:",date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
 
-		$curl = curl_init($url);
-
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-
-		$output = curl_exec($curl);
-
-		$this->LoggingExt($output,"Intraday.log");
-
-		curl_close($curl);
+		$output = $this->DoCurl($url);
 
 		$this->SendDebug("Answer:",$output,0);
 
@@ -473,7 +440,6 @@
 
 		$status = $data['status'];
 
-		$this->SendDebug("Getintradayactivity","Status:".$status,0);
 
 		if ( $status != 0)
         	{
@@ -514,13 +480,7 @@
 
 		$this->SendDebug("GetSleepSummary:",$url,0);
 
-		$curl = curl_init($url);
-
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-
-		$output = curl_exec($curl);
-
-		curl_close($curl);
+		$output = $this->DoCurl($url);
 
 		$this->SendDebug("Answer:",$output,0);
 
@@ -536,7 +496,6 @@
 
 		$status = $data['status'];
 
-		$this->SendDebug("GetSleepSummary","Status:".$status,0);
 
 		$id = $this->GetIDForIdent("name");
 
