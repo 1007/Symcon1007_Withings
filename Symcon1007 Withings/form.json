@@ -4,26 +4,49 @@
 
     { "type": "Label"             , "label":  "####### Withings V 4.0 #######" },
     
-    { "type": "Button"            , "caption": "Dokumentation", "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/4.0';" },
+    { "type": "Button"            , "caption": "Dokumentation", "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/master';" },
     
     { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
  
-    { "type": "Label"             , "label":  "---------- Datenauswahl" },
+
+    { "type": "ExpansionPanel", "caption": "Datenauswahl",
+      "items": 	
+        [	
+  
+          { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte/Temperaturen" },
     
-    { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte/Temperaturen" },
+          { "type": "CheckBox"          , "name" :  "BloodMeasures",  "caption": "Blutdruckwerte" },
+
+          { "type": "CheckBox"          , "name" :  "BloodLogging",  "caption": "Schlafsensorwerte" },
+
+          { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" }
+        ]
+      },
+
+
     
-    { "type": "CheckBox"          , "name" :  "BloodMeasures",  "caption": "Blutdruckwerte" },
+    { "type": "ExpansionPanel", "caption": "Benachrichtigungen",
+      "items": 	
+        [	
+          { "type": "CheckBox"      , "name"  : "Notifyaktiv" , "caption": "Benachrichtigungen aktivieren (Beta)" },
+          { "type": "SelectScript"  , "name"  : "Notify1"     , "caption": "Script fuer Gewicht" },
+          { "type": "SelectScript"  , "name"  : "Notify4"     , "caption": "Script fuer Blutdruck" },
+          { "type": "SelectScript"  , "name"  : "Notify16"    , "caption": "Script fuer Aktivitaeten" },
+          { "type": "SelectScript"  , "name"  : "Notify44"    , "caption": "Script fuer Schlafsensor" },
+          { "type": "SelectScript"  , "name"  : "Notify46"    , "caption": "Script fuer Geraete" },
+         
+          { "type": "Label", "caption": "Manuelle Eingabe einer Callback Adresse fuer Benachrichtigungen" },
+          { "type": "ValidationTextBox", "name": "CallbackURL", "caption": "CallbackURL" }
+        ]
+    },
 
-    { "type": "CheckBox"          , "name" :  "BloodLogging",  "caption": "Schlafsensorwerte" },
-
-    { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" },
-
-        
-    { "type": "Label"             , "label":  "---------- Einstellungen" },
-    { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
-
-    { "type": "Label"             , "label":  "---------- Logging" },
-    { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings/Withings.log)" } 
+    { "type": "ExpansionPanel", "caption": "Einstellungen",
+      "items": 	
+        [	  
+          { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" },
+          { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings/Withings.log)" } 
+        ]
+    }
 
 
 
@@ -34,6 +57,7 @@
     { "type": "Button", "label": "Authentifizierung anfordern", "onClick": "echo WIT_Authentifizierung($id);" },
     { "type": "Button", "label": "Update Data",                 "onClick": "WIT_Update($id);" },
     { "type": "Button", "label": "Refresh Tokens",              "onClick": "WIT_RefreshTokens($id);" }
+
   ],
 
 
@@ -43,7 +67,9 @@
         { "code": 102, "icon": "active", "caption": "Withings ist aktiv" },
         { "code": 202, "icon": "error",  "caption": "Userdaten falsch" },
         { "code": 203, "icon": "error",  "caption": "AuthentificationCode falsch" },
-        { "code": 204, "icon": "error",  "caption": "Token falsch oder nicht vorhanden" }
+        { "code": 204, "icon": "error",  "caption": "Token falsch oder nicht vorhanden" },
+        { "code": 293, "icon": "error",  "caption": "Callback URL nicht akzeptiert" }
+        
         
     ]
 
