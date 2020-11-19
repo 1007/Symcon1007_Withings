@@ -61,9 +61,10 @@
 	//******************************************************************************
 	protected function RegisterAllProfile()
 		{
+			
 		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
-    	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
+    $this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
@@ -88,7 +89,7 @@
 		$this->RegisterProfile(2,"WITHINGS_M_Kalorien","",""," kcal",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Meter","",""," Meter",false,false,false,2);
 
-
+										 
 
 		}
 
@@ -124,10 +125,11 @@
 	//**************************************************************************    
 	public function Authentifizierung()
 		{
-		$this->SendDebug("Authentifizierung:","Starte Webseite zum einloggen bei Withings",0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Starte Webseite zum einloggen bei Withings",0);	
 		$url = "https://oauth.ipmagic.de/authorize/withings?username=".urlencode(IPS_GetLicensee());
 		$this->RegisterOAuth('withings');
-		$this->SendDebug("Authentifizierung:",$url,0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
+
 		return $url;
 		}
 		
@@ -171,10 +173,13 @@
 		$this->SubscribeHook();
 
 		$this->GetNotifyList(1);
+    $this->GetNotifyList(2);
 		$this->GetNotifyList(4);
 		$this->GetNotifyList(16);
 		$this->GetNotifyList(44);
 		$this->GetNotifyList(46);
+    $this->GetNotifyList(50);
+    $this->GetNotifyList(51);
 		
 		
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
@@ -184,6 +189,8 @@
 			}
 		else
 			$this->GetNotifySubscribe();	
+
+		// $this->GetNonce();
 
 		$this->SendDebug("Update Data","Update Data ENDE         -> ".date('d.m.Y H:i:s ',time()),0);
 		$endtime = time();
@@ -274,6 +281,8 @@
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->Logging($output);
+		
+		$this->LoggingExt($output,"device.log",false,false);
 
 		$data = json_decode($output,TRUE); 
 
@@ -324,6 +333,7 @@
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->Logging($output);
+		$this->LoggingExt($output,"meas.log",false,false);
 
 		$data = json_decode($output,TRUE); 
 
@@ -376,6 +386,7 @@
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->LoggingExt($output);
+		$this->LoggingExt($output,"activity.log",false,false);
 
 		$data = json_decode($output,TRUE);
 
@@ -429,6 +440,8 @@
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->Logging($output);
+
+		$this->LoggingExt($output,"intradayactivity.log",false,false);
 
 		$data = json_decode($output,TRUE);
 
@@ -485,6 +498,7 @@
 		$this->SendDebug("Answer:",$output,0);
 
 		$this->Logging($output);
+		$this->LoggingExt($output,"sleep.log",false,false);
 
 		$data = json_decode($output,TRUE); 
 
@@ -647,7 +661,7 @@
 	//**************************************************************************
 	//  Logging
 	//**************************************************************************
-	private function LoggingExt($Text,$file="WithingsExt.log",$delete=false)
+	private function LoggingExt($Text,$file="WithingsExt.log",$delete=false,$date=true)
 		{
 		if ( $this->ReadPropertyBoolean("Logging") == false )
 			return;
@@ -663,11 +677,17 @@
 		$logdatei = IPS_GetLogDir() . "Withings/".$file;
 		
                 if ( $delete == true )
-                    unlink($logdatei);
+                    @unlink($logdatei);
                 
-                $datei = fopen($logdatei,"a+");
-		fwrite($datei, $time ." ". $Text . chr(13));
+				$datei = fopen($logdatei,"a+");
+		
+		if ( $date == true )		
+			fwrite($datei, $time ." ". $Text . chr(13));
+		else
+			fwrite($datei,$Text . chr(13));
+		
 		fclose($datei);
+		
 		}
 
 
@@ -998,11 +1018,11 @@
 
 		// letzte Daten in Variable schreiben ( besser vielleicht nicht) besser ohne Logging machen
                 
-		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"			,1	,false,false,"timestamp");
-		if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
-		if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
-		if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
-		if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
+		//if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"			,1	,false,false,"timestamp");
+		//if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
+		//if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
+		//if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
+		//if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
                 
 
         $this->Reaggregieren($InstanceIDActivity);
@@ -1125,6 +1145,8 @@
 			if ( $CatIdBlutdruck === false )
 				throw new Exception("Kategorie Blutdruck nicht definiert");
 			}
+
+			
 
 		$measuregrps = @$data['measuregrps'];
 
@@ -1405,10 +1427,14 @@
                 }
 	
 	//******************************************************************************
-	//	
+	//	Register OAuth in IPSymcon
 	//******************************************************************************
 	private function RegisterOAuth($WebOAuth) 
 		{
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','', 0);
+
+			
+		// WebOauth im Tree
 		$ids = IPS_GetInstanceListByModuleID("{F99BF07D-CECA-438B-A497-E4B55F139D37}");
 		if(sizeof($ids) > 0) 
 			{
@@ -1429,6 +1455,8 @@
 				$clientIDs[] = Array("ClientID" => $WebOAuth, "TargetID" => $this->InstanceID);
 				}
 			IPS_SetProperty($ids[0], "ClientIDs", json_encode($clientIDs));
+
+			$this->SendDebug("ClientID:", $ids[0], 0);
 			IPS_ApplyChanges($ids[0]);
 			}
 		}
@@ -1446,6 +1474,7 @@
 					die("Authorization Code expected");
 				}
 			$code = $_GET['code'];  
+			// print_r($_GET);
 			$this->SendDebug("ProcessOAuthData", "code: ".$code, 0);
 			$this->FetchRefreshToken($code);
 			} 
@@ -1534,7 +1563,8 @@
 			}
 				
 		$token = $data->access_token;
-		$userid = $data->userid;		
+		$scope = $data->scope;
+		$userid = $data->userid;
 		$VarID = @$this->GetIDForIdent("userid");
 		if ( $VarID === false )
 			$VarID = $this->RegisterVariableInteger("userid", "User ID"   ,"" ,0);
@@ -1544,6 +1574,8 @@
 		$this->SendDebug("FetchAccessToken", "Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires), 0);
 		$this->SendDebug("FetchAccessToken", "OK! Speichere Access Token . ".$token, 0);
 		
+    $this->SendDebug("FetchAccessToken", "scope: ".$scope, 0);
+
 		$this->Logging("UserID : " .$userid );
 		$this->Logging("Access Token : " .$token . " " ."Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires) );
 		
@@ -1820,6 +1852,37 @@
 		}
 
 	//**************************************************************************
+	// Getnonce
+	//**************************************************************************
+	protected function GetNonce()
+		{
+		$this->SendDebug(__FUNCTION__,"Start",0);
+		
+		$action = "getnonce";
+		$client_id = "2166af8c652a1b251db8b954cfdc2e24c82f1493d15d03b4dddc422f342c7ffd";
+		$timestamp = time();
+		$string = $action.",".$client_id.",".$timestamp;
+
+		$signature = "b22edf210b6a67b583c9ef1bd39481383e7c2d1b7ac198ddeeb0ea68a7ecd2f6";
+		$signature = hash_hmac("sha256",$string,$signature,false);	
+
+		$url = "https://wbsapi.withings.net/v2/signature?action=".$action."&client_id=".$client_id."&timestamp=".$timestamp."&signature=".$signature;
+
+		$this->SendDebug(__FUNCTION__,$url,0);
+
+		$output = $this->DoCurl($url);		
+		$this->SendDebug(__FUNCTION__,$output,0);
+		
+		$data = json_decode($output,TRUE);
+		$data = @$data['body'];
+		// $data = $this->DoNotifyList($data);
+		
+		// return $data;
+		
+		}
+
+
+	//**************************************************************************
 	// Notify List
 	//**************************************************************************
 	protected function GetNotifyList($appli="")
@@ -1830,6 +1893,7 @@
 
 		$url = "https://wbsapi.withings.net/notify?action=list&access_token=".$access_token."&appli=".$appli;
 		$output = $this->DoCurl($url);		
+    $this->SendDebug(__FUNCTION__,$output,0);
 		$data = json_decode($output,TRUE);
 		$data = @$data['body'];
 		$data = $this->DoNotifyList($data);
@@ -1908,7 +1972,7 @@
 		$access_token = $this->ReadPropertyString("Userpassword");
 
 		$url = "https://wbsapi.withings.net/notify?action=revoke&access_token=".$access_token."&appli=".$applikation."&callbackurl=".$callbackurl;
-		$this->SendDebug(__FUNCTION__,$url,0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
 
 		$curl = curl_init($url);
 
@@ -1918,7 +1982,7 @@
 
 		curl_close($curl);
 
-		$this->SendDebug(__FUNCTION__,$output,0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
 		
 		$data = json_decode($output,TRUE);
 		
@@ -1941,16 +2005,17 @@
 		$ipsymconconnectid = IPS_GetInstanceListByModuleID("{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}")[0]; 
 		$connectinfo = CC_GetUrl($ipsymconconnectid);
 		
-		$callbackurl = $connectinfo."/hook/Withings".$this->InstanceID."/";
+		$callbackurl = $connectinfo."/hook/Withings".$this->InstanceID;
 		
 		$manURL = $this->ReadPropertyString("CallbackURL");
 		if ( $manURL != "" )
 			{
-			$callbackurl = $manURL;
+			$callbackurl = $manURL ."/hook/Withings".$this->InstanceID ;
 			}
 
-		$this->SendDebug(__FUNCTION__,"CallbackURL:".$callbackurl,0);
-		$callbackurl = urlencode($callbackurl);
+				
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl,0);
+		
 
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=1&comment=SubscribeWeight";
 		
@@ -1961,6 +2026,9 @@
 		if ( $status != 0 )
 			$this->SetStatus(293);
 
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=2&comment=SubscribeHeart";
+		$this->DoCurl($url,true);
+
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=4&comment=SubscribeHeart";
 		$this->DoCurl($url,true);
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=16&comment=SubscribeActivity";
@@ -1969,7 +2037,13 @@
 		$this->DoCurl($url,true);
 		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=46&comment=SubscribeUser";
 		$this->DoCurl($url,true);
-				
+
+  	$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=50&comment=SubscribeSleep";
+		$this->DoCurl($url,true);
+		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=51&comment=SubscribeSleep";
+		$this->DoCurl($url,true);
+		
+
 		}
 		
 	//******************************************************************************
@@ -2002,10 +2076,12 @@
 		{
 		GLOBAL $_IPS;
 
+		// IPS_sleep(1800);
+
 		header("HTTP/1.1 200 OK");
 			
 		http_response_code(200);
-
+			
 		$this->SendDebug(__FUNCTION__,"Start",0);
 
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
@@ -2013,11 +2089,11 @@
 			return;
 			}
 
-
-		// IPS_LogMessage("WebHook GET", print_r($_GET, true));
-		// IPS_LogMessage("WebHook POST", print_r($_POST, true));
-		// IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
-		// IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
+		echo "OK";	
+		 // IPS_LogMessage("WebHook GET", print_r($_GET, true));
+		 // IPS_LogMessage("WebHook POST", print_r($_POST, true));
+		 // IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
+		 // IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
 
 
 		if ( isset($_POST['userid']) )	
@@ -2039,7 +2115,7 @@
 
 		$parameter=array('userid' => $userid,'startdate' => $startdate,'enddate' => $enddate,'appli' => $appli,);	
 
-		if ( $appli == 1 )	
+		if ( $appli == 1 or $appli == 2)
 			{
 			$this->SendDebug("Update Data","Update Data Get Meas     -> ".date('d.m.Y H:i:s ',time() ),0);
 			$this->GetMeas();
@@ -2075,7 +2151,7 @@
 				}
 			}	
 
-		if ( $appli == 44 )	
+		if ( $appli == 44 or $appli == 50 or $appli == 51)
 			{
 			$this->SendDebug("Update Data","Update Data Get Sleep    -> ".date('d.m.Y H:i:s ',time() ),0);
 			$this->GetSleepSummary();
