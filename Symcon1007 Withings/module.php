@@ -991,6 +991,7 @@
 			$activitysteps		= @$data[$key]['steps'];
 			$activitystroke		= @$data[$key]['stroke'];
 			$activitypoollap	= @$data[$key]['pool_lap'];
+			$activityheartrate	= @$data[$key]['heart_rate'];
 
 			/*
 			$this->SendDebug("DoGetintradayactivity","Datum : ".					$activitydate,0);
@@ -1009,16 +1010,18 @@
                         $this->LoggingExt($Text,$file="WithingsExt2.log");
 
 			// if(isset($activitydate))	$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval($key)                       ,"~UnixTimestamp"		,1	,true,$key,"timestamp");
-			if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,true,$key,"kalorien");
-			if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"       ,3	,true,$key,"distanze");
-			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,true,$key,"hoehenmeter");
-			if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"		,intval($activitysteps)           ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
+			if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)    ,"WITHINGS_M_Kalorien"	,10	,true,$key,"kalorien");
+			if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)    ,"WITHINGS_M_Meter"     ,3	,true,$key,"distanze");
+			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)   ,"WITHINGS_M_Meter"		,4	,true,$key,"hoehenmeter");
+			if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)         ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
+			if(isset($activityheartrate))	$this->SetValueToVariable($InstanceIDActivity,"Puls"		,intval($activityheartrate)     ,"WITHINGS_M_Puls"		,12	,true,$key,"puls");
+
 
 			}
 
 		// letzte Daten in Variable schreiben ( besser vielleicht nicht) besser ohne Logging machen
                 
-		//if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"			,1	,false,false,"timestamp");
+		if(isset($activitydate))		$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"	,intval(strtotime ($activitydate))    ,"~UnixTimestamp"			,1	,false,false,"timestamp");
 		//if(isset($activitycalories))	$this->SetValueToVariable($InstanceIDActivity,"Kalorien"	,floatval($activitycalories)          ,"WITHINGS_M_Kalorien"	,10	,false,false,"kalorien");
 		//if(isset($activitydistance))	$this->SetValueToVariable($InstanceIDActivity,"Distanze"	,floatval($activitydistance)          ,"WITHINGS_M_Meter"		,3	,false,false,"distanze");
 		//if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
@@ -1766,7 +1769,7 @@
                     
                 $parent = IPS_GetParent($Variable);
                 $LastTimestampID = @IPS_GetObjectIDByIdent("timestamp",$parent );
-                $LastTimestamp = GetValue($LastTimestampID);
+                $LastTimestamp = @GetValue($LastTimestampID);
                 
                  /*   
                  return;
@@ -2082,7 +2085,7 @@
 			
 		http_response_code(200);
 			
-		$this->SendDebug(__FUNCTION__,"Start",0);
+		// $this->SendDebug(__FUNCTION__,"Start",0);
 
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
 			{
