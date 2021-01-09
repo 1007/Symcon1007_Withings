@@ -64,7 +64,7 @@
 			
 		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
-    $this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
+    	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
@@ -88,7 +88,7 @@
 		
 		$this->RegisterProfile(2,"WITHINGS_M_Kalorien","",""," kcal",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Meter","",""," Meter",false,false,false,2);
-
+		$this->RegisterProfile(1,"WITHINGS_M_SPO2","",""," %");
 										 
 
 		}
@@ -173,13 +173,13 @@
 		$this->SubscribeHook();
 
 		$this->GetNotifyList(1);
-    $this->GetNotifyList(2);
+    	$this->GetNotifyList(2);
 		$this->GetNotifyList(4);
 		$this->GetNotifyList(16);
 		$this->GetNotifyList(44);
 		$this->GetNotifyList(46);
-    $this->GetNotifyList(50);
-    $this->GetNotifyList(51);
+    	$this->GetNotifyList(50);
+    	$this->GetNotifyList(51);
 		
 		
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
@@ -427,7 +427,7 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$startdate = time()- (24*60*60)*1  ;
+		$startdate = time()- (24*60*60)*10  ;
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
@@ -981,7 +981,8 @@
         $this->LoggingExt("Start",$file="WithingsExt2.log",true );
                  
 		foreach($keys as $key)
-			{
+			{ 
+			// $data[$key]['spo2_auto'] = 10;
 			$activitydate = date('d.m.Y H:i:s ',$key);;
                         
 			$activitycalories	= @$data[$key]['calories'];
@@ -992,7 +993,13 @@
 			$activitystroke		= @$data[$key]['stroke'];
 			$activitypoollap	= @$data[$key]['pool_lap'];
 			$activityheartrate	= @$data[$key]['heart_rate'];
+			$activityspo2		= @$data[$key]['spo2_auto'];
 
+			if ( isset($data[$key]['spo2_auto']) == false )
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"spo2_auto: Not set",0);
+			else	
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"spo2_auto: Set ".$data[$key]['spo2_auto'] ,0);
+			
 			/*
 			$this->SendDebug("DoGetintradayactivity","Datum : ".					$activitydate,0);
 			$this->SendDebug("DoGetintradayactivity","Schritte : ".				$activitysteps,0);
@@ -1015,7 +1022,11 @@
 			if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)   ,"WITHINGS_M_Meter"		,4	,true,$key,"hoehenmeter");
 			if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)         ,"WITHINGS_M_Schritte"	,11	,true,$key,"schritte");
 			if(isset($activityheartrate))	$this->SetValueToVariable($InstanceIDActivity,"Puls"		,intval($activityheartrate)     ,"WITHINGS_M_Puls"		,12	,true,$key,"puls");
-
+			if(isset($activityspo2))
+				{
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schreibe SpO2 : ".intval($activityspo2) ,0);	
+				$this->SetValueToVariable($InstanceIDActivity,"SpO2"		,intval($activityspo2)     ,"WITHINGS_M_SPO2"			,12	,true,$key,"spo2");
+				}	
 
 			}
 
@@ -1609,6 +1620,9 @@
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false)
 		{
 
+		if ( $name == "SpO2")	
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schreibe SpO2 : ".$value ,0);	
+
 		$Reaggieren = false;
 
 		if ( $profil != false )
@@ -1726,7 +1740,7 @@
                         
 		if ( $asynchron == true )
                     {
-                    $Reaggieren = $this->SaveDataToDatabase($VariableID,$Timestamp,$value);
+                    $Reaggieren = $this->SaveDataToDatabase($VariableID,$Timestamp,$value,$name);
                     }
 		else
                     {
@@ -1745,8 +1759,13 @@
 	//******************************************************************************
 	//
 	//******************************************************************************
-	protected function SaveDataToDatabase($Variable,$Timestamp,$Value)
+	protected function SaveDataToDatabase($Variable,$Timestamp,$Value,$name = false)
 		{
+
+		
+		if ( $name == "SpO2" )	
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schreibe SpO2 : ".$Value ,0);	
+
         $Reaggregieren = false;
                 
         $archiveID = $this->GetArchivID();
@@ -1763,7 +1782,7 @@
                     }
                 else 
                     {
-                    // $this->SendDebug("SaveDataToDatabase","Variable wird nicht geloggt -> " . $Variable,0);
+                    $this->SendDebug("SaveDataToDatabase","Variable wird nicht geloggt -> " . $Variable,0);
                     return;
                     }
                     
@@ -1810,7 +1829,8 @@
 				$this->SendDebug("SaveDataToDatabase","!function_exists('AC_AddLoggedValues').",0);
 				}
 			else
-				{
+				{	if ( $name == "SpO2" )
+						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Function AC_AddLoggedValues existiert: ".$Value ,0);	
                                 
 				//$this->SendDebug("SaveDataToDatabase","Neue Daten werden asynchron geschrieben:".$Variable."-".date('d.m.Y h:i:s ',$Timestamp)."-".$Value,0);
                                 //$this->SendDebug("SaveDataToDatabase","Update Data Start    -> ".date('d.m.Y H:i:s ',time() ),0);
@@ -1822,11 +1842,14 @@
                                 
                                 if ( $LastTimestamp >= $Timestamp )
                                     {
-                                    //$this->SendDebug("SaveDataToDatabase","Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp) ." Timestamp -> ".date('d.m.Y H:i:s ',$Timestamp),0);
+                                    $this->SendDebug("SaveDataToDatabase"," Keine neuen Werte ".$name.": Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp) ." Timestamp -> ".date('d.m.Y H:i:s ',$Timestamp),0);
                                     
                                     }
                                 else 
                                     {
+									if ( $name == "SpO2" )	
+										$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schreibe SpO2 in Datenbank: ".$Value ,0);	
+
                                     $this->SendDebug("SaveDataToDatabase","Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp) ." Timestamp -> ".date('d.m.Y H:i:s ',$Timestamp),0);
                                     // $this->SendDebug("SaveDataToDatabase","Lasttimestamp  -> ".date('d.m.Y H:i:s ',$LastTimestamp ),0);
                                     
