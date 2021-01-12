@@ -427,7 +427,7 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$startdate = time()- (24*60*60)*10  ;
+		$startdate = time()- (24*60*60)*1  ;
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
