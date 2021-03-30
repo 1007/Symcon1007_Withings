@@ -11,9 +11,10 @@
 5. [Visualisierung](#5-visualisierung)
 6. [Datenhandling](#6-datenhandling)
 7. [Moegliche Daten](#7-datas)
-8. [Probleme](#8-probleme)
-9. [Changelog](#9-changelog)
-10. [ToDo Liste](#10-todo)
+8. [Benachrichtigungen](#8-callbacks)
+9. [Probleme](#9-probleme)
+10. [Changelog](#10-changelog)
+11. [ToDo Liste](#11-todo)
 
 ## 1. Funktionsumfang
 Dieses Modul holt Daten vom Withingsserver und speichert sie in Variablen.
@@ -149,7 +150,54 @@ IntradayActivity sind detailierte Daten ueber den ganzen Tag. ( zB minuetlich ),
 aber erst ab IPSymcon Version 5.1 da die Daten am Ende vom Tag mit dem richtigen
 Zeitstempel in die Datenbank eingetragen werden. 
 
-## 8. Probleme
+## 8. Benachrichtigungen
+Sobald Daten auf dem Withingsserver ankommen , kann man sich benachrichtigen lassen.
+Die passiert ueber eine Webhookadresse.
+Der Withingsserver ruft diese auf wenn neue Daten vorhanden. (sehr zeitnah).
+Besonders interessant fuer den Sleepsensor (zB aufstehen).
+Dazu muss man auf der Konfiguration ein Script auswahlen welches aufgerufen wird vom Modul
+und eine CallbackURL welche dem Withingsserver bei jedem Update mitgeteilt wird.
+Wichtig ! Wenn man die CallbackURL leert laesst wird versucht die IPMagic-Adresse zu senden.
+Diese wird von Withings nicht akzeptiert. Bisher konnte mir Withings das nicht erklaeren.
+Diese URL muss verschiedene Konditionen erfuellen (SSl, Antwort unter 2 Sekunden etc.)
+Einfach die URL wie man den IPS-Server erreicht. Das Modul ergaenzt die Hook-Daten.
+Im Debugfenster sollte es so ausehen wenn akzeptiert:
+`DoCurl | https://wbsapi.withings.net/notify?action=subscribe&access_token=...........&callbackurl=https://xxx.xxx.xxx/hook/Withingsxxxx&appli=50&comment=SubscribeSleep`
+`ProcessHookData[2089]`
+`DoCurl | {"status":0,"body":{}}`
+Wenn das so ist wird euer angegebenes Script in weniger als einer Minute bei Neuigkeiten aufgerufen.
+Ich habe bei allen Moeglichkeiten nur ein Script angegeben und entscheide im Script was zu tun ist.
+Beispiel:
+
+`<?php`
+
+    // $appli = Typ 1       = Gewichtsdaten
+    // $appli = Typ 2       = Temperaturdaten
+    // $appli = Typ 4       = Blutdruckdaten
+    // $appli = Typ 16      = Aktivitaetsdaten
+    // $appli = Typ 44      = Schlafdaten
+    // $appli = Typ 46      = User Aktionen 
+    // $appli = Typ 50      = Bett belegt
+    // $appli = Typ 51      = Bett frei
+    
+    $userid 	= @$_IPS['userid'];
+    $startdate 	= @date("d.m.Y H:i:s",$_IPS['startdate']);
+    $enddate 	= @date("d.m.Y H:i:s",$_IPS['enddate']);
+    $appli 		= @$_IPS['appli'];
+    
+    $appli = intval($appli);
+    IPS_Logmessage(basename(__FILE__),"User:".$userid." ".$startdate." - " .$enddate." Typ:".$appli);
+..
+
+
+
+
+
+
+
+
+
+## 9. Probleme
 
 Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
 Daten bleiben erhalten, werden im Archiv-Handler aber als
@@ -162,7 +210,7 @@ auf Name,Groesse,Geschlecht,Geburtstag.
 Deshalb bei neuer Instanz werden diese Variablen leer bleiben.
 Unbedingt darauf achten die Groesse einzutragen sonst bleibt der BMI leer.
 
-## 9. Changelog
+## 10. Changelog
 Version 2.1:
   - Erster Release
 
@@ -179,7 +227,10 @@ Version 3.0
 Version 4.0  
   - zusaetzliche Daten 
 
-## 10. ToDo Liste
+## 11. ToDo Liste
 	Pulswerte fuer Waage und Blutdruck noch nicht getrennt.( Nur haendisch )
 
   
+
+
+
