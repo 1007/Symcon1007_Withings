@@ -130,7 +130,7 @@
 	public function Authentifizierung()
 		{
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Starte Webseite zum einloggen bei Withings",0);	
-		$url = "https://oauth.ipmagic.de/authorize/withings?username=".urlencode(IPS_GetLicensee());
+		$url = "authorize/https://oauth.ipmagic.de/withings?username=".urlencode(IPS_GetLicensee());
 		$this->RegisterOAuth('withings');
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
 
@@ -2014,7 +2014,7 @@
 			}
 		else
 			{
-			$callbackurl = $connectinfo."/hook/Withings".$this->InstanceID;
+			$callbackurl = $connectinfo."/hook/Withings".$this->InstanceID."/";
 			}
 				
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl,0);
@@ -2025,7 +2025,7 @@
 		$output = $this->DoCurl($url,true);
 		
 		$data = json_decode($output,TRUE);
-		$status = $data['status'];
+		$status = @$data['status'];
 		if ( $status != 0 )
 			$this->SetStatus(293);
 
@@ -2085,7 +2085,7 @@
 		header("HTTP/1.1 200 OK");
 			
 		http_response_code(200);
-			
+		echo "1007";	
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
 
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
@@ -2116,6 +2116,12 @@
 			$appli = $_POST['appli'];
 		else
 			$appli = false;
+
+		echo "<br>UserID:".$userid;
+		echo "<br>Startdate:".$startdate;
+		echo "<br>Enddate:".$enddate;
+		echo "<br>Appli:".$appli;
+			
 
 		$parameter=array('userid' => $userid,'startdate' => $startdate,'enddate' => $enddate,'appli' => $appli,);	
 
