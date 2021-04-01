@@ -2090,14 +2090,14 @@
 
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
 			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Notifications disabled",0);
 			return;
 			}
-
 			
-		 // IPS_LogMessage("WebHook GET", print_r($_GET, true));
-		 // IPS_LogMessage("WebHook POST", print_r($_POST, true));
-		 // IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
-		 // IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
+		IPS_LogMessage("WebHook GET", print_r($_GET, true));
+		IPS_LogMessage("WebHook POST", print_r($_POST, true));
+		IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
+		IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
 
 
 		if ( isset($_POST['userid']) )	
