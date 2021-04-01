@@ -1439,7 +1439,7 @@
 							
                         }
 					
-						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich  :".$ID,0);
+						// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich  :".$ID,0);
 					}
 
                 
@@ -2117,10 +2117,10 @@
 		else
 			$appli = false;
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"UserID:".$userid,0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate:".$startdate,0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Enddate:".$enddate,0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Appli:".$appli,0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"UserID:".$userid,0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate:".$startdate,0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Enddate:".$enddate,0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Appli:".$appli,0);
 			
 
 		$parameter=array('userid' => $userid,'startdate' => $startdate,'enddate' => $enddate,'appli' => $appli,);	
