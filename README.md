@@ -60,6 +60,8 @@ Abfrageintervall in Sekunden ( empfohlen 3600 )
 
 Logging einschalten ( Logdatei in Ordner ../logs/Withings)
 
+Alarmscript ( wird aufgerufen wenn bei einem Update die Authorisierung NOK )
+
 ## 5. Visualisierung
 Um die Daten im Webfront darzustellen einfach die Instance innerhalb einer
 Kategorie verlinken. Sollen bestimmte Werte nicht angezeigt werden die

@@ -1253,11 +1253,19 @@
 
 			// $this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
 			// Alle Messungen durchgehen
-			foreach($messungen as $messung)
+			// Neuste Messung am Ende
+			foreach($messungen as $key => $messung)
 				{
+				$lastkey = false;	
+				if ($key === array_key_last($messungen))
+					$lastkey = true;	// fuer asynchron
+
+				//if ( $lastkey == true )
+				//	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messung Last : ".$messung['type'].date('l jS \of F Y h:i:s A',$time),0);
+
 				$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
 				
-				// $this->SendDebug("DoMeas","Messung Type : ".$messung['type']." : " .$val ."-".date('l jS \of F Y h:i:s A',$time),0);
+				//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messung Type : ".$messung['type']." : " .$val ."-".date('l jS \of F Y h:i:s A',$time),0);
 				$text = date('d.m.Y H:i:s',$time) ." Messung Type : ".$messung['type']." : " .$val ;
 				$this->LoggingExt($text,"Messungen.log");
 
@@ -1348,11 +1356,17 @@
                             case 1 :	$gewicht = $value;
                                         $ID = $this->CheckOldVersionCatID("weight",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,true,$TimestampWaage,"weight");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,false,$TimestampWaage,"weight");
+										
 										if ( $groesse !=  0)
 											{
 											$bmi = @round($gewicht/(($groesse/100)*($groesse/100)),2);
  											$ID = $this->CheckOldVersionCatID("bmi",$CatIdWaage,$deviceID);
                                        		$this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,true,$TimestampWaage,"bmi");
+											if ( $lastkey == true )
+												$this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,false,$TimestampWaage,"bmi");
+											
 											}
 										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,$TimestampWaage,"timestamp");
@@ -1365,26 +1379,41 @@
                             case 5 :	$fettfrei = $value;
                                         $ID = $this->CheckOldVersionCatID("fatfree",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatfree");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatfree");
                                         break;
                                     
                             case 6 :	$fettprozent = $value;
                                         $ID = $this->CheckOldVersionCatID("fatradio",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"fatradio");
+										if ( $lastkey == true )
+								        	$this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"fatradio");
+								
                 						break;
                                         
                     		case 8 :	$fettanteil = $value;
 										$ID = $this->CheckOldVersionCatID("fatmassweight",$CatIdWaage,$deviceID);
                                         $this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatmassweight");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatmassweight");
+										
+										
 										break;
 
 							case 9 :	$diastolic = $value;
 										$ID = $this->CheckOldVersionCatID("diastolicblood",$CatIdBlutdruck,$deviceID);
 										$this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"diastolicblood");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"diastolicblood");
+										
 										break;
 							
 							case 10 :	$systolic = $value;
                                 		$ID = $this->CheckOldVersionCatID("systolicblood",$CatIdBlutdruck,$deviceID);
                                 		$this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"systolicblood");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"systolicblood");
+										
 										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdBlutdruck,$deviceID);
                                         $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
                                 		break;
@@ -1392,11 +1421,17 @@
 							case 11:	$puls = $value;
 										$ID = $this->CheckOldVersionCatID("heartpulse",$CatIdWaage,$deviceID);
 										$this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,true,$TimestampWaage,"heartpulse");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,false,$TimestampWaage,"heartpulse");
+										
 										break;
 							
 							case 12 :	$temperatur = $value;
 										$this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,true,$TimestampThermo,"temperatur");
-                                        $this->SetValueToVariable($deviceID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
+										if ( $lastkey == true )
+											$this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,false,$TimestampThermo,"temperatur");
+									
+										$this->SetValueToVariable($deviceID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
                 						break;
 							
 							case 54 :	$sp02 = $value;
@@ -1405,31 +1440,47 @@
                     		
                     		case 71 :	$koerpertemperatur = $value; 
                     					$this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,true,$TimestampThermo,"koerpertemperatur");
+										if ( $lastkey == true )
+	                    					$this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,false,$TimestampThermo,"koerpertemperatur");
 										break;
 							
 							case 73 :	$hauttemperatur = $value;
 										$this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,true,$TimestampThermo,"hauttemperatur");
+										if ( $lastkey == true )
+	                    					$this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,false,$TimestampThermo,"hauttemperatur");
 										break;
 							
 							case 76 :	$muskelmasse = $value;
 										$ID = $this->CheckOldVersionCatID("muskelmasse",$CatIdWaage,$deviceID);
 										$this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"muskelmasse");
-                						break;
+                						if ( $lastkey == true )
+	                    					$this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"muskelmasse");
+                						
+										break;
 							
 							case 77 :	$hydration = $value;
 										$ID = $this->CheckOldVersionCatID("wasseranteil",$CatIdWaage,$deviceID);
 										$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"wasseranteil");
-        								break;
+        								if ( $lastkey == true )
+	                    					$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"wasseranteil");
+        								
+										break;
 							
 							case 88 :	$knochenmasse = $value;
 										$ID = $this->CheckOldVersionCatID("bonemass",$CatIdWaage,$deviceID);
 										$this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"bonemass");
-                						break;
+                						if ( $lastkey == true )
+	                    					$this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"bonemass");
+                						
+										break;
 							
 							case 91 :	$pulswellen = $value;
 										$ID = $this->CheckOldVersionCatID("pulswave",$CatIdWaage,$deviceID);
 										$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,true,$TimestampWaage,"pulswave");
-                						break;
+                						if ( $lastkey == true )
+	                    					$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,false,$TimestampWaage,"pulswave");
+                						
+										break;
 					                    
                                                             
                             default:	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp nicht vorhanden : ".$key."-".$value,0);
@@ -1775,6 +1826,7 @@
             {
 			if ( $VariableID > 0 )
             	{
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"VariableID Asynchron : ".$VariableID,0);
                 SetValue($VariableID,$value);
                 }
 
