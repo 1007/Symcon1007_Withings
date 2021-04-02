@@ -151,7 +151,9 @@
 			$this->SetStatus(102);
 		
 		set_time_limit (5 * 60);
-                
+         
+		$NotifiyListArray = array();
+
         $starttime = time();            
 		
 		$this->Logging("Update");
@@ -190,7 +192,6 @@
     	$this->GetNotifyList(50);
     	$this->GetNotifyList(51);
 		
-		
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
 			{
 			$this->DoNotifyRevokeAll();	
@@ -200,8 +201,6 @@
 
 		// $this->GetNonce();
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data ENDE",0);
-		
 		$endtime = time();
 		
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Laufzeit ".($endtime - $starttime) . " Sekunden" ,0);
@@ -1036,11 +1035,12 @@
 			$activityheartrate	= @$data[$key]['heart_rate'];
 			$activityspo2		= @$data[$key]['spo2_auto'];
 
+			/*
 			if ( isset($data[$key]['spo2_auto']) == false )
 				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"spo2_auto: Not set",0);
 			else	
 				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"spo2_auto: Set ".$data[$key]['spo2_auto'] ,0);
-			
+			*/
 			/*
 			$this->SendDebug("DoGetintradayactivity","Datum : ".					$activitydate,0);
 			$this->SendDebug("DoGetintradayactivity","Schritte : ".				$activitysteps,0);
@@ -1076,7 +1076,7 @@
 		//if(isset($activityelevation))	$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"	,floatval($activityelevation)         ,"WITHINGS_M_Meter"		,4	,false,false,"hoehenmeter");
 		//if(isset($activitysteps))		$this->SetValueToVariable($InstanceIDActivity,"Schritte"	,intval($activitysteps)               ,"WITHINGS_M_Schritte"	,11	,false,false,"schritte");
                 
-		$this->Reaggregieren($InstanceIDActivity);
+		//$this->Reaggregieren($InstanceIDActivity);
 		
 		if ( $RequestReAggregation == true )
 			{
@@ -1525,7 +1525,7 @@
 					die("Authorization Code expected");
 				}
 			$code = $_GET['code'];  
-			// print_r($_GET);
+			
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "code: ".$code, 0);
 			$this->FetchRefreshToken($code);
 			} 
@@ -1911,6 +1911,10 @@
 	function DoNotifyList($data)
 		{
 		
+		Global $NotifiyListArray;
+
+			
+
 		if ( $data == false )
 			return false ;
 			
@@ -1932,8 +1936,12 @@
 			$callbackurl = @$profil['callbackurl'];	
 			$comment     = @$profil['comment'];	
 				
+			$applikation = intval($applikation);
+
 			$s = "[".$applikation."][".$callbackurl."][".$comment."]";
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$s,0);
+			$NotifiyListArray[$applikation] = $callbackurl;
+			
 			}
 			
 		return ( $data );
@@ -1998,6 +2006,8 @@
 	protected function GetNotifySubscribe()
 		{
 		
+		Global $NotifiyListArray;
+
 		$access_token = $this->ReadPropertyString("Userpassword");
 
 		$startdate = date("Y-m-d",time() - 24*60*60*5);
@@ -2020,32 +2030,36 @@
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl,0);
 		
 
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=1&comment=SubscribeWeight";
-		
-		$output = $this->DoCurl($url,true);
-		
-		$data = json_decode($output,TRUE);
-		$status = @$data['status'];
-		if ( $status != 0 )
-			$this->SetStatus(293);
+		// Wenn CallbackURL schon gesetzt dann ueberspringen
+		$SubscribeArray = array( 
+			1 => "SubscribeWeight" ,
+			2 => "SubscribeHeart" ,
+			4 => "SubscribeHeart" ,
+			16 => "SubscribeActivity" ,
+			44 => "SubscribeSleep" ,
+			46 => "SubscribeUser" ,
+			50 => "SubscribeSleep" ,
+			51 => "SubscribeSleep" ,
+			
+			);
 
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=2&comment=SubscribeHeart";
-		$this->DoCurl($url,true);
-
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=4&comment=SubscribeHeart";
-		$this->DoCurl($url,true);
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=16&comment=SubscribeActivity";
-		$this->DoCurl($url,true);
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=44&comment=SubscribeSleep";
-		$this->DoCurl($url,true);
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=46&comment=SubscribeUser";
-		$this->DoCurl($url,true);
-
-  		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=50&comment=SubscribeSleep";
-		$this->DoCurl($url,true);
-		$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=51&comment=SubscribeSleep";
-		$this->DoCurl($url,true);
-		
+		foreach($SubscribeArray as $appli => $comment )
+    		{
+			if ( isset($NotifiyListArray[$appli]) == true AND $NotifiyListArray[$appli] == $callbackurl)
+				{ 
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl." schon gesetzt appli=".$appli,0);
+				}
+			else
+				{
+				$url = "https://wbsapi.withings.net/notify?action=subscribe&access_token=".$access_token."&callbackurl=".$callbackurl."&appli=".$appli."&comment=".$comment."";
+				$output = $this->DoCurl($url,true);
+				$data = json_decode($output,TRUE);
+				$status = @$data['status'];
+				if ( $status != 0 )
+					$this->SetStatus(293);
+				}
+	
+			}	
 
 		}
 		
@@ -2094,10 +2108,10 @@
 			return;
 			}
 			
-		IPS_LogMessage("WebHook GET", print_r($_GET, true));
-		IPS_LogMessage("WebHook POST", print_r($_POST, true));
-		IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
-		IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
+		//IPS_LogMessage("WebHook GET", print_r($_GET, true));
+		//IPS_LogMessage("WebHook POST", print_r($_POST, true));
+		//IPS_LogMessage("WebHook IPS", print_r($_IPS, true));
+		//IPS_LogMessage("WebHook RAW", file_get_contents("php://input"));
 
 
 		if ( isset($_POST['userid']) )	
