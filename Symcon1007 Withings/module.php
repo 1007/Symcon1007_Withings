@@ -130,7 +130,7 @@
 	public function Authentifizierung()
 		{
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Starte Webseite zum einloggen bei Withings",0);	
-		$url = "authorize/https://oauth.ipmagic.de/withings?username=".urlencode(IPS_GetLicensee());
+		$url = "https://oauth.ipmagic.de/authorize/withings?username=".urlencode(IPS_GetLicensee());
 		$this->RegisterOAuth('withings');
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
 
