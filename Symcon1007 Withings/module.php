@@ -2151,7 +2151,7 @@
 		header("HTTP/1.1 200 OK");
 			
 		http_response_code(200);
-		echo "1007";	
+		echo $this->InstanceID;	
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
 
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
