@@ -150,7 +150,7 @@
 		else
 			$this->SetStatus(102);
 		
-		set_time_limit (5 * 60);
+		//set_time_limit (5 * 60);	// disabled wegen 5.6
          
 		$NotifiyListArray = array();
 
@@ -329,7 +329,8 @@
 
 		$category = 1;
 
-        $startdate = time()- 24*60*60*5;
+		$tage = 5;
+        $startdate = time()- 24*60*60*$tage;
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
@@ -1221,6 +1222,7 @@
 
 		$text = "Start";
 		$this->LoggingExt($text,"Messungen.log",true);
+		$arraydatas = array();
 
 		// Alle Messgruppen durchgehen
 		foreach($measuregrps as $daten)
@@ -1254,8 +1256,10 @@
 			// $this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
 			// Alle Messungen durchgehen
 			// Neuste Messung am Ende
+			
 			foreach($messungen as $key => $messung)
 				{
+				
 				$lastkey = false;	
 				if ($key === array_key_last($messungen))
 					$lastkey = true;	// fuer asynchron
@@ -2295,9 +2299,12 @@
 	 protected function Reaggregieren($Instanze)
 		{
 
+		if ( $Instanze == false )
+			return;
+
 		$version = (float)IPS_GetKernelVersion();
 
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggregiere Data in Database : " . $version,0);
+        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggregiere Data in Database : " . $version." - ".$Instanze,0);
                 
         $childs = IPS_GetChildrenIDs($Instanze);
                 
