@@ -1215,7 +1215,7 @@
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Anzahl der Measuregrps : ".count($measuregrps) . " von " . $measuregrpsstart. " bis " . $measuregrpsende,0);	
 			}
 
-		$RequestReAggregation = true;
+		$RequestReAggregation = false;
 
 		// Neueste nach hinten
 		$measuregrps = array_reverse ( $measuregrps  );
@@ -1359,7 +1359,7 @@
                             { 
                             case 1 :	$gewicht = $value;
                                         $ID = $this->CheckOldVersionCatID("weight",$CatIdWaage,$deviceID);
-                                        $this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,true,$TimestampWaage,"weight");
+                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,true,$TimestampWaage,"weight");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,false,$TimestampWaage,"weight");
 										
@@ -1367,7 +1367,7 @@
 											{
 											$bmi = @round($gewicht/(($groesse/100)*($groesse/100)),2);
  											$ID = $this->CheckOldVersionCatID("bmi",$CatIdWaage,$deviceID);
-                                       		$this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,true,$TimestampWaage,"bmi");
+											$RequestReAggregation = $this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,true,$TimestampWaage,"bmi");
 											if ( $lastkey == true )
 												$this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,false,$TimestampWaage,"bmi");
 											
@@ -1382,14 +1382,14 @@
                             
                             case 5 :	$fettfrei = $value;
                                         $ID = $this->CheckOldVersionCatID("fatfree",$CatIdWaage,$deviceID);
-                                        $this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatfree");
+                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatfree");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatfree");
                                         break;
                                     
                             case 6 :	$fettprozent = $value;
                                         $ID = $this->CheckOldVersionCatID("fatradio",$CatIdWaage,$deviceID);
-                                        $this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"fatradio");
+                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"fatradio");
 										if ( $lastkey == true )
 								        	$this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"fatradio");
 								
@@ -1397,7 +1397,7 @@
                                         
                     		case 8 :	$fettanteil = $value;
 										$ID = $this->CheckOldVersionCatID("fatmassweight",$CatIdWaage,$deviceID);
-                                        $this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatmassweight");
+                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatmassweight");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatmassweight");
 										
@@ -1406,7 +1406,7 @@
 
 							case 9 :	$diastolic = $value;
 										$ID = $this->CheckOldVersionCatID("diastolicblood",$CatIdBlutdruck,$deviceID);
-										$this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"diastolicblood");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"diastolicblood");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"diastolicblood");
 										
@@ -1414,24 +1414,24 @@
 							
 							case 10 :	$systolic = $value;
                                 		$ID = $this->CheckOldVersionCatID("systolicblood",$CatIdBlutdruck,$deviceID);
-                                		$this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"systolicblood");
+                                		$RequestReAggregation = $this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"systolicblood");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"systolicblood");
 										
 										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdBlutdruck,$deviceID);
-                                        $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
+                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
                                 		break;
 							
 							case 11:	$puls = $value;
 										$ID = $this->CheckOldVersionCatID("heartpulse",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,true,$TimestampWaage,"heartpulse");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,true,$TimestampWaage,"heartpulse");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,false,$TimestampWaage,"heartpulse");
 										
 										break;
 							
 							case 12 :	$temperatur = $value;
-										$this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,true,$TimestampThermo,"temperatur");
+										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,true,$TimestampThermo,"temperatur");
 										if ( $lastkey == true )
 											$this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,false,$TimestampThermo,"temperatur");
 									
@@ -1443,20 +1443,20 @@
 										break;
                     		
                     		case 71 :	$koerpertemperatur = $value; 
-                    					$this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,true,$TimestampThermo,"koerpertemperatur");
+										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,true,$TimestampThermo,"koerpertemperatur");
 										if ( $lastkey == true )
 	                    					$this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,false,$TimestampThermo,"koerpertemperatur");
 										break;
 							
 							case 73 :	$hauttemperatur = $value;
-										$this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,true,$TimestampThermo,"hauttemperatur");
+										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,true,$TimestampThermo,"hauttemperatur");
 										if ( $lastkey == true )
 	                    					$this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,false,$TimestampThermo,"hauttemperatur");
 										break;
 							
 							case 76 :	$muskelmasse = $value;
 										$ID = $this->CheckOldVersionCatID("muskelmasse",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"muskelmasse");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"muskelmasse");
                 						if ( $lastkey == true )
 	                    					$this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"muskelmasse");
                 						
@@ -1464,7 +1464,7 @@
 							
 							case 77 :	$hydration = $value;
 										$ID = $this->CheckOldVersionCatID("wasseranteil",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"wasseranteil");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"wasseranteil");
         								if ( $lastkey == true )
 	                    					$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"wasseranteil");
         								
@@ -1472,7 +1472,7 @@
 							
 							case 88 :	$knochenmasse = $value;
 										$ID = $this->CheckOldVersionCatID("bonemass",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"bonemass");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"bonemass");
                 						if ( $lastkey == true )
 	                    					$this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"bonemass");
                 						
@@ -1480,7 +1480,7 @@
 							
 							case 91 :	$pulswellen = $value;
 										$ID = $this->CheckOldVersionCatID("pulswave",$CatIdWaage,$deviceID);
-										$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,true,$TimestampWaage,"pulswave");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,true,$TimestampWaage,"pulswave");
                 						if ( $lastkey == true )
 	                    					$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,false,$TimestampWaage,"pulswave");
                 						
@@ -1822,9 +1822,8 @@
 		if ( $asynchron == true )
         	{
 			$Reaggieren = $this->SaveDataToDatabase($VariableID,$Timestamp,$value,$name);
+			//if ( $Reaggieren == true )
 			//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggieren : ".$Reaggieren,0);
-            
-
             }
 		else
             {
