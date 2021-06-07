@@ -1727,6 +1727,7 @@
 
 	//******************************************************************************
 	//	Wert in Variable schreiben
+	// Position 6 -	Werte in Variable schreiben oder gleich in Database
 	//******************************************************************************
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false)
 		{
