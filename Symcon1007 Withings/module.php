@@ -825,40 +825,61 @@
 
 
 
-/*
-		$this->SendDebug("DoSleepSummary","Modell : ".$sleepmodel,0);
-		$this->SendDebug("DoSleepSummary","Startdatum : ".date("d-m-Y H:i:s",$sleepstartdate),0);
-		$this->SendDebug("DoSleepSummary","Enddatum : "  .date("d-m-Y H:i:s",$sleependdate),0);
-		$this->SendDebug("DoSleepSummary","Modifieddatum : "  .date("d-m-Y H:i:s",$sleepmodified),0);
-		$this->SendDebug("DoSleepSummary","Schlafdauer : "  . $this->FormatTimeMinuten($sleepdauer),0);
-		$this->SendDebug("DoSleepSummary","Wachphasen : "           .$this->FormatTimeMinuten($sleepwakeupduration). " Minuten",0);
-		$this->SendDebug("DoSleepSummary","Leichtschlafphasen : "   .$this->FormatTimeMinuten($sleeplightsleepduration)." Minuten",0);
-		$this->SendDebug("DoSleepSummary","Tiefschlafphasen : "     .$this->FormatTimeMinuten($sleepdeepsleepduration) . " Minuten",0);
-		$this->SendDebug("DoSleepSummary","Schlafunterbrechungen : ".$sleepwakeupcount,0);
-		$this->SendDebug("DoSleepSummary","Einschlafzeit : "        .$this->FormatTimeMinuten($sleepdurationtosleep) . " Minuten",0);
-		$this->SendDebug("DoSleepSummary","Aufstehzeit : "          .$this->FormatTimeMinuten($sleepdurationtowakeup) . " Minuten",0);
-	*/
+			/*
+			$this->SendDebug("DoSleepSummary","Modell : ".$sleepmodel,0);
+			$this->SendDebug("DoSleepSummary","Startdatum : ".date("d-m-Y H:i:s",$sleepstartdate),0);
+			$this->SendDebug("DoSleepSummary","Enddatum : "  .date("d-m-Y H:i:s",$sleependdate),0);
+			$this->SendDebug("DoSleepSummary","Modifieddatum : "  .date("d-m-Y H:i:s",$sleepmodified),0);
+			$this->SendDebug("DoSleepSummary","Schlafdauer : "  . $this->FormatTimeMinuten($sleepdauer),0);
+			$this->SendDebug("DoSleepSummary","Wachphasen : "           .$this->FormatTimeMinuten($sleepwakeupduration). " Minuten",0);
+			$this->SendDebug("DoSleepSummary","Leichtschlafphasen : "   .$this->FormatTimeMinuten($sleeplightsleepduration)." Minuten",0);
+			$this->SendDebug("DoSleepSummary","Tiefschlafphasen : "     .$this->FormatTimeMinuten($sleepdeepsleepduration) . " Minuten",0);
+			$this->SendDebug("DoSleepSummary","Schlafunterbrechungen : ".$sleepwakeupcount,0);
+			$this->SendDebug("DoSleepSummary","Einschlafzeit : "        .$this->FormatTimeMinuten($sleepdurationtosleep) . " Minuten",0);
+			$this->SendDebug("DoSleepSummary","Aufstehzeit : "          .$this->FormatTimeMinuten($sleepdurationtowakeup) . " Minuten",0);
+			*/
+
+
+			// Testweise synchron 
+			if(isset($sleepstartdate))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Startzeit"              ,$sleepstartdate                ,"~UnixTimestamp"       ,1  ,true,$sleepmodified,"startzeit");
+			if(isset($sleependdate))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Endezeit"               ,$sleependdate                  ,"~UnixTimestamp"       ,2  ,true,$sleepmodified,"endezeit");
+			if(isset($sleepmodified))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Updatezeit"             ,$sleepmodified                 ,"~UnixTimestamp"       ,0 	,true,$sleepmodified,"timestamp");
+			if(isset($sleepdauer))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Schlafdauer"            ,$sleepdauer/60                 ,"WITHINGS_M_Minuten"   ,3  ,true,$sleepmodified,"schlafdauer");
+			if(isset($sleepwakeupduration))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Wachphasen"             ,$sleepwakeupduration/60        ,"WITHINGS_M_Minuten"   ,8  ,true,$sleepmodified,"wachphasen");
+			if(isset($sleeplightsleepduration))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Leichtschlafphasen"     ,$sleeplightsleepduration/60	,"WITHINGS_M_Minuten"   ,6  ,true,$sleepmodified,"leichtschlafphasen");
+			if(isset($sleepdeepsleepduration))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Tiefschlafphasen"       ,$sleepdeepsleepduration/60     ,"WITHINGS_M_Minuten"   ,7  ,true,$sleepmodified,"tiefschlafphasen");
+			if(isset($sleepwakeupcount))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,"WITHINGS_M_Anzahl"    ,9  ,true,$sleepmodified,"schlafunterbrechungen");
+			if(isset($sleepdurationtosleep))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,true,$sleepmodified,"einschlafzeit");
+			if(isset($sleepdurationtowakeup))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,true,$sleepmodified,"aufstehzeit");
+			if(isset($sleepremduration))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7	,true,$sleepmodified,"remschlafphasen");
+			if(isset($sleephraverage))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Durchschnitt",$sleephraverage      			,"WITHINGS_M_Puls"   	,10 ,true,$sleepmodified,"herzschlagdurchschnitt");
+			if(isset($sleephrmin))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Minimal"     ,$sleephrmin      				,"WITHINGS_M_Puls"   	,11 ,true,$sleepmodified,"herzschlagminimal");
+			if(isset($sleephrmax))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Maximal"     ,$sleephrmax      				,"WITHINGS_M_Puls"   	,12 ,true,$sleepmodified,"herzschlagmaximal");
+			if(isset($sleeprraverage))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Durchschnitt"    ,$sleeprraverage      			,"WITHINGS_M_Atmung"   	,15 ,true,$sleepmodified,"atemzuegedurchschnitt");
+			if(isset($sleeprrmin))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Minimal"        	,$sleeprrmin      				,"WITHINGS_M_Atmung"   	,16 ,true,$sleepmodified,"atemzuegeminimal");
+			if(isset($sleeprrmax))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Maximal"        	,$sleeprrmax      				,"WITHINGS_M_Atmung"   	,17 ,true,$sleepmodified,"atemzuegemaximal");
+				
 		  }
 		  
 
 		// Nicht asynchron schreiben  
-		if(isset($sleepstartdate))			$this->SetValueToVariable($InstanceIDSleep,"Startzeit"              ,$sleepstartdate                ,"~UnixTimestamp"       ,1  ,false,false,"startzeit");
-		if(isset($sleependdate))			$this->SetValueToVariable($InstanceIDSleep,"Endezeit"               ,$sleependdate                  ,"~UnixTimestamp"       ,2  ,false,false,"endezeit");
-		if(isset($sleepmodified))			$this->SetValueToVariable($InstanceIDSleep,"Updatezeit"             ,$sleepmodified                 ,"~UnixTimestamp"       ,0 	,false,false,"timestamp");
-		if(isset($sleepdauer))				$this->SetValueToVariable($InstanceIDSleep,"Schlafdauer"            ,$sleepdauer/60                 ,"WITHINGS_M_Minuten"   ,3  ,false,false,"schlafdauer");
-		if(isset($sleepwakeupduration))		$this->SetValueToVariable($InstanceIDSleep,"Wachphasen"             ,$sleepwakeupduration/60        ,"WITHINGS_M_Minuten"   ,8  ,false,false,"wachphasen");
-		if(isset($sleeplightsleepduration))	$this->SetValueToVariable($InstanceIDSleep,"Leichtschlafphasen"     ,$sleeplightsleepduration/60	,"WITHINGS_M_Minuten"   ,6  ,false,false,"leichtschlafphasen");
-		if(isset($sleepdeepsleepduration))	$this->SetValueToVariable($InstanceIDSleep,"Tiefschlafphasen"       ,$sleepdeepsleepduration/60     ,"WITHINGS_M_Minuten"   ,7  ,false,false,"tiefschlafphasen");
-		if(isset($sleepwakeupcount))		$this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,"WITHINGS_M_Anzahl"    ,9  ,false,false,"schlafunterbrechungen");
-		if(isset($sleepdurationtosleep))	$this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,false,false,"einschlafzeit");
-		if(isset($sleepdurationtowakeup))	$this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,false,false,"aufstehzeit");
-		if(isset($sleepremduration))		$this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7	,false,false,"remschlafphasen");
-		if(isset($sleephraverage))			$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Durchschnitt",$sleephraverage      			,"WITHINGS_M_Puls"   	,10 ,false,false,"herzschlagdurchschnitt");
-		if(isset($sleephrmin))				$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Minimal"     ,$sleephrmin      				,"WITHINGS_M_Puls"   	,11 ,false,false,"herzschlagminimal");
-		if(isset($sleephrmax))				$this->SetValueToVariable($InstanceIDSleep,"Herzschlag Maximal"     ,$sleephrmax      				,"WITHINGS_M_Puls"   	,12 ,false,false,"herzschlagmaximal");
-		if(isset($sleeprraverage))			$this->SetValueToVariable($InstanceIDSleep,"Atmung Durchschnitt"    ,$sleeprraverage      			,"WITHINGS_M_Atmung"   	,15 ,false,false,"atemzuegedurchschnitt");
-		if(isset($sleeprrmin))				$this->SetValueToVariable($InstanceIDSleep,"Atmung Minimal"        	,$sleeprrmin      				,"WITHINGS_M_Atmung"   	,16 ,false,false,"atemzuegeminimal");
-		if(isset($sleeprrmax))				$this->SetValueToVariable($InstanceIDSleep,"Atmung Maximal"        	,$sleeprrmax      				,"WITHINGS_M_Atmung"   	,17 ,false,false,"atemzuegemaximal");
+		if(isset($sleepstartdate))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Startzeit"              ,$sleepstartdate                ,"~UnixTimestamp"       ,1  ,false,false,"startzeit");
+		if(isset($sleependdate))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Endezeit"               ,$sleependdate                  ,"~UnixTimestamp"       ,2  ,false,false,"endezeit");
+		if(isset($sleepmodified))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Updatezeit"             ,$sleepmodified                 ,"~UnixTimestamp"       ,0 	,false,false,"timestamp");
+		if(isset($sleepdauer))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Schlafdauer"            ,$sleepdauer/60                 ,"WITHINGS_M_Minuten"   ,3  ,false,false,"schlafdauer");
+		if(isset($sleepwakeupduration))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Wachphasen"             ,$sleepwakeupduration/60        ,"WITHINGS_M_Minuten"   ,8  ,false,false,"wachphasen");
+		if(isset($sleeplightsleepduration))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Leichtschlafphasen"     ,$sleeplightsleepduration/60	,"WITHINGS_M_Minuten"   ,6  ,false,false,"leichtschlafphasen");
+		if(isset($sleepdeepsleepduration))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Tiefschlafphasen"       ,$sleepdeepsleepduration/60     ,"WITHINGS_M_Minuten"   ,7  ,false,false,"tiefschlafphasen");
+		if(isset($sleepwakeupcount))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Schlafunterbrechungen"  ,$sleepwakeupcount              ,"WITHINGS_M_Anzahl"    ,9  ,false,false,"schlafunterbrechungen");
+		if(isset($sleepdurationtosleep))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Einschlafzeit"          ,$sleepdurationtosleep/60       ,"WITHINGS_M_Minuten"   ,4  ,false,false,"einschlafzeit");
+		if(isset($sleepdurationtowakeup))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Aufstehzeit"            ,$sleepdurationtowakeup/60      ,"WITHINGS_M_Minuten"   ,5  ,false,false,"aufstehzeit");
+		if(isset($sleepremduration))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"REMschlafphasen"        ,$sleepremduration/60      		,"WITHINGS_M_Minuten"   ,7	,false,false,"remschlafphasen");
+		if(isset($sleephraverage))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Durchschnitt",$sleephraverage      			,"WITHINGS_M_Puls"   	,10 ,false,false,"herzschlagdurchschnitt");
+		if(isset($sleephrmin))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Minimal"     ,$sleephrmin      				,"WITHINGS_M_Puls"   	,11 ,false,false,"herzschlagminimal");
+		if(isset($sleephrmax))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Herzschlag Maximal"     ,$sleephrmax      				,"WITHINGS_M_Puls"   	,12 ,false,false,"herzschlagmaximal");
+		if(isset($sleeprraverage))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Durchschnitt"    ,$sleeprraverage      			,"WITHINGS_M_Atmung"   	,15 ,false,false,"atemzuegedurchschnitt");
+		if(isset($sleeprrmin))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Minimal"        	,$sleeprrmin      				,"WITHINGS_M_Atmung"   	,16 ,false,false,"atemzuegeminimal");
+		if(isset($sleeprrmax))				$RequestReAggregation = $this->SetValueToVariable($InstanceIDSleep,"Atmung Maximal"        	,$sleeprrmax      				,"WITHINGS_M_Atmung"   	,17 ,false,false,"atemzuegemaximal");
 
 		
 		if ( $RequestReAggregation == true )
@@ -930,32 +951,33 @@
 			$activitybrand			= @$activity['brand'];
 
             /*
-			$this->SendDebug("DoActivity","Datum : ".		$activitydate,0);
+			$this->SendDebug("DoActivity","Datum : ".			$activitydate,0);
 			$this->SendDebug("DoActivity","Schritte : ".		$activitysteps,0);
 			$this->SendDebug("DoActivity","Distanze : ".		$activitydistance,0);
-			$this->SendDebug("DoActivity","Hoehe : ".		$activityelevation,0);
-			$this->SendDebug("DoActivity","Soft : ".		$activitysoft,0);
+			$this->SendDebug("DoActivity","Hoehe : ".			$activityelevation,0);
+			$this->SendDebug("DoActivity","Soft : ".			$activitysoft,0);
 			$this->SendDebug("DoActivity","Moderate : ".		$activitymoderate,0);
-			$this->SendDebug("DoActivity","Intense : ".		$activityintense,0);
+			$this->SendDebug("DoActivity","Intense : ".			$activityintense,0);
 			$this->SendDebug("DoActivity","Kalorien : ".		$activitycalories,0);
 			$this->SendDebug("DoActivity","Gesamtkalorien : ".	$activitytotalcalories,0);
-			$this->SendDebug("DoActivity","Brand : ".		$activitybrand,0);
+			$this->SendDebug("DoActivity","Brand : ".			$activitybrand,0);
             */
 
 			$timestamp = intval(strtotime ($activitydate));
 
-			// Daten asynchron in Datenbank schreiben
-			/*
-			if(isset($activitydate))					$this->SetValueToVariable($InstanceIDActivity,"Updatezeit"					,intval(strtotime ($activitydate))		,"~UnixTimestamp"				,1	,true,$timestamp);
-			if(isset($activitysteps))					$this->SetValueToVariable($InstanceIDActivity,"Schritte"						,intval($activitysteps)								,"WITHINGS_M_Schritte"	,2	,true,$timestamp);
-			if(isset($activitydistance))			$this->SetValueToVariable($InstanceIDActivity,"Distanze"						,intval($activitydistance)						,"WITHINGS_M_Meter"			,3	,true,$timestamp);
-			if(isset($activityelevation))			$this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"					,intval($activityelevation)						,"WITHINGS_M_Meter"			,4	,true,$timestamp);
-			if(isset($activitycalories))			$this->SetValueToVariable($InstanceIDActivity,"Aktivitaetskalorien"	,intval($activitycalories)						,"WITHINGS_M_Kalorien"	,10	,true,$timestamp);
-			if(isset($activitytotalcalories))	$this->SetValueToVariable($InstanceIDActivity,"Gesamtkalorien"			,intval($activitytotalcalories)				,"WITHINGS_M_Kalorien"	,11	,true,$timestamp);
-			if(isset($activitysoft))					$this->SetValueToVariable($InstanceIDActivity,"Geringe Aktivitaet"	,intval($activitysoft/60 )						,"WITHINGS_M_Minuten"		,20	,true,$timestamp);
-			if(isset($activitymoderate))			$this->SetValueToVariable($InstanceIDActivity,"Mittlere Aktivitaet"	,intval($activitymoderate/60 )				,"WITHINGS_M_Minuten"		,21	,true,$timestamp);
-			if(isset($activityintense))				$this->SetValueToVariable($InstanceIDActivity,"Hohe Aktivitaet"			,intval($activityintense/60 )					,"WITHINGS_M_Minuten"		,22	,true,$timestamp);
-			*/
+			// Daten asynchron in Datenbank  ( Testweise )
+
+			//if(isset($activitydate))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Updatezeit"			,intval(strtotime ($activitydate))	,"~UnixTimestamp"		,1	,true,$timestamp,"timestamp");
+			if(isset($activitysteps))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Schritte"			,intval($activitysteps)				,"WITHINGS_M_Schritte"	,2	,true,$timestamp,"schritte");
+			if(isset($activitydistance))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Distanze"			,intval($activitydistance)			,"WITHINGS_M_Meter"		,3	,true,$timestamp,"distanze");
+			if(isset($activityelevation))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Hoehenmeter"			,intval($activityelevation)			,"WITHINGS_M_Meter"		,4	,true,$timestamp,"hoehenmeter");
+			if(isset($activitycalories))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Aktivitaetskalorien"	,intval($activitycalories)			,"WITHINGS_M_Kalorien"	,10	,true,$timestamp,"aktivitaetskalorien");
+			if(isset($activitytotalcalories))	$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Gesamtkalorien"		,intval($activitytotalcalories)		,"WITHINGS_M_Kalorien"	,11	,true,$timestamp,"gesamtkalorien");
+			if(isset($activitysoft))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Geringe Aktivitaet"	,intval($activitysoft/60 )			,"WITHINGS_M_Minuten"	,20	,true,$timestamp,"geringeaktivitaet");
+			if(isset($activitymoderate))		$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Mittlere Aktivitaet"	,intval($activitymoderate/60 )		,"WITHINGS_M_Minuten"	,21	,true,$timestamp,"mittlereaktivitaet");
+			if(isset($activityintense))			$RequestReAggregation = $this->SetValueToVariable($InstanceIDActivity,"Hohe Aktivitaet"		,intval($activityintense/60 )		,"WITHINGS_M_Minuten"	,22	,true,$timestamp,"hoheaktivitaet");
+			
+
 			}
 
 		// letzte Daten in Variable schreiben nicht asynchron
