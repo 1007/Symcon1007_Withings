@@ -136,7 +136,57 @@
 
 		return $url;
 		}
+
+	//**************************************************************************
+	// manuelles Holen der Daten ueber Script
+	// 
+	// 		Activity
+	//   	Meas
+	// 		Sleep
+	// 		Intradayactivity
+	// 
+	//**************************************************************************
+	public function UpdateDataForDays($measure,$days)
+		{
 		
+		$measure = strtoupper($measure);
+
+		if ( $days == 0 OR $days > 365 OR $days < 0)
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Tage Bereich NOK:'.$days.' Tage',0);
+			return;	
+			}
+		else
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' - '.$days.' Tage',0);
+
+		switch($measure)
+			{
+
+			case "MEAS"						:
+												$this->GetMeas($days);
+												break;
+
+			case "SLEEP"					:
+												$this->GetSleepSummary($days);
+												break;
+
+			case "ACTIVITY"					:
+												$this->GetActivity($days);
+												break;
+							
+			case "INTRADAYACTIVITY"			:
+												$this->GetIntradayactivity($days);
+												break;
+											
+			default							:
+												$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
+												return;
+					
+			}
+
+
+		}
+	
 	//**************************************************************************
 	// manuelles Holen der Daten oder ueber Timer
 	//**************************************************************************
@@ -317,7 +367,7 @@
 	//******************************************************************************
 	//	Getmeas
 	//******************************************************************************
-	protected function GetMeas()
+	protected function GetMeas($tage = 5)
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyMeasures") == false AND $this->ReadPropertyBoolean("BloodMeasures") == false)
@@ -329,8 +379,9 @@
 
 		$category = 1;
 
-		$tage = 5;
+		// $tage = 5;
         $startdate = time()- 24*60*60*$tage;
+		
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
@@ -375,7 +426,7 @@
 	//******************************************************************************
 	//  GetActivity
 	//******************************************************************************
-	protected function GetActivity()
+	protected function GetActivity($tage = 5)
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
@@ -385,13 +436,15 @@
                     
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$tage = 5;
+		// $tage = 5;
 		$startdate = date("Y-m-d",time() - 24*60*60*$tage);
 		$enddate   = date("Y-m-d",time());
 
 		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',date('d.m.Y H:i:s ',$enddate),0);
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',date('d.m.Y H:i:s ',$startdate)." - ",0);
 
 		$output = $this->DoCurl($url);
 
@@ -429,7 +482,7 @@
 	//******************************************************************************
 	//  Getintradayactivity
 	//******************************************************************************
-	protected function GetIntradayactivity()
+	protected function GetIntradayactivity($tage = 1)
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
@@ -439,14 +492,14 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$tage = 1;
+		// $tage = 1;
 		$startdate = time()- (24*60*60)*$tage  ;
 		$enddate = time();
 
 		$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
+        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',$tage."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
 
 		$output = $this->DoCurl($url);
 
@@ -475,6 +528,9 @@
 
 		$ModulID = IPS_GetParent($id);
 
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Name ID : ".$id,0);
+
+
 		$data = $data['body'];
 
 		$this->DoGetintradayactivity($ModulID,$data);
@@ -485,7 +541,7 @@
 	//******************************************************************************
 	//	GetSleepSummary
 	//******************************************************************************
-	protected function GetSleepSummary()
+	protected function GetSleepSummary($tage = 5)
 		{
 
 		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
@@ -493,7 +549,7 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		$tage = 5;
+		// $tage = 5;
 		$startdate = time() - 24*60*60*$tage;
 		$enddate   = time();
 
