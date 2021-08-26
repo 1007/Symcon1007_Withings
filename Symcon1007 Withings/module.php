@@ -138,7 +138,7 @@
 		}
 
 	//**************************************************************************
-	// manuelles Holen der Daten ueber Script
+	// manuelles Holen der Daten ueber Script (Tage)
 	// 
 	// 		Activity
 	//   	Meas
@@ -146,7 +146,7 @@
 	// 		Intradayactivity
 	// 
 	//**************************************************************************
-	public function UpdateDataForDays($measure,$days)
+	public function UpdateDataForDays($measure="",$days=0)
 		{
 		
 		$measure = strtoupper($measure);
@@ -166,7 +166,7 @@
 												$this->GetMeas($days);
 												break;
 
-			case "SLEEP"					:
+			case "SLEEPSUMMARY"					:
 												$this->GetSleepSummary($days);
 												break;
 
@@ -186,7 +186,96 @@
 
 
 		}
-	
+
+	//**************************************************************************
+	// manuelles Holen der Daten ueber Script (Zeit)
+	// 
+	// 		Activity
+	//   	Meas
+	// 		Sleep
+	// 		Intradayactivity
+	// 
+	//**************************************************************************
+	public function UpdateDataForTime($measure="",$starttime=0,$endtime=0)
+		{
+		
+		$measure = strtoupper($measure);
+
+		if ( is_string($starttime) == true )
+			$starttime = $this->DateToTimestamp($starttime);
+		if ( is_string($endtime) == true )
+			$endtime = $this->DateToTimestamp($endtime);	
+
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$starttime,0);		
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Endtime:'.$endtime,0);		
+
+		if ( $starttime == 0 OR $endtime == 0)
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','StartTime oder EndTime = 0',0);
+			return;	
+			}
+
+		if ( $starttime > $endtime )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','StartTime > EndTime',0);
+			return;	
+			}
+
+		$difftime = $endtime - $starttime;
+		if ( $difftime > (365*24*60*60))
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','DiffTime > 1 Jahr',0);
+			return;		
+			}	
+
+		$s = $this->TimestampToDate($starttime);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$s.' Sekunden '.$starttime,0);	
+
+		$s = $this->TimestampToDate($endtime);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Endtime:'.$s.' Sekunden '.$endtime,0);	
+
+
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Difftime:'.$difftime.' Sekunden',0);	
+		$days = ceil($difftime/(24*60*60));
+
+
+		if ( $days == 0 OR $days > 365 OR $days < 0)
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Tage Bereich NOK:'.$days.' Tag(e)',0);
+			return;	
+			}
+		else
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' = '.$days.' Tag(e)',0);
+
+		
+		switch($measure)
+			{
+
+			case "MEAS"						:
+												$this->GetMeas($days,$starttime);
+												break;
+
+			case "SLEEPSUMMARY"					:
+												$this->GetSleepSummary($days,$starttime);
+												break;
+
+			case "ACTIVITY"					:
+												$this->GetActivity($days,$starttime);
+												break;
+							
+			case "INTRADAYACTIVITY"			:
+												$this->GetIntradayactivity($days,$starttime);
+												break;
+											
+			default							:
+												$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
+												return;
+					
+			}
+
+
+		}		
+
 	//**************************************************************************
 	// manuelles Holen der Daten oder ueber Timer
 	//**************************************************************************
@@ -222,7 +311,7 @@
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Meas",0);
 		$this->GetMeas();
 		
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Sleep",0);
+        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
 		$this->GetSleepSummary();
 
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
@@ -367,8 +456,10 @@
 	//******************************************************************************
 	//	Getmeas
 	//******************************************************************************
-	protected function GetMeas($tage = 5)
+	protected function GetMeas($tage = 5,$start=0)
 		{
+
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start : " . $start . " Tage : ".$tage ,0);	
 
 		if ( $this->ReadPropertyBoolean("BodyMeasures") == false AND $this->ReadPropertyBoolean("BloodMeasures") == false)
         	{   
@@ -379,10 +470,17 @@
 
 		$category = 1;
 
-		// $tage = 5;
         $startdate = time()- 24*60*60*$tage;
-		
 		$enddate = time();
+
+		if ( $start != 0 )
+			{
+			$startdate = $start;
+			$enddate = $start + ( $tage*24*60*60);	
+			}
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . $this->TimestampToDate($startdate) . " Enddate : ".$this->TimestampToDate($enddate),0);	
+			
 
 		$url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
 
@@ -426,7 +524,7 @@
 	//******************************************************************************
 	//  GetActivity
 	//******************************************************************************
-	protected function GetActivity($tage = 5)
+	protected function GetActivity($tage = 5,$start=0)
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
@@ -436,9 +534,19 @@
                     
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		// $tage = 5;
+		
 		$startdate = date("Y-m-d",time() - 24*60*60*$tage);
 		$enddate   = date("Y-m-d",time());
+
+
+		if ( $start != 0 )
+			{
+			$startdate = date("Y-m-d",$start);
+			$enddate = date("Y-m-d",($start + ( $tage*24*60*60)));	
+			}
+	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
+
 
 		$url = "https://wbsapi.withings.net/v2/measure?action=getactivity&access_token=".$access_token."&startdateymd=".$startdate."&enddateymd=".$enddate;
 
@@ -482,7 +590,7 @@
 	//******************************************************************************
 	//  Getintradayactivity
 	//******************************************************************************
-	protected function GetIntradayactivity($tage = 1)
+	protected function GetIntradayactivity($tage = 1,$start=0)
 		{
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
@@ -492,48 +600,62 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		// $tage = 1;
-		$startdate = time()- (24*60*60)*$tage  ;
-		$enddate = time();
-
-		$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
-
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',$tage."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
-
-		$output = $this->DoCurl($url);
-
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
-
-		$this->Logging($output);
-
-		$this->LoggingExt($output,"intradayactivity.log",false,false);
-
-		$data = json_decode($output,TRUE);
-
-		if ( !array_key_exists('status',$data) == TRUE )
+		for($tag=0;$tag<$tage;$tag++)
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-			return;
-			}
+			// $startdate = time()- (24*60*60)*$tag  ;
+			// $enddate = $startdate + (24*60*60);
 
-		$status = $data['status'];
+    		// Heute Null Uhr
+    		$startdate = mktime(0,0,0,date("n"),date("j"),date("Y"));
+    		$startdate = $startdate - (24*60*60*$tag);
+    		$enddate = $startdate + (24*60*60);
 
-		if ( $status != 0)
-        	{
-            return;
-            }
+			if ( $start != 0 )
+				{
+				$startdate = $start + ( $tag*24*60*60); 
+				$enddate = $start + ( ($tag+1)*24*60*60);	
+				}
+
+			$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
+
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
+        	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Tag:".$tag."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
+
+			$output = $this->DoCurl($url);
+
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
+
+			$this->Logging($output);
+
+			$this->LoggingExt($output,"intradayactivity.log",false,false);
+
+			$data = json_decode($output,TRUE);
+
+			if ( !array_key_exists('status',$data) == TRUE )
+				{
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
+				return;
+				}
+
+			$status = $data['status'];
+
+			if ( $status != 0)
+        		{
+            	return;
+            	}
                     
-		$id = $this->GetIDForIdent("name");
+			$id = $this->GetIDForIdent("name");
 
-		$ModulID = IPS_GetParent($id);
+			$ModulID = IPS_GetParent($id);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Name ID : ".$id,0);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Name ID : ".$id,0);
 
 
-		$data = $data['body'];
+			$data = $data['body'];
 
-		$this->DoGetintradayactivity($ModulID,$data);
+			$this->DoGetintradayactivity($ModulID,$data);
+
+			}
 
 		}
 
@@ -541,7 +663,7 @@
 	//******************************************************************************
 	//	GetSleepSummary
 	//******************************************************************************
-	protected function GetSleepSummary($tage = 5)
+	protected function GetSleepSummary($tage = 1,$start=0)
 		{
 
 		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
@@ -549,12 +671,21 @@
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
-		// $tage = 5;
+		
 		$startdate = time() - 24*60*60*$tage;
 		$enddate   = time();
 
 		$startdate = date("Y-m-d",$startdate);
 		$enddate   = date("Y-m-d",$enddate);
+
+		if ( $start != 0 )
+			{
+			$startdate = date("Y-m-d",$start);
+			$enddate = date("Y-m-d",($start + ( $tage*24*60*60)));	
+			}
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
+			
 
 		$datafields = "wakeupduration,lightsleepduration,deepsleepduration,remsleepduration,wakeupcount,durationtosleep,durationtowakeup,hr_average,hr_min,hr_max,rr_average,rr_min,rr_max";
 

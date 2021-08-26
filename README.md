@@ -12,9 +12,10 @@
 6. [Datenhandling](#6-datenhandling)
 7. [Moegliche Daten](#7-datas)
 8. [Benachrichtigungen](#8-callbacks)
-9. [Probleme](#9-probleme)
-10. [Changelog](#10-changelog)
-11. [ToDo Liste](#11-todo)
+9. [Funktionen](#9-functions)
+20. [Probleme](#20-probleme)
+21. [Changelog](#21-changelog)
+22. [ToDo Liste](#22-todo)
 
 ## 1. Funktionsumfang
 Dieses Modul holt Daten vom Withingsserver und speichert sie in Variablen.
@@ -193,13 +194,22 @@ Beispiel:
 
 
 
+## 9. Funktionen
+
+Update Data der letzten 5 Tage
+`WIT_UpdateDataForDays(xxxxx,"meas",5);`
+Parameter 2 : 
+	"MEAS"				- Waagedaten,Temperaturdaten,Blutdruckdaten
+	"SLEEPSUMMARY"		- Schlaf Tagesdaten
+	"ACTIVITY"			- Aktivitaetsdaten Tag
+	"INTRADAYACTIVITY"  - Aktivitaetsdaten detaliert
+
+Update Data von Timestamp bis Timestamp
+`WIT_UpdateDataForTime(xxxxx,"meas",1625371660,	1625717260);`
+`WIT_UpdateDataForTime(xxxxx,"meas","16.10.2020 14:00","16.11.2020");`
 
 
-
-
-
-
-## 9. Probleme
+## 20. Probleme
 
 Beim Loeschen des Moduls werden die Variablen mitgeloescht die geloggten
 Daten bleiben erhalten, werden im Archiv-Handler aber als
@@ -212,7 +222,7 @@ auf Name,Groesse,Geschlecht,Geburtstag.
 Deshalb bei neuer Instanz werden diese Variablen leer bleiben.
 Unbedingt darauf achten die Groesse einzutragen sonst bleibt der BMI leer.
 
-## 10. Changelog
+## 21. Changelog
 Version 2.1:
   - Erster Release
 
@@ -229,7 +239,7 @@ Version 3.0
 Version 4.0  
   - zusaetzliche Daten 
 
-## 11. ToDo Liste
+## 22. ToDo Liste
 	Pulswerte fuer Waage und Blutdruck noch nicht getrennt.( Nur haendisch )
 
   
