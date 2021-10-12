@@ -159,23 +159,25 @@
 		else
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' - '.$days.' Tage',0);
 
+		$OnlineOK = false;
+
 		switch($measure)
 			{
 
 			case "MEAS"						:
-												$this->GetMeas($days);
+												$OnlineOK = $this->GetMeas($days);
 												break;
 
 			case "SLEEPSUMMARY"					:
-												$this->GetSleepSummary($days);
+												$OnlineOK = $this->GetSleepSummary($days);
 												break;
 
 			case "ACTIVITY"					:
-												$this->GetActivity($days);
+												$OnlineOK = $this->GetActivity($days);
 												break;
 							
 			case "INTRADAYACTIVITY"			:
-												$this->GetIntradayactivity($days);
+												$OnlineOK = $this->GetIntradayactivity($days);
 												break;
 											
 			default							:
@@ -184,6 +186,8 @@
 					
 			}
 
+
+		return $OnlineOK;	
 
 		}
 
@@ -200,6 +204,8 @@
 		{
 		
 		$measure = strtoupper($measure);
+
+		$OnlineOK = false;
 
 		if ( is_string($starttime) == true )
 			$starttime = $this->DateToTimestamp($starttime);
@@ -252,19 +258,19 @@
 			{
 
 			case "MEAS"						:
-												$this->GetMeas($days,$starttime);
+												$OnlineOK = $this->GetMeas($days,$starttime);
 												break;
 
-			case "SLEEPSUMMARY"					:
-												$this->GetSleepSummary($days,$starttime);
+			case "SLEEPSUMMARY"				:
+												$OnlineOK = $this->GetSleepSummary($days,$starttime);
 												break;
 
 			case "ACTIVITY"					:
-												$this->GetActivity($days,$starttime);
+												$OnlineOK = $this->GetActivity($days,$starttime);
 												break;
 							
 			case "INTRADAYACTIVITY"			:
-												$this->GetIntradayactivity($days,$starttime);
+												$OnlineOK = $this->GetIntradayactivity($days,$starttime);
 												break;
 											
 			default							:
@@ -273,6 +279,7 @@
 					
 			}
 
+		return $OnlineOK;	
 
 		}		
 
@@ -463,7 +470,7 @@
 
 		if ( $this->ReadPropertyBoolean("BodyMeasures") == false AND $this->ReadPropertyBoolean("BloodMeasures") == false)
         	{   
-            return;
+            return false;
             }
 
 		$access_token = $this->ReadPropertyString("Userpassword");
@@ -501,14 +508,14 @@
 		if ( !array_key_exists('status',$data) == TRUE )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-			return;
+			return false;
 			}
 
 		$status = $data['status'];
 
 		if ( $status != 0)
         	{
-            return;
+            return false;
             }
 
 		$id = $this->GetIDForIdent("name");
@@ -518,6 +525,8 @@
 		$DoData = $data['body'];
 
 		$this->DoMeas($ModulID,$DoData);
+
+		return true;
 
 		}
 
@@ -529,7 +538,7 @@
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
         	{
-            return;
+            return false;
             }
                     
 		$access_token = $this->ReadPropertyString("Userpassword");
@@ -566,7 +575,7 @@
 		if ( !array_key_exists('status',$data) == TRUE )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-			return;
+			return false;
 			}
 
 		$status = $data['status'];
@@ -574,7 +583,7 @@
 
 		if ( $status != 0)
             {
-            return;
+            return false;
             }
 
 		$id = $this->GetIDForIdent("name");
@@ -584,6 +593,8 @@
 		$DoData = $data['body'];
 
 		$this->DoActivity($ModulID,$DoData);
+
+		return true;
 
 		}
 
@@ -595,7 +606,7 @@
 
 		if ( $this->ReadPropertyBoolean("BodyLogging") == false )
         	{
-            return;
+            return false;
             }
 
 		$access_token = $this->ReadPropertyString("Userpassword");
@@ -634,14 +645,14 @@
 			if ( !array_key_exists('status',$data) == TRUE )
 				{
 				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-				return;
+				return false;
 				}
 
 			$status = $data['status'];
 
 			if ( $status != 0)
         		{
-            	return;
+            	return false;
             	}
                     
 			$id = $this->GetIDForIdent("name");
@@ -655,6 +666,8 @@
 
 			$this->DoGetintradayactivity($ModulID,$data);
 
+			return true;
+
 			}
 
 		}
@@ -667,7 +680,7 @@
 		{
 
 		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
-			return;
+			return false;
 
 		$access_token = $this->ReadPropertyString("Userpassword");
 
@@ -705,10 +718,15 @@
 		if ( !array_key_exists('status',$data) == TRUE )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-			return;
+			return false;
 			}
 
 		$status = $data['status'];
+
+		if ( $status != 0)
+        	{
+            return false;
+            }
 
 		$id = $this->GetIDForIdent("name");
 
@@ -718,6 +736,8 @@
 
 		$this->DoSleepSummary($ModulID,$data);
 
+
+		return true;
 		}
 
 	//**************************************************************************
