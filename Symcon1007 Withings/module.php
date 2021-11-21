@@ -347,6 +347,9 @@
 
 		// $this->GetNonce();
 
+		$this->CleanDatabase();
+
+
 		$endtime = time();
 		
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Laufzeit ".($endtime - $starttime) . " Sekunden" ,0);
@@ -2686,6 +2689,7 @@
 			foreach($childs as $child)
 				{
 				
+				/*
 				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
 
 				if ( $status )
@@ -2696,6 +2700,7 @@
                 	{
                 	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Fehlgeschlagen -> " .$child ,0);
                 	}    
+				*/ 
 
 				}
 
@@ -2703,6 +2708,105 @@
 			
 		}
 
+	
+
+	//**************************************************************************
+	//	Reaggregieren der uebergebenen Instanz wenn IsValid
+	//**************************************************************************
+	protected function CheckAggregationNecessary($ParentID)
+    	{
+
+		if(IPS_ObjectExists ($ParentID) == false)
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID nicht vorhanden :" .$ParentID ,0);
+			return false;	
+			}
+		else
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID :" .$ParentID ,0);
+
+		$version = (float)IPS_GetKernelVersion();
+
+		if ( $version < 5.5 )	// Kein gleichzeitiges Reaggregieren moeglich
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Version < 5.5 "  ,0);
+			return false;	
+			}
+		
+		// Erstelle ein Array mit IsValid = false
+		$isUnvalid = array();
+		$arr = AC_GetAggregationVariables (25204, false);
+		foreach($arr as $array )
+			{
+			if ( isset($array['IsValid']) )
+				{
+				if ( $array['IsValid'] == false )
+					{
+					$VariableID =  $array['VariableID'] ;  
+					$isUnvalid[$VariableID] = true;
+					}
+				}
+			else
+				{	
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"IsValid nicht vorhanden :" .$array['VariableID'] ,0);
+				}	
+			}
+
+		// $isValid Array enthaelt IDs welche invalid
+
+		$childs = IPS_GetChildrenIDs($ParentID);
+        foreach($childs as $child)
+            {
+            // Ist Variable invalid und muss aggregriert werden
+            if ( array_key_exists($child,$isUnvalid ) )
+                {
+				// Variable muss aggregiert werden
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable muss aggregiert werden :" .$child ,0);
+				
+				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
+
+				if ( $status )
+            		{
+                	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> " .$child ,0);
+                	}
+            	else 
+                	{
+                	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Fehlgeschlagen -> " .$child ,0);
+                	}    
+				
+
+				}
+
+            }
+
+		}		
+
+
+	//**************************************************************************
+	//	Clean Database
+	//**************************************************************************
+	protected function CleanDatabase()
+		{
+		$instanceID = $this->InstanceID;
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start :".$instanceID ,0);
+		
+		$childs = IPS_GetChildrenIDs($instanceID);
+
+		foreach($childs as $child)
+			{
+
+			$object = IPS_GetObject($child);
+			$typ = $object['ObjectType'];
+
+			if ( $typ == 0 OR $typ == 1 )	
+				{
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Child :".$child ." Typ : ".$typ,0);
+				$this->CheckAggregationNecessary($child);
+				}
+
+			}
+
+
+		}
+
 	}
-
-
