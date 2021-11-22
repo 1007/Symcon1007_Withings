@@ -2734,7 +2734,7 @@
 		
 		// Erstelle ein Array mit IsValid = false
 		$isUnvalid = array();
-		$arr = AC_GetAggregationVariables (25204, false);
+		$arr = AC_GetAggregationVariables ($this->GetArchivID(), false);
 		foreach($arr as $array )
 			{
 			if ( isset($array['IsValid']) )
