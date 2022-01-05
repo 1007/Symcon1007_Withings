@@ -325,8 +325,12 @@
 		$this->GetActivity();
 
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Intra",0);
-		$this->GetIntradayactivity();
-		         
+		
+		// Gestern Null Uhr
+		$startdate = mktime(0,0,0,date("n"),date("j"),date("Y")) - (60*60*24*1);
+		$this->GetIntradayactivity(1,$startdate);
+		$this->GetIntradayactivity();	// Heute
+
 		$this->SubscribeHook();
 
 		$this->GetNotifyList(1);
@@ -1589,8 +1593,13 @@
                         $value = $arraydatas[$key][$deviceID];
                     	$updatetime = $arraytimes[$key][$deviceID];
                             
+						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp : ".$key."-".$value,0);
+
                         switch ($key)
                             { 
+
+								
+						
                             case 1 :	$gewicht = $value;
                                         $ID = $this->CheckOldVersionCatID("weight",$CatIdWaage,$deviceID);
                                         $RequestReAggregation = $this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,true,$TimestampWaage,"weight");
@@ -1775,7 +1784,7 @@
 							
 							case 77 :	$hydration = $value;
 										$ID = $this->CheckOldVersionCatID("wasseranteil",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"wasseranteil");
+										$RequestReAggregation = $this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"wasseranteil");
 										if ( $RequestReAggregation == true )
 											{
 											$VariableID = @IPS_GetObjectIDByIdent("wasseranteil",$ID );
@@ -1783,7 +1792,7 @@
 											}
 										
         								if ( $lastkey == true )
-	                    					$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"wasseranteil");
+	                    					$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"wasseranteil");
         								
 										break;
 							
@@ -2053,6 +2062,48 @@
 		}
 
 
+	protected function CheckProfil($CatID,$name,$profilsoll)
+		{
+
+		$VarID = @IPS_GetVariableIDByName ($name, $CatID);
+		
+		if ( $VarID == false )
+			return;
+
+		$array = IPS_GetVariable ($VarID);
+		
+		if ( isset($array['VariableProfile']) == false )
+		 	return;
+		if ( isset($array['VariableCustomProfile']) == false )
+		 	return;
+
+		$profilist = $array['VariableProfile'];
+		$customprofilist = $array['VariableCustomProfile'];
+				  
+		// Profil leer
+		if ( $profilist == '' )
+			{
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profil leer CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
+			if ( $customprofilist != $profilsoll  )
+				{
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
+				}
+			}
+		else	// CustomProfil ist gesetzt
+			{
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profil nicht leer CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
+				if ( $customprofilist != $profilsoll  )
+					{
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profil falsch CatID :".$CatID. " - ". $VarID . " - " .$name."- Soll:" . $profilsoll . " - Ist:" . $customprofilist,0);	
+					@IPS_SetVariableCustomProfile ($VarID, $profilsoll);
+					}
+
+
+			}	
+
+		}
+
+
 	//******************************************************************************
 	//	Wert in Variable schreiben
 	// Position 6 -	Werte in Variable schreiben oder gleich in Database
@@ -2147,7 +2198,10 @@
             }
 
         IPS_SetPosition($VariableID, $position);
-                        
+         
+		$this->CheckProfil($CatID,$name,$profil);
+
+
 		if ( $asynchron == true )
         	{
 			$Reaggieren = $this->SaveDataToDatabase($VariableID,$Timestamp,$value,$name);
@@ -2673,7 +2727,7 @@
             if ( $status )
             	{
 				$text = "Reaggregieren > 5.5";
-                $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> [".$random."]" .$child ,0);
+                // $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> [".$random."]" .$child ,0);
                 $this->LoggingExt($text,$file="WithingsReAGG.log");
 				}
             else 
@@ -2760,13 +2814,13 @@
             if ( array_key_exists($child,$isUnvalid ) )
                 {
 				// Variable muss aggregiert werden
-				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable muss aggregiert werden :" .$child ,0);
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable muss aggregiert werden :" .$child ,0);
 				
 				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
 
 				if ( $status )
             		{
-                	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> " .$child ,0);
+                	//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> " .$child ,0);
                 	}
             	else 
                 	{
