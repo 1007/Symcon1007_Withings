@@ -2,17 +2,17 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings V 4.1 (40015)#######" },
+    { "type": "Label"             , "label":  "####### Withings V 5.0 (50001)#######" },
     
     { "type": "Button"            , "caption": "Dokumentation", "width": "250px" , "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/master';" },
     
     { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
  
-
     { "type": "ExpansionPanel", "caption": "Datenauswahl",
       "items": 	
         [	
-  
+          { "type": "CheckBox"          , "name" :  "CheckBoxBodyGoals",   "caption": "Ziele" },
+
           { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte/Temperaturen" },
     
           { "type": "CheckBox"          , "name" :  "BloodMeasures",  "caption": "Blutdruckwerte" },
@@ -23,7 +23,9 @@
         ]
       },
 
-
+       
+  
+  
     
     { "type": "ExpansionPanel", "caption": "Benachrichtigungen",
       "items": 	
@@ -38,6 +40,15 @@
          
           { "type": "Label", "caption": "Manuelle Eingabe einer Callback Adresse fuer Benachrichtigungen" },
           { "type": "ValidationTextBox", "name": "CallbackURL", "caption": "CallbackURL" }
+        ]
+    },
+
+    { "type": "ExpansionPanel", "caption": "Zeitraum fuer Update Data",
+      "items":
+        [
+          { "type": "SelectDateTime", "name": "UpdateDateTimeStart", "caption": "Startzeitpunkt" },
+          { "type": "SelectDateTime", "name": "UpdateDateTimeEnde", "caption": "Endezeitpunkt" },
+          { "type": "Button", "label": "Update Zeitraum Data",                 "width": "250px" ,"onClick": "WIT_UpdateZeitraum($id);" }
         ]
     },
 

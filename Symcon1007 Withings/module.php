@@ -7,6 +7,8 @@
 //
 //******************************************************************************
 
+define("DATA_TO_VARIABLE",false);
+define("DATA_TO_DATABASE",true);
 
 	//**********************************************************************
 	//	
@@ -28,6 +30,7 @@
 		$this->RegisterPropertyString("Username", "XXX");         	// in V3.0 ist das die UserID
 		$this->RegisterPropertyString("Userpassword", "123456");  	// in V3.0 ist das das Access Token
 		$this->RegisterPropertyString("User", "XXX");             	// in V3.0 ist das das Refresh Token
+
 		$this->RegisterPropertyBoolean("Logging", false);  
 		$this->RegisterPropertyBoolean("Modulaktiv", true);  
 		$this->RegisterTimer("WIT_UpdateTimer", 3600000, 'WIT_Update($_IPS["TARGET"]);');
@@ -40,6 +43,9 @@
         $this->RegisterPropertyBoolean("CheckBoxSleepSummary" , false);
         $this->RegisterPropertyBoolean("CheckBoxActivity" , false);
         $this->RegisterPropertyBoolean("CheckBoxIntradayactivity" , false);
+		$this->RegisterPropertyBoolean("CheckBoxBodyGoals" , false);
+
+		
                 
         $this->RegisterPropertyString("AccessToken", "");
         $this->RegisterPropertyString("RefreshToken", "");
@@ -52,9 +58,24 @@
         $this->RegisterPropertyInteger("Notify16", 0);
         $this->RegisterPropertyInteger("Notify44", 0);
 		$this->RegisterPropertyInteger("Notify46", 0);
+
+		$this->RegisterPropertyString("UpdateDateTimeStart", 0);
+		$this->RegisterPropertyString("UpdateDateTimeEnde", 0);
+                
 		$this->RegisterPropertyInteger("NotifyAlarm", 0);
 		$this->RegisterPropertyString("CallbackURL", "");
-                
+
+
+
+		// Neue Variablen fuer OAuth ueber Modul ( N = New)
+		$this->RegisterPropertyString("Nuserid","");
+		$this->RegisterPropertyString("Naccess_token","");
+		$this->RegisterPropertyString("Nrefresh_token","");
+		$this->RegisterPropertyString("Nscope","");
+		$this->RegisterPropertyString("Nexpires_in","");
+		$this->RegisterPropertyString("Ntoken_type","");
+		
+
                 }
 
 	//******************************************************************************
@@ -164,6 +185,10 @@
 		switch($measure)
 			{
 
+			case "DEVICE"						:	
+												$OnlineOK = $this->GetDevice();
+												break;
+
 			case "MEAS"						:
 												$OnlineOK = $this->GetMeas($days);
 												break;
@@ -181,7 +206,15 @@
 												break;
 											
 			default							:
-												$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
+												$OnlineOK = $this->GetDevice();
+												$OnlineOK = $this->GetMeas($days);
+												//$OnlineOK = $this->GetSleepSummary($days);
+												//$OnlineOK = $this->GetActivity($days);
+												//$OnlineOK = $this->GetIntradayactivity($days);
+												
+
+
+												// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
 												return;
 					
 			}
@@ -203,6 +236,8 @@
 	public function UpdateDataForTime($measure="",$starttime=0,$endtime=0)
 		{
 		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','------------------------------------------------------------------------',0);	
+
 		$measure = strtoupper($measure);
 
 		$OnlineOK = false;
@@ -212,8 +247,8 @@
 		if ( is_string($endtime) == true )
 			$endtime = $this->DateToTimestamp($endtime);	
 
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$starttime,0);		
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Endtime:'.$endtime,0);		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$this->TimestampToDate($starttime) ." - " .$this->TimestampToDate($endtime),0);		
+		 	
 
 		if ( $starttime == 0 OR $endtime == 0)
 			{
@@ -235,10 +270,10 @@
 			}	
 
 		$s = $this->TimestampToDate($starttime);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$s.' Sekunden '.$starttime,0);	
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Starttime:'.$s.' Sekunden '.$starttime,0);	
 
 		$s = $this->TimestampToDate($endtime);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Endtime:'.$s.' Sekunden '.$endtime,0);	
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Endtime:'.$s.' Sekunden '.$endtime,0);	
 
 
 		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Difftime:'.$difftime.' Sekunden',0);	
@@ -257,6 +292,10 @@
 		switch($measure)
 			{
 
+			case "DEVICE"					:
+												$OnlineOK = $this->GetDevice();
+												break;
+
 			case "MEAS"						:
 												$OnlineOK = $this->GetMeas($days,$starttime);
 												break;
@@ -274,7 +313,13 @@
 												break;
 											
 			default							:
-												$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
+												$OnlineOK = $this->GetDevice();
+												$OnlineOK = $this->GetMeas($days,$starttime);
+												//$OnlineOK = $this->GetSleepSummary($days,$starttime);
+												//$OnlineOK = $this->GetActivity($days,$starttime);
+												//$OnlineOK = $this->GetIntradayactivity($days,$starttime);
+												
+												// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
 												return;
 					
 			}
@@ -282,6 +327,64 @@
 		return $OnlineOK;	
 
 		}		
+
+	//**************************************************************************
+	// manuelles Holen der Daten fuer bestimmten Zeitraum
+	//**************************************************************************
+	public function UpdateZeitraum()
+		{
+		if ( $this->ReadPropertyBoolean("Modulaktiv") == false )
+        	{
+			$this->SetStatus(104);	
+            return;
+            }
+		else
+			$this->SetStatus(102);
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Zeitraum START",0);
+
+		$start = $this->ReadPropertyString("UpdateDateTimeStart");
+		$ende = $this->ReadPropertyString("UpdateDateTimeEnde");
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"".$start." - ".$ende,0);
+
+		$s = json_decode($start,TRUE);
+		if ( is_array($s) == false )
+			return false;
+		$e = json_decode($ende,TRUE);
+		if ( is_array($e) == false )
+				return false;
+	
+		$startzeit = $s['day'].".".$s['month'].".".$s['year']." ".$s['hour'].":".$s['minute'].":".$s['second'];		
+		$endezeit  = $e['day'].".".$e['month'].".".$e['year']." ".$e['hour'].":".$e['minute'].":".$e['second'];		
+		
+		if (($timestampstart = strtotime($startzeit)) === false) 
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start Zeit ist fehlerhaft : ".$start,0);				
+			} 
+		else 
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start Zeit ist : ".$this->TimestampToDate($timestampstart),0);
+			}
+
+		if (($timestampende = strtotime($endezeit)) === false) 
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ende Zeit ist fehlerhaft : ".$start,0);				
+			} 
+		else 
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ende Zeit ist : ".$this->TimestampToDate($timestampende),0);
+			}
+
+		if ( $timestampende < $timestampstart )	
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ende Zeit ist < Start Zeit",0);
+			}
+	
+		$this->UpdateDataForTime("",$timestampstart,$timestampende);
+
+		}
+ 
 
 	//**************************************************************************
 	// manuelles Holen der Daten oder ueber Timer
@@ -295,28 +398,34 @@
             }
 		else
 			$this->SetStatus(102);
-		
-		//set_time_limit (5 * 60);	// disabled wegen 5.6
+	
          
 		$NotifiyListArray = array();
 
         $starttime = time();            
 		
 		$this->Logging("Update");
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"-------------------------------------------------------------------------------------------------------------------",0);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data START",0);
 		
-		if ( $this->RefreshTokens() == FALSE )
+		if ( $this->RefreshTokens() == FALSE )	// Token konnte nicht aktualisiert werden
             {
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Token NOK",0);	
 			$this->RunAlarmScript($this->InstanceID,"Kein Zugang zu Withings-Server");
             return;
             }
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Device",0);
-		$this->GetDevice();   
-                
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Device",0);         
+		$this->GetDevice();
+		
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Meas",0);
 		$this->GetMeas();
+
+        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals",0);
+		$this->GetGoals();
+
+
+		return;
 		
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
 		$this->GetSleepSummary();
@@ -426,6 +535,56 @@
 			}
 		}
 
+	//******************************************************************************
+	//	Getgoals
+	//******************************************************************************
+	protected function GetGoals()
+		{
+
+		if ( $this->ReadPropertyBoolean("CheckBoxBodyGoals") == false )
+        	{
+            return false;
+            }
+
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
+	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
+	
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user     ");
+
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header 
+			]);
+			
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+				'action' => 'getgoals'
+				]));
+
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+
+		$data = json_decode($result,TRUE); 
+
+		if ( $this->CheckStatus($data) == false )
+			return false;
+
+		if ( $this->CheckBody($data) == false )
+			return false;
+
+		$ModulID = $this->InstanceID;
+
+		$body = $data['body'];
+	
+		$this->DoGoals($ModulID,$body);
+
+		}
 
 	//******************************************************************************
 	//	Getdevice
@@ -433,56 +592,59 @@
 	protected function GetDevice()
 		{
 
-		$access_token = $this->ReadPropertyString("Userpassword");
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
 
-		$url = "https://wbsapi.withings.net/v2/user?action=getdevice&access_token=".$access_token;
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
-		$this->Logging("GetDevice");
-		$this->Logging($url);
+		$ch = curl_init();
 
-		$output = $this->DoCurl($url);
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user   ");
+			
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header 
+				
+			]);
+			
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+				'action' => 'getdevice'
+			]));
+			
+		$result = curl_exec($ch);
+		curl_close($ch);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
-
-		$this->Logging($output);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
 		
-		$this->LoggingExt($output,"device.log",false,false);
+		$data = json_decode($result,TRUE); 
 
-		$data = json_decode($output,TRUE); 
+		if ( $this->CheckStatus($data) == false )
+			return false;
 
-		if ( !array_key_exists('status',$data) == TRUE )
-			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
-			return;
-			}
+		if ( $this->CheckBody($data) == false )
+			return false;
 
-		$id = $this->GetIDForIdent("name");
+		$ModulID = $this->InstanceID;
+		
+		$body = $data['body'];
 
-		$ModulID = IPS_GetParent($id);
-
-		$DoData = $data['body'];
-
-		$this->DoDevice($ModulID,$DoData);
+		$this->DoDevice($ModulID,$body);
 
 		}
-
+		
+		
 	//******************************************************************************
-	//	Getmeas
+	//	New Getmeas
+	//	Wenn $start nicht 0 dann kein LastData
 	//******************************************************************************
 	protected function GetMeas($tage = 5,$start=0)
 		{
 
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start : " . $start . " Tage : ".$tage ,0);	
-
-		if ( $this->ReadPropertyBoolean("BodyMeasures") == false AND $this->ReadPropertyBoolean("BloodMeasures") == false)
-        	{   
-            return false;
-            }
-
-		$access_token = $this->ReadPropertyString("Userpassword");
-
-		$category = 1;
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
+	
+		$category = 1;	// for real measures
 
         $startdate = time()- 24*60*60*$tage;
 		$enddate = time();
@@ -495,47 +657,51 @@
 		
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . $this->TimestampToDate($startdate) . " Enddate : ".$this->TimestampToDate($enddate),0);	
 			
+		$ch = curl_init();
 
-		$url = "https://wbsapi.withings.net/measure?action=getmeas&access_token=".$access_token."&category=".$category."&startdate=".$startdate."&enddate=".$enddate;
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/measure");
+			
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header ]);
+			
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+				'action' => 'getmeas',
+				'category' => $category,
+				'startdate' => $startdate,
+				'enddate' => $enddate
+				
+			]));
+			
+		$result = curl_exec($ch);
+		curl_close($ch);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
 
-		$this->Logging("GetMeas");
-		$this->Logging($url);
-
-		$output = $this->DoCurl($url);
+		$data = json_decode($result,TRUE);
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
-
-		$this->Logging($output);
-		$this->LoggingExt($output,"meas.log",false,false);
-
-		$data = json_decode($output,TRUE); 
-
-		if ( !array_key_exists('status',$data) == TRUE )
-			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
+		if ( $this->CheckStatus($data) == false )
 			return false;
-			}
 
-		$status = $data['status'];
+		if ( $this->CheckBody($data) == false )
+			return false;
 
-		if ( $status != 0)
-        	{
-            return false;
-            }
+		$ModulID = $this->InstanceID;
 
-		$id = $this->GetIDForIdent("name");
+		$body = $data['body'];
 
-		$ModulID = IPS_GetParent($id);
-
-		$DoData = $data['body'];
-
-		$this->DoMeas($ModulID,$DoData);
+		if ( $start == 0 )
+			$NoLastData = false;
+		else
+			$NoLastData = true;
+		
+		$this->DoMeas($ModulID,$body,$NoLastData);
 
 		return true;
 
 		}
+
+
 
 	//******************************************************************************
 	//  GetActivity
@@ -1326,6 +1492,52 @@
 
 		}
 
+
+	//**************************************************************************
+	// Auswertung Ziele
+	//**************************************************************************
+	protected function DoGoals($ModulID,$data)
+		{
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ziele werden ausgewertet.",0);
+
+		$data = @$data['goals'];
+
+		$steps = @$data['steps'];
+
+		$weightvalue = @$data['weight']['value'];
+		$weightunit   = @$data['weight']['unit'];
+
+		$weight = floatval ( $weightvalue ) * floatval ( "1e".$weightunit );
+		$weight = round($weight,2);
+		
+		$InstanzeName = "Ziele";
+		$InstanzeIdent = "getgoals";
+		$InstanzeInfo = "User Ziele";
+		$ObjektID = @$this->GetIDForIdent ( $InstanzeIdent );
+		if ( $ObjektID === FALSE )
+			$ObjektID = $this->CreateDummyInstance($InstanzeName,$InstanzeIdent,$InstanzeInfo);
+			
+		$id = @IPS_GetObjectIDByIdent( "steps", $ObjektID ) ;                                                    
+		if ( $id === FALSE )
+			{
+			$id = $this->RegisterVariableInteger("steps","Schritt pro Tag","WITHINGS_M_Schritte",0);
+			IPS_SetParent($id, $ObjektID);
+			IPS_SetPosition($id, 1);
+			}
+		SetValueInteger($id,$steps);
+
+		$id = @IPS_GetObjectIDByIdent( "weight", $ObjektID ) ;                                                    
+		if ( $id === FALSE )
+			{
+			$id = $this->RegisterVariableFloat("weight","Gewicht","WITHINGS_M_Kilo",0);
+			IPS_SetParent($id, $ObjektID);
+			IPS_SetPosition($id, 1);
+			}
+		SetValueFloat($id,$weight);
+
+		}
+		
+
 	//**************************************************************************
 	// Auswertung Geraeteinfos
 	//**************************************************************************
@@ -1334,54 +1546,60 @@
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Devices werden ausgewertet.",0);
 
 		$data = @$data['devices'];
-		if ( count($data) == 0  )
+
+		if ( $data == false  )
 			{
-			$this->Logging("Fehler bei DoDevice ".count($data));
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Keine Geraete gefunden. Abbruch",0);
 			return;
 			}
 		
 		foreach($data as $device)
 			{
-			$devicetyp		= @$device['type'];
-			$devicemodel	= @$device['model'];
-			$devicebattery	= @$device['battery'];
-			$deviceid		= @$device['deviceid'];
-			$devicetimezone	= @$device['timezone'];
-
+			$devicetyp			= @$device['type'];
+			$devicemodel		= @$device['model'];
+			$devicebattery		= @$device['battery'];
+			$deviceid			= @$device['deviceid'];
+			$devicetimezone		= @$device['timezone'];
+			$last_session_date	= @$device['last_session_date'];
+			
 			if ( is_null($deviceid) )
 				$deviceid = "null";
 			
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[Deviceid : ".$deviceid."][Type : ".$devicetyp ."][Modell : ".$devicemodel."]",0);
-
-			if ( $devicetyp == "Sleep Monitor")
-				{
-				$deviceid 	= str_replace(" ","",$devicetyp);
-				$devicetyp 	= @$device['deviceid'];	
-				}
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[Deviceid : ".$this->TimestampToDate($last_session_date)." - ".$deviceid."][Type : ".$devicetyp ."][Modell : ".$devicemodel."]"."[Batterie:".$devicebattery."]",0);
 
 			$ObjektID = @$this->GetIDForIdent ( $deviceid );
 			if ( $ObjektID === FALSE )
 				$ObjektID = $this->CreateDummyInstance($devicemodel,$deviceid,$devicetyp);
 				
+			$name = 'Letzte Verbindung';
+			$ident = 'last_session_date';
+
+			$id = @IPS_GetObjectIDByIdent( $ident, $ObjektID ) ;                                                    
+			if ( $id === FALSE )
+				{
+				$id = $this->RegisterVariableInteger($ident, $name,"~UnixTimestamp",0);
+				IPS_SetParent($id, $ObjektID);
+				IPS_SetPosition($id, 1);
+				}
+			SetValueInteger($id,$last_session_date);
+
 			if ( $devicebattery == 'low' OR $devicebattery == 'medium' OR $devicebattery == 'high')
 				{
-				$name = "batterie";
+				$name = "Batterie";
+				$ident = "batterie";
 
-				$id = @IPS_GetObjectIDByIdent( $name, $ObjektID ) ;
+				$id = @IPS_GetObjectIDByIdent( $ident, $ObjektID ) ;
                                                                 
 				if ( $id === FALSE )
 					{
-					$id = $this->RegisterVariableInteger("batterie", $name,"WITHINGS_M_Batterie",0);
+					$id = $this->RegisterVariableInteger($ident, $name,"WITHINGS_M_Batterie",0);
 					IPS_SetParent($id, $ObjektID);
 					IPS_SetPosition($id, 1);
 					}
 
 				if ( $id > 0 )
 					{
-						
-					IPS_SetPosition($id, 1);	
-						
+							
 					if ( $devicebattery == 'low' )
 						{
 						$v =  GetValueInteger($id);
@@ -1404,36 +1622,111 @@
 				}
 			}
 		}
-	
+
+	//**************************************************************************
+	// Auswertung Status auf Fehler / 0=OK
+	//**************************************************************************
+	protected  function CheckStatus($data)
+		{
+
+		if ( isset($data) == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Data nicht vorhanden ",0);
+			return false;
+			}
+		
+		if ( $data == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Data false ",0);			
+			return false;
+			}
+
+		if ( array_key_exists('status',$data) == FALSE )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
+			return false;
+			}		
+		
+		if ( $data['status'] == 0 )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status OK : ".$data['status'],0);
+			return true;
+			}
+		else
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status Fehler : ".$data['status'],0);
+			return false;	
+			}	
+
+		}
+
+	//**************************************************************************
+	// Auswertung Body auf Fehler / 0=OK
+	//**************************************************************************
+	protected  function CheckBody($data)
+		{
+
+		if ( isset($data) == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Data nicht vorhanden ",0);
+			return false;
+			}
+		
+		if ( $data == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Data false ",0);			
+			return false;
+			}
+
+		if ( array_key_exists('body',$data) == FALSE )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Body: unbekannt",0);
+			return false;
+			}		
+		
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Body OK",0);
+		return true;
+		
+		}
+
 	//**************************************************************************
 	// Auswertung der Meas-Daten
 	//**************************************************************************
-	protected  function DoMeas($ModulID,$data)
+	protected  function DoMeas($ModulID,$data,$NoLastData=false)
 		{
-
+	
 		$this->Logging("MeasDaten werden ausgewertet.");
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"MeasDaten werden ausgewertet.",0);
 
-		$varArray = array();		// Array fuer Reaggregation
+		if ( $NoLastData == true )
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"No Last Data.",0);
+		else
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Last Data.",0);
+		
+		
+		$ReaggregationsArray = array();		// Array fuer Reaggregation
 
 		$CatIdWaage = @IPS_GetCategoryIDByName("Waage",$ModulID);
 		if ( $CatIdWaage === false )
 			{
-			$this->Logging("CatID ist auf FALSE!");
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID Waage nicht vorhanden.",0);
-			$CatIdWaage = $this->CreateKategorie("Waage",$ModulID);
-			if ( $CatIdWaage === false )
-				throw new Exception("Kategorie Waage nicht definiert");
+			//$this->Logging("CatID ist auf FALSE!");
+			//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID Waage nicht vorhanden.",0);
+			// $CatIdWaage = $this->CreateKategorie("Waage",$ModulID);
+			$CatIdWaage = false;
+			//if ( $CatIdWaage === false )
+			//	throw new Exception("Kategorie Waage nicht definiert");
 			}
 
 		$CatIdBlutdruck = @IPS_GetCategoryIDByName("Blutdruck",$ModulID);
 		if ( $CatIdBlutdruck === false )
 			{
-			$this->Logging("CatID ist auf FALSE!");
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID Blutdruck nicht vorhanden.",0);
-			$CatIdBlutdruck = $this->CreateKategorie("Blutdruck",$ModulID);
-			if ( $CatIdBlutdruck === false )
-				throw new Exception("Kategorie Blutdruck nicht definiert");
+			//$this->Logging("CatID ist auf FALSE!");
+			//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID Blutdruck nicht vorhanden.",0);
+			//$CatIdBlutdruck = $this->CreateKategorie("Blutdruck",$ModulID);
+			//if ( $CatIdBlutdruck === false )
+			//	throw new Exception("Kategorie Blutdruck nicht definiert");
+			$CatIdBlutdruck = false;	
 			}
 
 		$measuregrps = @$data['measuregrps'];
@@ -1454,6 +1747,7 @@
 			}
 
 		$RequestReAggregation = false;
+		$TypeArrayData = array();
 
 		// Neueste nach hinten
 		$measuregrps = array_reverse ( $measuregrps  );
@@ -1474,7 +1768,7 @@
 			$timestring = date("d.m.Y H:i:s",$time);
                                     
       		$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
-
+			
 			if ($InstanceIDDeviceID == false )
 				{
          		$this->SendDebug(__FUNCTION__.'['.__LINE__.']'," Keine ID gefunden Daten Handeingabe oder Withings API-Fehler : " . $deviceid . "--".$model." - ".$timestring ,0);
@@ -1491,6 +1785,12 @@
 				continue;
 				}
 
+				// zur BMI Berechnung
+				$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
+				$groesse = 0; 
+				if ( $id > 0 )
+					$groesse = GetValueInteger($id);
+
 			// $this->SendDebug("DoMeas","DeviceID .: ".$timestring." - " . $deviceid,0);
 			// Alle Messungen durchgehen
 			// Neuste Messung am Ende
@@ -1498,373 +1798,226 @@
 			foreach($messungen as $key => $messung)
 				{
 				
-				$lastkey = false;	
-				if ($key === array_key_last($messungen))
-					$lastkey = true;	// fuer asynchron
-
-				//if ( $lastkey == true )
-				//	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messung Last : ".$messung['type'].date('l jS \of F Y h:i:s A',$time),0);
-
 				$val = floatval ( $messung['value'] ) * floatval ( "1e".$messung['unit'] );
-				
-				//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messung Type : ".$messung['type']." : " .$val ."-".date('l jS \of F Y h:i:s A',$time),0);
+
 				$text = date('d.m.Y H:i:s',$time) ." Messung Type : ".$messung['type']." : " .$val ;
-				$this->LoggingExt($text,"Messungen.log");
+				
+				$file = "Messungen ".$messung['type'].".log";
+				$this->LoggingExt($text,$file);
 
 				$arraydatas[$messung['type']][$InstanceIDDeviceID] = round($val,2);
 				$arraytimes[$messung['type']][$InstanceIDDeviceID] = $time;
 
+
 				switch ($messung['type'])
 					{ 
-					case 1 :	$gewicht = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 1 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'weight','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Gewicht'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
+								// BMI
+								$value =  @round($value/(($groesse/100)*($groesse/100)),2);
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'bmi','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_BMI','name'=>'BMI'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 4 :	$groesse = round ($val,2);
 								break;
-					case 5 :	$fettfrei = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 5 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'fatfree','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Fettfrei Anteil'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 6 :	$fettprozent = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 6 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'fatradio','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Prozent','name'=>'Fett Prozent'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 8 :	$fettanteil = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 8 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'fatmassweight','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Fett Anteil'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 9 :	$diastolic = $val;
-								$deviceIDblutdruck  = $InstanceIDDeviceID;
-								$TimestampBlutdruck = $time;
+					case 9 :	$value = intval($val);
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'diastolicblood','oldcat'=> $CatIdBlutdruck,'profil'=>'WITHINGS_M_Blutdruck','name'=>'Diastolic'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 10 :	$systolic = $val;
-                                $deviceIDblutdruck  = $InstanceIDDeviceID;
-								$TimestampBlutdruck = $time;
+					case 10 :	$value = intval($val);
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'systolicblood','oldcat'=> $CatIdBlutdruck,'profil'=>'WITHINGS_M_Blutdruck','name'=>'Systolic'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 11:	$puls = $val;
+					case 11:	$value = intval($val);
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'heartpulse','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Puls','name'=>'Puls'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 12 :	$temperatur = round ($val,2);
-								$deviceIDthermo = $InstanceIDDeviceID;
-								$TimestampThermo = $time; 
+					case 12 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'temperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Temperatur'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 54 :	$sp02 = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 54 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'?','oldcat'=> 0,'profil'=>'?','name'=>'W'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-                    case 71 :	$koerpertemperatur = round ($val,2); 
-								$deviceIDthermo = $InstanceIDDeviceID; 
-								$TimestampThermo = $time;
+                    case 71 :	$value = floatval(round ($val,2)); 
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'koerpertemperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Koerpertemperatur'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 73 :	$hauttemperatur = round ($val,2);
-								$deviceIDthermo = $InstanceIDDeviceID;
-								$TimestampThermo = $time; 
+					case 73 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'hauttemperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Hauttemperatur'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 76 :	$muskelmasse = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 76 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'muskelmasse','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Muskelmasse'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 77 :	$hydration = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 77 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'wasseranteil','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Wasseranteil'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 88 :	$knochenmasse = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 88 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'bonemass','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Knochenmasse'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 91 :	$pulswellen = round ($val,2);
-								$deviceIDwaage = $InstanceIDDeviceID;
-								$TimestampWaage = $time;
+					case 91 :	$value = floatval(round ($val,2));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'pulswave','oldcat'=> $CatIdWaage,'profil'=>'~WindSpeed.ms','name'=>'Pulswellengeschwindigkeit'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					default:	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp nicht vorhanden : ".$messung['type']."-".$val,0);
 					}
 				}
 			}
 
-		$id = @IPS_GetVariableIDByName("Groesse",$ModulID);
-		$groesse = 0; 
-		if ( $id > 0 )
-			$groesse = GetValueInteger($id);
+		for($x=1;$x<150;$x++)
+			{
 
-                foreach($arraydatas as $key => $arraydata)
-                    {
-                    foreach($arraydata as $deviceID => $arraydata2)
-                        {
-                        $value = $arraydatas[$key][$deviceID];
-                    	$updatetime = $arraytimes[$key][$deviceID];
-                            
-						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp : ".$key."-".$value,0);
+			$array = array();
+			$this->GetTypeDataArray($TypeArrayData,$x,$array);	
+			$count = count($array);
+			if ( $count == 0 )	// keine Daten fuer diesen Typ
+				continue;
+			
+			$last_position = count($array) -1 ;
 
-                        switch ($key)
-                            { 
+			foreach( $array as $key => $data )	
+				{
+				$type = $data['type'];
+				$profil = $data['profil'];
+				$value = $data['value'];
+				$timestamp = $data['timestamp'];
+				$deviceid = $data['deviceid'];	
+				$ident = $data['ident'];
+				$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+				$oldcat = $data['oldcat'];
+				$profil = $data['profil'];
+				$name = $data['name'];
+				
+				$last = false;
+				if ( $key == $last_position )
+					{
+					$last = true;
+					}
+				if ( $NoLastData == true )
+					$last = false;
 
-								
-						
-                            case 1 :	$gewicht = $value;
-                                        $ID = $this->CheckOldVersionCatID("weight",$CatIdWaage,$deviceID);
-                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,true,$TimestampWaage,"weight");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("weight",$ID );
-											array_push($varArray,$VariableID);
-											}
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Gewicht" ,floatval($gewicht) ,"WITHINGS_M_Kilo"  ,10,false,$TimestampWaage,"weight");
-										
-										if ( $groesse !=  0)
-											{
-											$bmi = @round($gewicht/(($groesse/100)*($groesse/100)),2);
- 											$ID = $this->CheckOldVersionCatID("bmi",$CatIdWaage,$deviceID);
-											$RequestReAggregation = $this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,true,$TimestampWaage,"bmi");
-											if ( $RequestReAggregation == true )
-												{
-												$VariableID = @IPS_GetObjectIDByIdent("bmi",$ID );
-												array_push($varArray,$VariableID);
-												}
-											
-											if ( $lastkey == true )
-												$this->SetValueToVariable($ID,"BMI" ,floatval($bmi) ,"WITHINGS_M_BMI" ,true,false,$TimestampWaage,"bmi");
-											
-											}
-										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdWaage,$deviceID);
-                                        $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,$TimestampWaage,"timestamp");
-                										
-										break;
-										
-                            case 4 :	$groesse = $value;
-										break;
-                            
-                            case 5 :	$fettfrei = $value;
-                                        $ID = $this->CheckOldVersionCatID("fatfree",$CatIdWaage,$deviceID);
-                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatfree");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("fatfree",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Fettfrei Anteil" ,floatval($fettfrei) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatfree");
-                                        break;
-                                    
-                            case 6 :	$fettprozent = $value;
-                                        $ID = $this->CheckOldVersionCatID("fatradio",$CatIdWaage,$deviceID);
-                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,true,$TimestampWaage,"fatradio");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("fatradio",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-								        	$this->SetValueToVariable($ID,"Fett Prozent" ,floatval($fettprozent) ,"WITHINGS_M_Prozent" ,10,false,$TimestampWaage,"fatradio");
-								
-                						break;
-                                        
-                    		case 8 :	$fettanteil = $value;
-										$ID = $this->CheckOldVersionCatID("fatmassweight",$CatIdWaage,$deviceID);
-                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"fatmassweight");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("fatmassweight",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Fett Anteil" ,floatval($fettanteil) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"fatmassweight");
-										
-										
-										break;
+				if ( $key == 0 OR $key == $last_position )
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$type." - ".$deviceid." - ".$value." - ". $ident." - ".$oldcat." - ".$profil." - ".$name." - ".$last,0);
 
-							case 9 :	$diastolic = $value;
-										$ID = $this->CheckOldVersionCatID("diastolicblood",$CatIdBlutdruck,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"diastolicblood");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("diasolicblood",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Diastolic" ,intval($diastolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"diastolicblood");
-										
-										break;
-							
-							case 10 :	$systolic = $value;
-                                		$ID = $this->CheckOldVersionCatID("systolicblood",$CatIdBlutdruck,$deviceID);
-                                		$RequestReAggregation = $this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,true,$TimestampBlutdruck,"systolicblood");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("systolicblood",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Systolic" ,intval($systolic) ,"WITHINGS_M_Blutdruck" ,10,false,$TimestampBlutdruck,"systolicblood");
-										
-										$ID = $this->CheckOldVersionCatID("timestamp",$CatIdBlutdruck,$deviceID);
-                                        $RequestReAggregation = $this->SetValueToVariable($ID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("timestamp",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-                                		break;
-							
-							case 11:	$puls = $value;
-										$ID = $this->CheckOldVersionCatID("heartpulse",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,true,$TimestampWaage,"heartpulse");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("heartpulse",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($ID,"Puls" ,intval($puls) ,"WITHINGS_M_Puls" ,10,false,$TimestampWaage,"heartpulse");
-										
-										break;
-							
-							case 12 :	$temperatur = $value;
-										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,true,$TimestampThermo,"temperatur");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("temperatur",$deviceID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-											$this->SetValueToVariable($deviceID,"Temperatur" ,floatval($temperatur) ,"~Temperature" ,2,false,$TimestampThermo,"temperatur");
-									
-										$this->SetValueToVariable($deviceID,"Updatezeit" ,intval($updatetime) ,"~UnixTimestamp"  ,0,false,0,"timestamp");
-                						break;
-							
-							case 54 :	$sp02 = $value;
-										// $ID = $this->CheckOldVersionCatID("",$CatIdWaage,$deviceID);
-										break;
-                    		
-                    		case 71 :	$koerpertemperatur = $value; 
-										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,true,$TimestampThermo,"koerpertemperatur");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("koerpertemperatur",$deviceID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-	                    					$this->SetValueToVariable($deviceID,"Koerpertemperatur" ,floatval($koerpertemperatur) ,"~Temperature" ,3,false,$TimestampThermo,"koerpertemperatur");
-										break;
-							
-							case 73 :	$hauttemperatur = $value;
-										$RequestReAggregation = $this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,true,$TimestampThermo,"hauttemperatur");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("hauttemperatur",$deviceID );
-											array_push($varArray,$VariableID);
-											}
-										
-										if ( $lastkey == true )
-	                    					$this->SetValueToVariable($deviceID,"Hauttemperatur" ,floatval($hauttemperatur) ,"~Temperature" ,4,false,$TimestampThermo,"hauttemperatur");
-										break;
-							
-							case 76 :	$muskelmasse = $value;
-										$ID = $this->CheckOldVersionCatID("muskelmasse",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"muskelmasse");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("muskelmasse",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-                						if ( $lastkey == true )
-	                    					$this->SetValueToVariable($ID,"Muskelmasse" ,floatval($muskelmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"muskelmasse");
-                						
-										break;
-							
-							case 77 :	$hydration = $value;
-										$ID = $this->CheckOldVersionCatID("wasseranteil",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"wasseranteil");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("wasseranteil",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-        								if ( $lastkey == true )
-	                    					$this->SetValueToVariable($ID,"Wasseranteil" ,floatval($hydration) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"wasseranteil");
-        								
-										break;
-							
-							case 88 :	$knochenmasse = $value;
-										$ID = $this->CheckOldVersionCatID("bonemass",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,true,$TimestampWaage,"bonemass");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("bonemass",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-                						if ( $lastkey == true )
-	                    					$this->SetValueToVariable($ID,"Knochenmasse" ,floatval($knochenmasse) ,"WITHINGS_M_Kilo" ,10,false,$TimestampWaage,"bonemass");
-                						
-										break;
-							
-							case 91 :	$pulswellen = $value;
-										$ID = $this->CheckOldVersionCatID("pulswave",$CatIdWaage,$deviceID);
-										$RequestReAggregation = $this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,true,$TimestampWaage,"pulswave");
-										if ( $RequestReAggregation == true )
-											{
-											$VariableID = @IPS_GetObjectIDByIdent("pulswave",$ID );
-											array_push($varArray,$VariableID);
-											}
-										
-                						if ( $lastkey == true )
-	                    					$this->SetValueToVariable($ID,"Pulswellengeschwindigkeit" ,floatval($pulswellen) ,"~WindSpeed.ms" ,1,false,$TimestampWaage,"pulswave");
-                						
-										break;
-					                    
-                                                            
-                            default:	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp nicht vorhanden : ".$key."-".$value,0);
-					
-                            }
-                    
-							
-                        }
-					
-						// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich  :".$ID,0);
+				$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+				
+				$ID = $this->CheckOldVersionCatID($ident,$oldcat,$InstanceIDDeviceID);	// $ID = ID der Instanz oder Kategorie
+				
+				if ( $last == true )
+					$this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_VARIABLE,$profil,$ident);
+				else
+					{
+					$RequestReAggregation = false;
+					$RequestReAggregation = $this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_DATABASE,$timestamp,$ident);
+					// $RequestReAggregation = true;
+					if ( $RequestReAggregation == true )
+						{
+						$VariableID = @IPS_GetObjectIDByIdent($ident,$ID );
+						array_push($ReaggregationsArray,$VariableID);
+						}
 					}
 
-					
-		if ( count($varArray) > 0 )
+				if ( $key == $last_position )
+					{
+					$ID = $this->CheckOldVersionCatID("timestamp",$oldcat,$InstanceIDDeviceID);
+					$this->SetValueToVariable($ID,"Updatezeit" ,time() ,"~UnixTimestamp"  ,0,DATA_TO_VARIABLE,false,"timestamp");
+					}
+				
+				}
+
+			}
+
+		if ( count($ReaggregationsArray) > 0 )
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich:".$InstanceIDDeviceID,0);
-			$this->Reaggregieren($InstanceIDDeviceID,$varArray);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich:",0);
+			$this->Reaggregieren($ReaggregationsArray);
 			}	
 		else
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation nicht erforderlich".$InstanceIDDeviceID,0);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation nicht erforderlich",0);
 			}			
 
 		}
 
+	private function GetTypeDataArray($TypeArrayData,$type_request,&$array)
+		{
 
+		foreach($TypeArrayData as $data)
+			{
+			$type =@$data['type'];
+			if ( is_int($type) == false )
+				continue;
+			$timestamp = @$data['timestamp'];
+			if ( is_int($timestamp) == false )
+				continue;
+			$value = @$data['value'];
+			$deviceid = @$data['deviceid'];
+			$ident = @$data['ident'];
+			$oldcat = @$data['oldcat'];
+			$profil = @$data['profil'];
+			$name = @$data['name'];
+			if ( $type != $type_request )
+				continue;
+			
+			$data = ['type' => $type,'timestamp'=> $timestamp,'value'=> $value,'deviceid'=>$deviceid,'ident'=>$ident,'oldcat'=>$oldcat,'profil'=>$profil,'name'=>$name];
+			array_push($array,$data);	
+			
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']'," : ".$type ."-".$this->TimestampToDate($timestamp)." - " . $value . " - " . $deviceid,0);
+			}
+
+		}
 
 	//******************************************************************************
 	// checken ob noch alte Version verwendet wird	
+	// Ist die Variable mit $ident noch in $CatId Kategorie vorhanden
 	//******************************************************************************
 	private function CheckOldVersionCatID($ident,$CatId,$DeviceID) 
 		{
+    	
         $VariableID = @IPS_GetObjectIDByIdent($ident,$CatId);
+
         if ( $VariableID == true )
         	{
-            $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable noch in alter Kategorie : ".$ident."-".$CatId,0);   
-            $ID = $CatId;
+			$ID = $CatId;
+            $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable noch in alter Kategorie : ".$ident."-".$CatId." - " . $ID,0);   
             }
         else
             {
-            // $this->SendDebug("CheckOldVersionCatID","Variable nicht mehr alter Kategorie : ".$ident."-".$CatId,0);
-            $ID = $DeviceID;
+			$ID = $DeviceID;            
             }
 		
 		return $ID;    
@@ -1943,26 +2096,206 @@
 						);
 		$context = stream_context_create($options);
 
-		$result = file_get_contents("https://oauth.ipmagic.de/access_token/withings", false, $context);
+		// $result = file_get_contents("https://oauth.ipmagic.de/access_token/withings", false, $context);
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/oauth2");
+		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+			'action' 		=> 'requesttoken',
+			'grant_type' 	=> 'authorization_code',
+			'client_id' 	=> $this->GetClientID(),
+			'client_secret' => $this->GetClientSecret(),
+			'code' 			=> $code,
+			'redirect_uri' 	=> 'https://oauth.ipmagic.de/forward/withings'
+		]));
+		
+		$result = curl_exec($ch);
+		curl_close($ch);
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Tokens : ".$result,0);
 		
 		$data = json_decode($result);
+		$arraydata = json_decode($result,true);
 
+		if ( isset($arraydata['status']) == true )
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status OK",0 );
+		else
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status NOK",0 );
+			return false;	
+			}
+		if ( isset($arraydata['body']) == true )
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Body OK",0 );
+		else
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Body NOK",0 );
+			return false;	
+			}
+
+		$access_token 	= $arraydata['body']['access_token'];
+		$expires_in 	= $arraydata['body']['expires_in'];
+		$token_type 	= $arraydata['body']['token_type'];
+		$scope 			= $arraydata['body']['scope'];
+		$refresh_token 	= $arraydata['body']['refresh_token'];
+		$userid 		= $arraydata['body']['userid'];
+				
+		IPS_SetProperty($this->InstanceID, "Naccess_token", $access_token); 
+		IPS_SetProperty($this->InstanceID, "Nexpires_in", $expires_in); 
+		IPS_SetProperty($this->InstanceID, "Ntoken_type", $token_type); 
+		IPS_SetProperty($this->InstanceID, "Nscope", $scope); 
+		IPS_SetProperty($this->InstanceID, "Nuserid", $userid); 
+		IPS_SetProperty($this->InstanceID, "Nrefresh_token", $refresh_token); 
+		IPS_ApplyChanges($this->InstanceID);
+			
+
+		/* 	
 		if(!isset($data->token_type) || $data->token_type != "Bearer") 
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Bearer Token expected",0 );
 			return false;
 			}
+		*/	
 
-		$token = $data->refresh_token;	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "OK! Speichere Refresh Token . ".$token, 0);
-		IPS_SetProperty($this->InstanceID, "User", $token);
+		// $token = $data->refresh_token;
+		// $token = $arraydata['refresh_token'];
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "OK! Speichere Refresh Token . ".$refresh_token, 0);
+		IPS_SetProperty($this->InstanceID, "User", $refresh_token);
+		IPS_SetProperty($this->InstanceID, "RefreshToken", $refresh_token);
 		IPS_ApplyChanges($this->InstanceID);
 
-		$this->FetchAccessToken($data->access_token, time() + $data->expires_in);
+		// $this->FetchAccessToken($data->access_token, time() + $data->expires_in);
+		$this->FetchAccessToken($access_token, time() + $expires_in);
 		
+
+		
+
 		}
+
+	//******************************************************************************
+	//	
+	//******************************************************************************
+	private function RefreshAccessToken() 
+		{
+
+		$refresh_token = $this->ReadPropertyString("Nrefresh_token");
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/oauth2");
+			
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+				'action' => 'requesttoken',
+				'grant_type' => 'refresh_token',
+				'client_id' 	=> $this->GetClientID(),
+				'client_secret' => $this->GetClientSecret(),
+				'refresh_token' => $refresh_token
+			]));
+			
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Result : " . $result, 0);
+
+		$data = json_decode($result,true);
+
+		if ( $this->CheckStatus($data) == false )
+			return false;
+
+		if ( $this->CheckBody($data) == false )
+			return false;
+
+		$access_token 	= @$data['body']['access_token'];
+		$expires_in 	= @$data['body']['expires_in'];
+		$token_type 	= @$data['body']['token_type'];
+		$scope 			= @$data['body']['scope'];
+		$refresh_token 	= @$data['body']['refresh_token'];
+		$userid 		= @$data['body']['userid'];
+
+		if( $userid == true )
+			$this->SetUserID($userid);
+				
+		if (IPS_GetProperty($this->InstanceID, "Naccess_token")  != $access_token )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Access_Token neu : ".IPS_GetProperty($this->InstanceID, "Naccess_token")." -> ".$access_token,0 );
+
+			IPS_SetProperty($this->InstanceID, "Naccess_token", $access_token); 
+			}	
+		if (IPS_GetProperty($this->InstanceID, "Nrefresh_token")  != $refresh_token )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Refresh_Token neu : ".IPS_GetProperty($this->InstanceID, "Nrefresh_token")." -> ".$refresh_token,0 );
+
+			IPS_SetProperty($this->InstanceID, "Nrefresh_token", $refresh_token); 
+			}	
+		if (IPS_GetProperty($this->InstanceID, "Nexpires_in")  != $expires_in )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Expires in neu : ".IPS_GetProperty($this->InstanceID, "Nexpires_in")." -> ".$expires_in,0 );
+
+			IPS_SetProperty($this->InstanceID, "Nexpires_in", $expires_in); 
+			}	
+		if (IPS_GetProperty($this->InstanceID, "Ntoken_type")  != $token_type )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Token Type neu : ".IPS_GetProperty($this->InstanceID, "Ntoken_type")." -> ".$token_type,0 );
+
+			IPS_SetProperty($this->InstanceID, "Ntoken_type", $token_type); 
+			}	
+		if (IPS_GetProperty($this->InstanceID, "Nscope")  != $scope )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Scope neu : ".IPS_GetProperty($this->InstanceID, "Nscope")." -> ".$scope,0 );
+
+			IPS_SetProperty($this->InstanceID, "Nscope", $scope); 
+			}	
+		if (IPS_GetProperty($this->InstanceID, "Nuserid")  != $userid )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"UserID neu : ".IPS_GetProperty($this->InstanceID, "Nuserid")." -> ".$userid,0 );
+
+			IPS_SetProperty($this->InstanceID, "Nuserid", $userid); 
+			}	
+
+		$Expires = time() + $expires_in;
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires), 0);
+
+		IPS_ApplyChanges($this->InstanceID);
+
+		return true;	
+
+		}	
+
+	//******************************************************************************
+	//	
+	//******************************************************************************
+	private function GetClientID()
+		{
+		return '2166af8c652a1b251db8b954cfdc2e24c82f1493d15d03b4dddc422f342c7ffd';
+		}
+
+	//******************************************************************************
+	//	
+	//******************************************************************************
+	private function GetClientSecret()
+		{		
+		return 'b22edf210b6a67b583c9ef1bd39481383e7c2d1b7ac198ddeeb0ea68a7ecd2f6';
+		}
+
+
+	private function SetUserID($userid)
+		{
+
+		$VarID = @$this->GetIDForIdent("userid");
+		if ( $VarID === false )
+			$VarID = $this->RegisterVariableInteger("userid", "User ID"   ,"" ,0);
+		if ( $VarID == true )
+			SetValue($VarID,$userid);
+		
+		}	
+
 
 	//******************************************************************************
 	//	
@@ -1970,14 +2303,28 @@
 	private function FetchAccessToken($Token = "", $Expires = 0) 
 		{
 			
+		$refresh_token = $this->ReadPropertyString("RefreshToken");	
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $Token, 0);
-		$this->Logging("Benutze Refresh Token um neuen Access Token zu holen : " . $this->ReadPropertyString("User"));
-			
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $refresh_token, 0);
+		
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : " . $this->ReadPropertyString("Naccess_token"), 0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Refresh Token : " . $this->ReadPropertyString("Nrefresh_token"), 0);
+		
+
+		$status = $this->RefreshAccessToken();
+		if ( $status == false )
+			return false;
+		else
+			return true;	
+
+		// Ab hier alte Version
+
 		$options = array(
 					"http" => array(
 						"header" => "Content-Type: application/x-www-form-urlencoded\r\n",
 						"method"  => "POST",
-						"content" => http_build_query(Array("refresh_token" => $this->ReadPropertyString("User")))
+						"content" => http_build_query(Array("refresh_token" => $refresh_token))
 									)
 							);
 							
@@ -1985,6 +2332,9 @@
 
 		$result = @file_get_contents("https://oauth.ipmagic.de/access_token/withings", false, $context);
 		$data = json_decode($result);
+
+		$arraydata = json_decode($result,true);
+		// print_r($arraydata);
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$result,0 );
 
@@ -2000,10 +2350,12 @@
 		if(isset($data->refresh_token)) 
 			{
 			$token = $data->refresh_token;		
+			$refresh_token = $data->refresh_token;		
 
 			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Neuer Refresh Token erhalten", 0);
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "OK! Speichere Refresh Token . ".$token, 0);
 			IPS_SetProperty($this->InstanceID , "User", $token );
+			IPS_SetProperty($this->InstanceID, "RefreshToken", $refresh_token);
 			IPS_ApplyChanges($this->InstanceID);
 			}
 				
@@ -2035,7 +2387,7 @@
 	//******************************************************************************
 	//	
 	//******************************************************************************
-	private function FormatTimeMinuten($time) 
+	protected function FormatTimeMinuten($time) 
 		{
 		$hour = intval($time/3600);
 		$minuten = intval(($time-($hour*3600))/60);
@@ -2098,7 +2450,6 @@
 					@IPS_SetVariableCustomProfile ($VarID, $profilsoll);
 					}
 
-
 			}	
 
 		}
@@ -2106,12 +2457,18 @@
 
 	//******************************************************************************
 	//	Wert in Variable schreiben
+	// Position 1 - KategorieID / InstanzID
+	// Position 2 - Name der Variablen ( zum erstellen )
+	// Position 3 - Wert
+	// Position 4 - Profil der Variablen ( zum erstellen )
+	// Position 5 - Position der Variablen ( zum erstellen )
 	// Position 6 -	Werte in Variable schreiben oder gleich in Database
+	// Position 7 - Zeitstempel der Variablen ( testen ob schon vorhanden )
+	// Position 8 - Ident der Variablen ( zum erstellen )
+	// Position 9 - Logging
 	//******************************************************************************
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false)
 		{
-
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start :".$name."-".$this->TimestampToDate($Timestamp),0);	
 
 		$Reaggieren = false;
 
@@ -2202,25 +2559,22 @@
 		$this->CheckProfil($CatID,$name,$profil);
 
 
+		// $asynchron bedeutet gleich in Database
 		if ( $asynchron == true )
         	{
 			$Reaggieren = $this->SaveDataToDatabase($VariableID,$Timestamp,$value,$name);
-			//if ( $Reaggieren == true )
-			//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggieren : ".$Reaggieren,0);
             }
 		else
             {
 			if ( $VariableID > 0 )
             	{
-				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"VariableID Asynchron : ".$VariableID,0);
                 SetValue($VariableID,$value);
                 }
-
         	}
 				
 		return $Reaggieren;
 				
-	}
+		}
 		
 
 	//******************************************************************************
@@ -2229,7 +2583,7 @@
 	protected function SaveDataToDatabase($Variable,$Timestamp,$Value,$name = false)
 		{
 		
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start:".$Timestamp,0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start : ".$this->TimestampToDate($Timestamp) . " ".$name,0);
 		
         $Reaggregieren = false;
                 
@@ -2262,11 +2616,12 @@
 			}
 		else
 			{	
-				                
-			$datas = @AC_GetLoggedValues($archiveID, $Variable, $Timestamp,$Timestamp, 1);
+				  
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Starttime: " . $Timestamp,0);
+			$datas = AC_GetLoggedValues($archiveID, $Variable, $Timestamp,$Timestamp, 1);
 			$anzahl = count($datas);
-
-			if ( $anzahl == 0 )	// nicht vorhanden
+				
+			if ( $anzahl == 0 )	// Datensatz noch nicht vorhanden
 				{	
                 $status = @AC_AddLoggedValues($archiveID, $Variable,[['TimeStamp' => $Timestamp, 'Value' 	=> $Value]]);
 				$Reaggregieren = true;
@@ -2282,14 +2637,17 @@
 				}
 			else
 				{
-				// $this->SendDebug("SaveDataToDatabase","Datensatz schon vorhanden :".$Variable ,0);
+				$IstValue = @$datas[0]['Value'];
+				$IstTime  = @$datas[0]['TimeStamp'];	
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Datensatz schon vorhanden : ".$Variable ."[".$IstValue."][".$Value."][".$IstTime."[".$Timestamp."]",0);
             			
 				}		
 
 			}
 		
 		if ( $Reaggregieren == true )
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggregieren('AC_AddLoggedValues').",0);	
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggregieren('AC_AddLoggedValues'). Variable : ".$Variable,0);	
+
 		return	$Reaggregieren ;
 
 		}
@@ -2348,7 +2706,7 @@
 	//******************************************************************************
 	//	Abfrage welche Benachrichtigungen aktiv
 	//******************************************************************************
-	function DoNotifyList($data)
+	protected function DoNotifyList($data)
 		{
 		
 		Global $NotifiyListArray;
@@ -2391,7 +2749,7 @@
 	//**************************************************************************
 	//	
 	//**************************************************************************
-	public function DoNotifyRevokeAll()
+	protected function DoNotifyRevokeAll()
 		{
 		$data = $this->GetNotifyList();
 		if ( $data == false )
@@ -2487,7 +2845,7 @@
     		{
 			if ( isset($NotifiyListArray[$appli]) == true AND $NotifiyListArray[$appli] == $callbackurl)
 				{ 
-				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl." schon gesetzt appli=".$appli,0);
+				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl." schon gesetzt appli=".$appli,0);
 				}
 			else
 				{
@@ -2506,7 +2864,7 @@
 	//******************************************************************************
 	//	Curl Abfrage ausfuehren
 	//******************************************************************************
-	function DoCurl($url,$debug=false)
+	protected function DoCurl($url,$debug=false)
 		{
 		if($debug == true)
 			$this->SendDebug(__FUNCTION__,$url,0);
@@ -2678,88 +3036,93 @@
 
 
 	//**************************************************************************
-	//	Reaggregieren der uebergebenen Instanz
+	//	Reaggregieren der uebergebenen Variablen
 	//**************************************************************************
-	 protected function Reaggregieren($Instanze,$varArray)
+	 protected function Reaggregieren($varArray)
 		{
-
-	
-		if ( $Instanze == false )
-			return;
-
 		
+		$varArray = array_unique ( $varArray );			// doppelte Eintraege loeschen
+
 		$version = (float)IPS_GetKernelVersion();
-
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Reaggregiere Data in Database : " . $version." - ".$Instanze,0);
-                
-        $childs = IPS_GetChildrenIDs($Instanze);
-                
-        $array = array();
-                
-        foreach($childs as $child )
-        	{
-			// wenn geloggte Variable, dann zum Array hinzufuegen
-			$status = AC_GetLoggingStatus($this->GetArchivID(),$child);
-            if ( $status == true )
-            	{
-				if ( in_array($child,$varArray))
-                	$array[] = $child;        
-                }
-            }
-
-        $count = @count($array);
-
-		if ( $count == false )
-			{
-        	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Count = FALSE",0);
-			return;
-			}
-			
-		$childs = $array;
-
+		
 		if ( $version < 5.5 )	// Kein gleichzeitiges Reaggregieren moeglich
-			{	
-        	$random = rand(0,$count-1);    
-        	$child = $childs[$random];
-                
-            $status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
-
-            if ( $status )
-            	{
-				$text = "Reaggregieren > 5.5";
-                // $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> [".$random."]" .$child ,0);
-                $this->LoggingExt($text,$file="WithingsReAGG.log");
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Kein gleichzeitiges Reaggregieren moeglich Version : " . $version,0);
+			// zufaellige Variable in allen Instanzen auswaehlen
+			$InstanzeArray = array();
+			$ChildsArray = array();
+			foreach($varArray as $variable)
+				{
+				$Instanze = IPS_GetParent($variable);
+				array_push($InstanzeArray,$Instanze);
 				}
-            else 
-                {
-				$text = "Reaggregieren > 5.5";	
-                $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Fehlgeschlagen -> [".$random."]" .$child ,0);
-				$this->LoggingExt($text,$file="WithingsReAGG.log");
-                }    
-			}		
+			$InstanzeArray = array_unique($InstanzeArray);
+				
+			foreach($InstanzeArray as $Instanze)
+				{
+				$childs = IPS_GetChildrenIDs($Instanze);
+				
+				foreach($childs as $child)
+					{
+					// wenn geloggte Variable, dann zum Array hinzufuegen
+					$status = AC_GetLoggingStatus($this->GetArchivID(),$child);
+					if ( $status == true )
+						array_push($ChildsArray,$child);
+					}
+				}
+
+			$count = count($ChildsArray);
+			if ( $count == false )
+				{
+				return;
+				}
+			$random = rand(0,$count-1);    
+			$child = $ChildsArray[$random];
+			
+			$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
+			
+			if ( $status == true )
+				{
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich gestartet-> [".$random."]" .$child ,0);
+				}
+			else 
+				{	
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start Fehlgeschlagen -> [".$random."]" .$child ,0);
+				}    
+			}
 		else
 			{
-			
-			foreach($childs as $child)
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Gleichzeitiges Reaggregieren moeglich Version : " . $version,0);
+			// Alle Variablen im Array reaggregieren 
+		
+			foreach($varArray as $variable)
 				{
 				
-				/*
-				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
-
-				if ( $status )
-            		{
-                	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich -> " .$child ,0);
-                	}
-            	else 
-                	{
-                	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Fehlgeschlagen -> " .$child ,0);
-                	}    
-				*/ 
+				$status = AC_GetLoggingStatus($this->GetArchivID(),$variable);
+				if ( $status == false )
+					{
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable wird nicht geloggt : " . $child,0);
+					return false;
+					}
+				
+				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $variable );
+			
+				if ( $status == true )
+					{
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erfolgreich gestartet " .$variable ,0);
+					}
+				else 
+					{	
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start Fehlgeschlagen " . $variable ,0);
+					}  	
 
 				}
 
+
 			}	
-			
+
+
+       	
 		}
 
 	
@@ -2776,7 +3139,9 @@
 			return false;	
 			}
 		else
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID :" .$ParentID ,0);
+			{
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID :" .$ParentID ,0);
+			}
 
 		$version = (float)IPS_GetKernelVersion();
 
