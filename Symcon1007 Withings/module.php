@@ -1770,6 +1770,7 @@ define("DATA_TO_DATABASE",true);
 
 		$RequestReAggregation = false;
 		$TypeArrayData = array();
+		$TypeArrayDataBMI = array();
 
 		// Neueste nach hinten
 		$measuregrps = array_reverse ( $measuregrps  );
@@ -1839,7 +1840,7 @@ define("DATA_TO_DATABASE",true);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								// BMI
 								$value =  @round($value/(($groesse/100)*($groesse/100)),2);
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'bmi','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_BMI','name'=>'BMI'];
+								$data = ['type' => 149,'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'bmi','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_BMI','name'=>'BMI'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
@@ -1919,6 +1920,8 @@ define("DATA_TO_DATABASE",true);
 					}
 				}
 			}
+
+			
 
 		for($x=1;$x<150;$x++)
 			{
