@@ -2,7 +2,7 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings V 5.0 (50002)#######" },
+    { "type": "Label"             , "label":  "####### Withings V 5.0 (50003)#######" },
     
     { "type": "Button"            , "caption": "Dokumentation", "width": "250px" , "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/master';" },
     
@@ -56,9 +56,26 @@
         ]
     },
 
+    { "type": "ExpansionPanel", "caption": "Persoenliche Einstellungen",
+      "items": 	
+        [	  
+          { "type": "ValidationTextBox"          , "name" :  "SetUserName", "caption": "Name" },
+          { "type": "SelectDate", "name": "SetUserBirthday", "caption": "Geburtsdatum" },
+          { "type": "Select", "name": "SetUserGender", "caption": "Geschlecht",
+            "options": [
+                { "caption": "maennlich", "value": 0 },
+                { "caption": "weiblich", "value": 1 }
+              
+            ]
+          },
+          { "type": "NumberSpinner", "name": "SetUserHeight", "caption": "Koerpergroesse" }
+        ]
+    },
+
     { "type": "ExpansionPanel", "caption": "Einstellungen",
       "items": 	
         [	  
+          { "type": "NumberSpinner", "name": "Intervall", "caption": "Update Intervall" },
           { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings)" } 
         ]
     }

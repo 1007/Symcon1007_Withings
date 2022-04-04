@@ -31,6 +31,13 @@ define("DATA_TO_DATABASE",true);
 		$this->RegisterPropertyString("Userpassword", "123456");  	// in V3.0 ist das das Access Token
 		$this->RegisterPropertyString("User", "XXX");             	// in V3.0 ist das das Refresh Token
 
+
+		$this->RegisterPropertyString("SetUserName", "");             
+		$this->RegisterPropertyInteger("SetUserGender", 0);
+		$this->RegisterPropertyString("SetUserBirthday", "1.1.1970");
+		$this->RegisterPropertyInteger("SetUserHeight", 0);
+
+		
 		$this->RegisterPropertyBoolean("Logging", false);  
 		$this->RegisterPropertyBoolean("Modulaktiv", true);  
 		$this->RegisterTimer("WIT_UpdateTimer", 3600000, 'WIT_Update($_IPS["TARGET"]);');
@@ -129,9 +136,19 @@ define("DATA_TO_DATABASE",true);
 		$this->RegisterAllProfile();
 
 		$id = $this->RegisterVariableString( "name"      , "Name"      ,"",0);
+		$name = $this->ReadPropertyString("SetUserName");
+		SetValueString($id,$name);
 		$id = $this->RegisterVariableInteger("gender"    , "Geschlecht","WITHINGS_M_Gender",2);
+		$gender = $this->ReadPropertyInteger("SetUserGender");
+		SetValueInteger($id,$gender);
 		$id = $this->RegisterVariableString( "birthdate" , "Geburtstag","",1);
+		$birthday = $this->ReadPropertyString("SetUserBirthday");
+		$s = json_decode($birthday,TRUE);
+		$birthday = $s['day'].".".$s['month'].".".$s['year'];	
+		SetValueString($id,$birthday);
 		$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
+		$height = $this->ReadPropertyInteger("SetUserHeight");
+		SetValueInteger($id,$height);
 
 		//Timer stellen
 		$interval = $this->ReadPropertyInteger("Intervall") * 1000 ;
@@ -648,6 +665,7 @@ define("DATA_TO_DATABASE",true);
 		$header = 'Authorization: Bearer ' . $access_token;
 	
 		$category = 1;	// for real measures
+		$meastypes = "";
 
         $startdate = time()- 24*60*60*$tage;
 		$enddate = time();
@@ -671,6 +689,7 @@ define("DATA_TO_DATABASE",true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
 				'action' => 'getmeas',
 				'category' => $category,
+				'meastypes' => $meastypes,
 				'startdate' => $startdate,
 				'enddate' => $enddate
 				
@@ -1862,7 +1881,7 @@ define("DATA_TO_DATABASE",true);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 54 :	$value = floatval(round ($val,2));
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'?','oldcat'=> 0,'profil'=>'?','name'=>'W'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'spo2','oldcat'=> 0,'profil'=>'~Intensity.100','name'=>'Sauerstoffsättigung'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
