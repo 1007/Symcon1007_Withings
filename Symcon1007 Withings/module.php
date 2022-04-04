@@ -2453,14 +2453,28 @@ define("DATA_TO_DATABASE",true);
 
 		$profilist = $array['VariableProfile'];
 		$customprofilist = $array['VariableCustomProfile'];
+
+		if ( $profilsoll !=  $customprofilist)
+			{
 				  
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profile :". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist . " - ".$profilist,0);	
+
+			$VarTypIst = $array['VariableType'];
+			
+			$status = @IPS_SetVariableCustomProfile($VarID,$profilsoll);
+		
+			if ( $status == false )	
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profile Typ Aenderung NOK:",0);	
+			
+			}
+
 		// Profil leer
 		if ( $profilist == '' )
 			{
-			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profil leer CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
+			//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Profil leer CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
 			if ( $customprofilist != $profilsoll  )
 				{
-				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
+				//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CatID :".$CatID. " - ". $VarID . " - " .$name."-" . $profilsoll . " - " . $customprofilist,0);	
 				}
 			}
 		else	// CustomProfil ist gesetzt
