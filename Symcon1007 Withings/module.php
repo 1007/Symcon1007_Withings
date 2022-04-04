@@ -1952,7 +1952,7 @@ define("DATA_TO_DATABASE",true);
 				if ( $NoLastData == true )
 					$last = false;
 
-				if ( $key == 0 OR $key == $last_position )
+				if ( $key == 0 OR $key == $last_position );
 					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$type." - ".$deviceid." - ".$value." - ". $ident." - ".$oldcat." - ".$profil." - ".$name." - ".$last,0);
 
 				$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
