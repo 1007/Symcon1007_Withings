@@ -45,8 +45,6 @@ define("DATA_TO_DATABASE",true);
         $this->RegisterPropertyBoolean("CheckBoxIntradayactivity" , false);
 		$this->RegisterPropertyBoolean("CheckBoxBodyGoals" , false);
 
-		
-                
         $this->RegisterPropertyString("AccessToken", "");
         $this->RegisterPropertyString("RefreshToken", "");
         $this->RegisterPropertyString("UserID", "");
@@ -54,10 +52,14 @@ define("DATA_TO_DATABASE",true);
 		$this->RegisterPropertyBoolean("Notifyaktiv" , false);  	// in V4.0 ist das Notify aktiv
 		
 		$this->RegisterPropertyInteger("Notify1", 0);
+		$this->RegisterPropertyInteger("Notify2", 0);
         $this->RegisterPropertyInteger("Notify4", 0);
         $this->RegisterPropertyInteger("Notify16", 0);
         $this->RegisterPropertyInteger("Notify44", 0);
 		$this->RegisterPropertyInteger("Notify46", 0);
+		$this->RegisterPropertyInteger("Notify50", 0);
+		$this->RegisterPropertyInteger("Notify51", 0);
+		$this->RegisterPropertyInteger("Notify52", 0);
 
 		$this->RegisterPropertyString("UpdateDateTimeStart", 0);
 		$this->RegisterPropertyString("UpdateDateTimeEnde", 0);
@@ -167,7 +169,7 @@ define("DATA_TO_DATABASE",true);
 	// 		Intradayactivity
 	// 
 	//**************************************************************************
-	public function UpdateDataForDays($measure="",$days=0)
+	public function UpdateDataForDays(string $measure="",int $days=0)
 		{
 		
 		$measure = strtoupper($measure);
@@ -233,7 +235,7 @@ define("DATA_TO_DATABASE",true);
 	// 		Intradayactivity
 	// 
 	//**************************************************************************
-	public function UpdateDataForTime($measure="",$starttime=0,$endtime=0)
+	public function UpdateDataForTime(string $measure="",int $starttime=0,int $endtime=0)
 		{
 		
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']','------------------------------------------------------------------------',0);	
@@ -404,7 +406,6 @@ define("DATA_TO_DATABASE",true);
 
         $starttime = time();            
 		
-		$this->Logging("Update");
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"-------------------------------------------------------------------------------------------------------------------",0);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data START",0);
 		
@@ -424,6 +425,8 @@ define("DATA_TO_DATABASE",true);
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals",0);
 		$this->GetGoals();
 
+
+		$this->GetNotifyList();
 
 		return;
 		
@@ -1100,7 +1103,7 @@ define("DATA_TO_DATABASE",true);
 			$profile = IPS_GetVariableProfile($Name);
 			if($profile['ProfileType'] != $Typ)
 				{
-				IPS_Logmessage("Withingsmodul","Profil falsch : " . $Name);
+				IPS_Logmessage("Withingsmodul","Profiltyp falsch : " . $Name . " Ist : ".$profile['ProfileType']. " Soll : ".$Typ);
 				//throw new Exception("Variable profile type does not match for profile ".$Name);
 
 				}
@@ -2689,16 +2692,50 @@ define("DATA_TO_DATABASE",true);
 	protected function GetNotifyList($appli="")
 		{
 		
-		$access_token = $this->ReadPropertyString("Userpassword");
+		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
+        	{
+            return false;
+            }
 
-		$url = "https://wbsapi.withings.net/notify?action=list&access_token=".$access_token."&appli=".$appli;
-		$output = $this->DoCurl($url);		
-    	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
-		$data = json_decode($output,TRUE);
-		$data = @$data['body'];
-		$data = $this->DoNotifyList($data);
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
+	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify  ");
 		
-		return $data;
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header 
+			]);
+		
+		
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+			'action' => 'list',
+			'appli' => $appli
+		]));
+		
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+
+		$data = json_decode($result,TRUE); 
+
+		if ( $this->CheckStatus($data) == false )
+			return false;
+
+		if ( $this->CheckBody($data) == false )
+			return false;
+
+		$ModulID = $this->InstanceID;
+
+		$body = $data['body'];
+
+		$this->DoNotifyList($body);
 		
 		}
 
@@ -2711,8 +2748,6 @@ define("DATA_TO_DATABASE",true);
 		
 		Global $NotifiyListArray;
 
-			
-
 		if ( $data == false )
 			return false ;
 			
@@ -2720,12 +2755,12 @@ define("DATA_TO_DATABASE",true);
 
 		if ( @count($data) == 0 )
 			{
-			// $this->SendDebug(__FUNCTION__,"Keine Profile gefunden. Abbruch",0);
+			$this->SendDebug(__FUNCTION__,"Keine Profile gefunden. Abbruch",0);
 			return false;
 			}
 		else
 			{
-			//$this->SendDebug(__FUNCTION__,"Anzahl der Profile : ".count($data),0);
+			$this->SendDebug(__FUNCTION__,"Anzahl der Profile : ".count($data),0);
 			}
 
 		foreach($data as $profil )
@@ -2741,8 +2776,6 @@ define("DATA_TO_DATABASE",true);
 			$NotifiyListArray[$applikation] = $callbackurl;
 			
 			}
-			
-		return ( $data );
 			
 		}
 		
@@ -3015,7 +3048,7 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	//	Alarmfunction ( Offline )
 	//**************************************************************************
-	public function RunAlarmScript($id,$string)
+	public function RunAlarmScript(int $id,string $string)
 		{
 
 		$script = $this->ReadPropertyInteger("NotifyAlarm");

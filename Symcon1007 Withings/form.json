@@ -30,12 +30,16 @@
     { "type": "ExpansionPanel", "caption": "Benachrichtigungen",
       "items": 	
         [	
-          { "type": "CheckBox"      , "name"  : "Notifyaktiv" , "caption": "Benachrichtigungen aktivieren (Beta)" },
-          { "type": "SelectScript"  , "name"  : "Notify1"     , "caption": "Script fuer Gewicht" },
-          { "type": "SelectScript"  , "name"  : "Notify4"     , "caption": "Script fuer Blutdruck" },
-          { "type": "SelectScript"  , "name"  : "Notify16"    , "caption": "Script fuer Aktivitaeten" },
-          { "type": "SelectScript"  , "name"  : "Notify44"    , "caption": "Script fuer Schlafsensor" },
-          { "type": "SelectScript"  , "name"  : "Notify46"    , "caption": "Script fuer Geraete" },
+          { "type": "CheckBox"      , "name"  : "Notifyaktiv" , "caption": "Benachrichtigungen aktivieren" },
+          { "type": "SelectScript"  , "name"  : "Notify1"     , "caption": "[1]Script fuer Gewicht (user.metrics)" },
+          { "type": "SelectScript"  , "name"  : "Notify2"     , "caption": "[2]Script fuer Temperatur (user.metrics)" },
+          { "type": "SelectScript"  , "name"  : "Notify4"     , "caption": "[4]Script fuer Blutdruck (user.metrics)" },
+          { "type": "SelectScript"  , "name"  : "Notify16"    , "caption": "[16]Script fuer Aktivitaeten (users.activity)" },
+          { "type": "SelectScript"  , "name"  : "Notify44"    , "caption": "[44]Script fuer Schlafsensor (users.activity)" },
+          { "type": "SelectScript"  , "name"  : "Notify46"    , "caption": "[46]Script fuer User Aktion (user.info)" },
+          { "type": "SelectScript"  , "name"  : "Notify50"    , "caption": "[50]Script fuer Schlafsensor (user.sleepevents)" },
+          { "type": "SelectScript"  , "name"  : "Notify51"    , "caption": "[51]Script fuer Schlafsensor (user.sleepevents)" },
+          { "type": "SelectScript"  , "name"  : "Notify52"    , "caption": "[52]Script fuer Schlafsensor (user.sleepevents)" },
           { "type": "SelectScript"  , "name"  : "NotifyAlarm" , "caption": "Script Alarm ( Offline )" },
          
           { "type": "Label", "caption": "Manuelle Eingabe einer Callback Adresse fuer Benachrichtigungen" },
@@ -55,7 +59,7 @@
     { "type": "ExpansionPanel", "caption": "Einstellungen",
       "items": 	
         [	  
-          { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Grafana)" } 
+          { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings)" } 
         ]
     }
 
