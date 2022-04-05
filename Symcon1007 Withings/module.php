@@ -144,8 +144,11 @@ define("DATA_TO_DATABASE",true);
 		$id = $this->RegisterVariableString( "birthdate" , "Geburtstag","",1);
 		$birthday = $this->ReadPropertyString("SetUserBirthday");
 		$s = json_decode($birthday,TRUE);
-		$birthday = $s['day'].".".$s['month'].".".$s['year'];	
-		SetValueString($id,$birthday);
+		if ( isset($s['day']) AND isset($s['month']) AND isset($s['year'])) 
+			{
+			$birthday = $s['day'].".".$s['month'].".".$s['year'];	
+			SetValueString($id,$birthday);
+			}
 		$id = $this->RegisterVariableInteger("height"    , "Groesse"   ,"WITHINGS_M_Groesse" ,3);
 		$height = $this->ReadPropertyInteger("SetUserHeight");
 		SetValueInteger($id,$height);
@@ -1881,7 +1884,7 @@ define("DATA_TO_DATABASE",true);
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
-					case 54 :	$value = floatval(round ($val,2));
+					case 54 :	$value = intval(round ($val));
 								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'spo2','oldcat'=> 0,'profil'=>'~Intensity.100','name'=>'Sauerstoffsättigung'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
