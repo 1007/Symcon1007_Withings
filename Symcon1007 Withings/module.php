@@ -157,6 +157,21 @@ define("DATA_TO_DATABASE",true);
 		$interval = $this->ReadPropertyInteger("Intervall") * 1000 ;
 		$this->SetTimerInterval("WIT_UpdateTimer", $interval);
 
+
+
+		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
+			{
+			$this->DoNotifyRevokeAll();	
+			$this->GetNotifyList();	
+			}
+		else
+			{
+			$this->DoNotifySubscribe();
+			$this->GetNotifyList();
+			}
+
+
+
 		if ( $this->ReadPropertyBoolean("Modulaktiv") == false )
 			{
 			$this->SetStatus(104);	
@@ -445,8 +460,17 @@ define("DATA_TO_DATABASE",true);
         $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals",0);
 		$this->GetGoals();
 
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
+		$this->GetSleepSummary(5);		// 5 Tage
 
 		$this->GetNotifyList();
+
+		$this->CleanDatabase();
+
+		$endtime = time();
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Laufzeit ".($endtime - $starttime) . " Sekunden" ,0);
+
 
 		return;
 		
@@ -465,14 +489,6 @@ define("DATA_TO_DATABASE",true);
 
 		$this->SubscribeHook();
 
-		$this->GetNotifyList(1);
-    	$this->GetNotifyList(2);
-		$this->GetNotifyList(4);
-		$this->GetNotifyList(16);
-		$this->GetNotifyList(44);
-		$this->GetNotifyList(46);
-    	$this->GetNotifyList(50);
-    	$this->GetNotifyList(51);
 		
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
 			{
@@ -484,7 +500,6 @@ define("DATA_TO_DATABASE",true);
 		// $this->GetNonce();
 
 		$this->CleanDatabase();
-
 
 		$endtime = time();
 		
@@ -871,10 +886,79 @@ define("DATA_TO_DATABASE",true);
 		}
 
 
+
 	//******************************************************************************
 	//	GetSleepSummary
 	//******************************************************************************
 	protected function GetSleepSummary($tage = 1,$start=0)
+		{
+
+		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
+			return false;
+
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
+
+		$startdate = time() - 24*60*60*$tage;
+		$enddate   = time();
+
+		$startdate = date("Y-m-d",$startdate);
+		$enddate   = date("Y-m-d",$enddate);
+
+		if ( $start != 0 )
+			{
+			$startdate = date("Y-m-d",$start);
+			$enddate = date("Y-m-d",($start + ( $tage*24*60*60)));	
+			}
+		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
+
+
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/sleep ");
+			
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header
+			]);
+			
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+				'action' => 'getsummary',
+				'startdateymd' => $startdate,
+				'enddateymd' => $enddate
+			]));
+			
+		$result = curl_exec($ch);
+		curl_close($ch);
+			
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+		
+		$data = json_decode($result,TRUE); 
+
+		if ( $this->CheckStatus($data) == false )
+			return false;
+
+		if ( $this->CheckBody($data) == false )
+			return false;			
+
+		$ModulID = $this->InstanceID;
+
+		$data = $data['body'];
+
+		$this->DoSleepSummary($ModulID,$data);
+
+		return true;
+
+		}
+		
+		
+
+
+	//******************************************************************************
+	//	GetSleepSummary Old
+	//******************************************************************************
+	protected function GetSleepSummaryOld($tage = 1,$start=0)
 		{
 
 		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
@@ -1203,6 +1287,157 @@ define("DATA_TO_DATABASE",true);
 			}
 
 		$RequestReAggregation = false;
+
+		// print_r($data);
+
+		$TypeArrayData = array();
+
+		$count = count($data)-1;
+		foreach($data as $key => $sleep)
+			{
+				
+			$sleepmodel      = @$sleep['model'];
+			$sleepstartdate  = @$sleep['startdate'];
+			$deviceid  		 = @$sleep['hash_deviceid'];
+			$timestamp       = @$sleep['date'];
+			$sleependdate    = @$sleep['enddate'];
+			$sleepmodified   = @$sleep['modified'];
+			$sleepdauer      = intval($sleependdate -$sleepstartdate)/60;
+
+			$time = strtotime($timestamp);
+
+			$sleepwakeupduration    = intval(@$sleep['data']['wakeupduration'])/60;
+			$sleepwakeupcount       = intval(@$sleep['data']['wakeupcount']);
+			$sleepdurationtosleep   = intval(@$sleep['data']['durationtosleep'])/60;
+			$sleepremduration       = intval(@$sleep['data']['remsleepduration'])/60;
+			$sleeptotaltimeinbed    = intval(@$sleep['data']['total_timeinbed'])/60;
+			$sleeptotalsleeptime    = intval(@$sleep['data']['total_sleep_time'])/60;
+			$sleepefficiency        = floatval(@$sleep['data']['sleep_efficiency']);
+			$sleeplatency           = intval(@$sleep['data']['sleep_latency']);
+			$sleepwaso              = intval(@$sleep['data']['waso']);
+			$sleepnbremepisodes     = intval(@$sleep['data']['nb_rem_episodes']);
+			$sleepoutofbedcount     = intval(@$sleep['data']['out_of_bed_count']);
+			
+			$sleepdurationtowakeup  = intval(@$sleep['data']['durationtowakeup'])/60;
+
+			$sleeplightsleepduration= intval(@$sleep['data']['lightsleepduration'])/60;
+			$sleepdeepsleepduration = intval(@$sleep['data']['deepsleepduration'])/60;
+			
+			
+			
+			$sleephraverage         = intval(@$sleep['data']['hr_average']);
+			$sleephrmin         	= intval(@$sleep['data']['hr_min']);
+			$sleephrmax             = intval(@$sleep['data']['hr_max']);
+			$sleeprraverage         = intval(@$sleep['data']['rr_average']);
+			$sleeprrmin         	= intval(@$sleep['data']['rr_min']);
+			$sleeprrmax             = intval(@$sleep['data']['rr_max']);
+
+
+			$datas = array();	
+			$datass = array();		
+			
+			$lastdata = false;
+			if ( $key == $count)
+				$lastdata = true;
+			
+				
+			$datass = ['timestamp'=> $time,'value'=> $sleepdauer,'deviceid'=>$deviceid,'ident'=>'schlafdauer','profil'=>'WITHINGS_M_Minuten','name'=>'Schlafdauer','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=> $sleepwakeupduration,'deviceid'=>$deviceid,'ident'=>'wachphasen','profil'=>'WITHINGS_M_Minuten','name'=>'Wachphasen','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=> $sleeplightsleepduration,'deviceid'=>$deviceid,'ident'=>'leichtschlafphasen','profil'=>'WITHINGS_M_Minuten','name'=>'Leichtschlafphasen','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=> $sleepdeepsleepduration,'deviceid'=>$deviceid,'ident'=>'tiefschlafphasen','profil'=>'WITHINGS_M_Minuten','name'=>'Tiefschlafphasen','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=> $sleepwakeupcount,'deviceid'=>$deviceid,'ident'=>'schlafunterbrechungen','profil'=>'WITHINGS_M_Anzahl','name'=>'Schlafunterbrechungen','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleepdurationtosleep,'deviceid'=>$deviceid,'ident'=>'einschlafzeit','profil'=>'WITHINGS_M_Minuten','name'=>'Einschlafzeit','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleepdurationtowakeup,'deviceid'=>$deviceid,'ident'=>'aufwachzeit','profil'=>'WITHINGS_M_Minuten','name'=>'Aufwachzeit','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleepremduration,'deviceid'=>$deviceid,'ident'=>'remschlafphasen','profil'=>'WITHINGS_M_Minuten','name'=>'Remschlafphasen','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleephraverage,'deviceid'=>$deviceid,'ident'=>'herzschlagdurchschnitt','profil'=>'WITHINGS_M_Puls','name'=>'Herzschlag Durchschnitt','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleephrmin,'deviceid'=>$deviceid,'ident'=>'herzschlagminimal','profil'=>'WITHINGS_M_Puls','name'=>'Herzschlag Minimal','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleephrmax,'deviceid'=>$deviceid,'ident'=>'herzschlagmaximal','profil'=>'WITHINGS_M_Puls','name'=>'Herzschlag Maximal','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleeprraverage,'deviceid'=>$deviceid,'ident'=>'atmungdurchschnitt','profil'=>'WITHINGS_M_Atmung','name'=>'Atmung Durchschnitt','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleeprrmin,'deviceid'=>$deviceid,'ident'=>'atmungminimal','profil'=>'WITHINGS_M_Atmung','name'=>'Atmung Minimal','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+			$datas = array();	
+			$datass = array();
+			$datass = ['timestamp'=> $time,'value'=>$sleeprrmax,'deviceid'=>$deviceid,'ident'=>'atmungmaximal','profil'=>'WITHINGS_M_Atmung','name'=>'Atmung Maximal','lastdata'=>$lastdata];
+			array_push($datas,$datass);
+			$TypeArrayData = array_merge($TypeArrayData,$datas);
+
+
+
+			}
+
+
+		foreach($TypeArrayData as $key => $Sleepdata)
+			{
+			
+			$InstanceIDDeviceID = $Sleepdata['deviceid']; 
+			$lastdata = $Sleepdata['lastdata']; 
+			$name = $Sleepdata['name']; 
+			$value = $Sleepdata['value'];
+			$profil = $Sleepdata['profil'];
+			$ident = $Sleepdata['ident'];
+			$timestamp = $Sleepdata['timestamp'];
+			$deviceid = $Sleepdata['deviceid'];
+			$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+
+			if (  $key == $lastdata  AND $key != 0 )
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - - ".$deviceid." - ".$value." - ". $ident." -  - ".$profil." - ".$name." - ".$lastdata,0);
+
+
+			}
+		//  print_r($TypeArrayData);
+
+
+
+		return;
 
 		// Bei diesen Daten ist der neueste als letztes
 		foreach($data as $sleep)
@@ -1958,7 +2193,7 @@ define("DATA_TO_DATABASE",true);
 				if ( $NoLastData == true )
 					$last = false;
 
-				if ( $key == 0 OR $key == $last_position );
+				if ( $key == 0 OR $key == $last_position )
 					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$type." - ".$deviceid." - ".$value." - ". $ident." - ".$oldcat." - ".$profil." - ".$name." - ".$last,0);
 
 				$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
@@ -2600,6 +2835,13 @@ define("DATA_TO_DATABASE",true);
          
 		$this->CheckProfil($CatID,$name,$profil);
 
+		if ( is_nan($value) == true)
+			{
+
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable ist NaN : ".($Timestamp). " : ".$VariableID."-".$name."-".$value,0);
+			return;
+	
+			}
 
 		// $asynchron bedeutet gleich in Database
 		if ( $asynchron == true )
@@ -2728,12 +2970,13 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	// Notify List
 	//**************************************************************************
-	protected function GetNotifyList($appli="")
+	protected function GetNotifyList($appli="",$aktiv=true)
 		{
-		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
+
 		if ( $this->ReadPropertyBoolean("Notifyaktiv") == false )
         	{
-            return false;
+            // return false;
             }
 
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
@@ -2750,7 +2993,6 @@ define("DATA_TO_DATABASE",true);
 		
 		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header 
 			]);
-		
 		
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
 			'action' => 'list',
@@ -2774,8 +3016,20 @@ define("DATA_TO_DATABASE",true);
 
 		$body = $data['body'];
 
-		$this->DoNotifyList($body);
+		$NotifiyListArray = $this->DoNotifyList($body);
+
+		foreach($NotifiyListArray as $key => $Notify)
+			{
+			// print_r($NotifiyListArray);
+			$appli = @$key;
+			$url = @$Notify;
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $key ." - ".$url, 0);
+
+
+			}
 		
+		return $NotifiyListArray;
+
 		}
 
 
@@ -2785,47 +3039,63 @@ define("DATA_TO_DATABASE",true);
 	protected function DoNotifyList($data)
 		{
 		
-		Global $NotifiyListArray;
-
-		if ( $data == false )
-			return false ;
+		$NotifiyListArray = array();
 			
 		$data = @$data['profiles'];
 
 		if ( @count($data) == 0 )
 			{
-			$this->SendDebug(__FUNCTION__,"Keine Profile gefunden. Abbruch",0);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Keine Profile gefunden. Abbruch",0);
 			return false;
 			}
 		else
 			{
-			$this->SendDebug(__FUNCTION__,"Anzahl der Profile : ".count($data),0);
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Anzahl der Profile : ".count($data),0);
 			}
 
 		foreach($data as $profil )
 			{
 			$applikation = @$profil['appli'];	
 			$callbackurl = @$profil['callbackurl'];	
+			$expires = @$profil['expires'];	
 			$comment     = @$profil['comment'];	
 				
 			$applikation = intval($applikation);
 
-			$s = "[".$applikation."][".$callbackurl."][".$comment."]";
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$s,0);
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[".$applikation."][".$callbackurl."][".$expires."][".$comment."]",0);
 			$NotifiyListArray[$applikation] = $callbackurl;
 			
 			}
-			
+	
+		return 	$NotifiyListArray;
+
 		}
 		
 	//**************************************************************************
-	//	
+	//	Alle Callbacks von GetNotifyList loeschen
 	//**************************************************************************
 	protected function DoNotifyRevokeAll()
 		{
-		$data = $this->GetNotifyList();
+		Global $NotifiyListArray;
+
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
+
+		
+
+		print_r($NotifiyListArray);	
+			
+		// $data = $this->GetNotifyList();
+
+		$data = $NotifiyListArray;
+
+
+
 		if ( $data == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"GetNotifyList ist leer",0);
+
 			return;
+			}
 
 		foreach($data as $profil )
 			{
@@ -2833,10 +3103,9 @@ define("DATA_TO_DATABASE",true);
 			$callbackurl = @$profil['callbackurl'];	
 			$comment     = @$profil['comment'];	
 				
-			$s = "[".$applikation."][".$callbackurl."][".$comment."]";
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$s,0);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[".$applikation."][".$callbackurl."][".$comment."]",0);
 			
-			$this->GetRevokeNotifyList($applikation,$callbackurl);
+			// $this->GetRevokeNotifyList($applikation,$callbackurl);
 			}
 			
 		}
@@ -2847,7 +3116,8 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	protected function GetRevokeNotifyList($applikation,$callbackurl)
 		{
-		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
+
 		$access_token = $this->ReadPropertyString("Userpassword");
 
 		$url = "https://wbsapi.withings.net/notify?action=revoke&access_token=".$access_token."&appli=".$applikation."&callbackurl=".$callbackurl;
@@ -2873,11 +3143,15 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	// Notify Subscribe
 	//**************************************************************************
-	protected function GetNotifySubscribe()
+	protected function DoNotifySubscribe()
 		{
-		
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
+
 		Global $NotifiyListArray;
 
+
+
+		return;
 		$access_token = $this->ReadPropertyString("Userpassword");
 
 		$startdate = date("Y-m-d",time() - 24*60*60*5);
@@ -3210,11 +3484,7 @@ define("DATA_TO_DATABASE",true);
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID nicht vorhanden :" .$ParentID ,0);
 			return false;	
 			}
-		else
-			{
-			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"ParentID :" .$ParentID ,0);
-			}
-
+		
 		$version = (float)IPS_GetKernelVersion();
 
 		if ( $version < 5.5 )	// Kein gleichzeitiges Reaggregieren moeglich
@@ -3251,7 +3521,7 @@ define("DATA_TO_DATABASE",true);
             if ( array_key_exists($child,$isUnvalid ) )
                 {
 				// Variable muss aggregiert werden
-				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable muss aggregiert werden :" .$child ,0);
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable muss aggregiert werden :" .$child ,0);
 				
 				$status = @AC_ReAggregateVariable ($this->GetArchivID(), $child );
 
@@ -3289,14 +3559,13 @@ define("DATA_TO_DATABASE",true);
 			$object = IPS_GetObject($child);
 			$typ = $object['ObjectType'];
 
-			if ( $typ == 0 OR $typ == 1 )	
+			if ( $typ == 0 OR $typ == 1 )		// Kategorie / Instanze
 				{
 				// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Child :".$child ." Typ : ".$typ,0);
 				$this->CheckAggregationNecessary($child);
 				}
 
 			}
-
 
 		}
 
