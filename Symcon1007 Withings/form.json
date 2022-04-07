@@ -40,6 +40,8 @@
           { "type": "SelectScript"  , "name"  : "Notify50"    , "caption": "[50]Script fuer Schlafsensor (user.sleepevents)" },
           { "type": "SelectScript"  , "name"  : "Notify51"    , "caption": "[51]Script fuer Schlafsensor (user.sleepevents)" },
           { "type": "SelectScript"  , "name"  : "Notify52"    , "caption": "[52]Script fuer Schlafsensor (user.sleepevents)" },
+          { "type": "SelectScript"  , "name"  : "Notify54"    , "caption": "[54]Script fuer New ECG Data (user.metrics)" },
+          { "type": "SelectScript"  , "name"  : "Notify55"    , "caption": "[55]Script fuer New ECG measure failed event (user.metrics)" },
           { "type": "SelectScript"  , "name"  : "NotifyAlarm" , "caption": "Script Alarm ( Offline )" },
          
           { "type": "Label", "caption": "Manuelle Eingabe einer Callback Adresse fuer Benachrichtigungen" },
