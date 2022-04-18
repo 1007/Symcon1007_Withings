@@ -8,22 +8,29 @@
     
     { "type": "CheckBox"          , "name" :  "Modulaktiv",  "caption": "Modul aktiv" },
  
+
     { "type": "ExpansionPanel", "caption": "Datenauswahl",
       "items": 	
         [	
+          
+
           { "type": "CheckBox"          , "name" :  "CheckBoxBodyGoals",   "caption": "Ziele" },
 
           { "type": "CheckBox"          , "name" :  "BodyMeasures",   "caption": "Gewichtswerte/Temperaturen" },
     
           { "type": "CheckBox"          , "name" :  "BloodMeasures",  "caption": "Blutdruckwerte" },
 
+          
+
           { "type": "CheckBox"          , "name" :  "BloodLogging",  "caption": "Schlafsensorwerte" },
 
-          { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" }
+          { "type": "CheckBox"          , "name" :  "BodyLogging",  "caption": "Aktivitaetswerte" } 
+
+          
         ]
       },
 
-       
+      
   
   
     
@@ -78,6 +85,7 @@
       "items": 	
         [	  
           { "type": "NumberSpinner", "name": "Intervall", "caption": "Update Intervall" },
+          { "type": "CheckBox"          , "name" :  "ExtDebug", "caption": "Erweitertes Debug" } ,
           { "type": "CheckBox"          , "name" :  "Logging", "caption": "Logging (../logs/Withings)" } 
         ]
     }
