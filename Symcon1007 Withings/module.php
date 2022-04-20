@@ -467,8 +467,8 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
 		$this->GetSleepSummary(5);		// 5 Tage
 
-		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
-		// $this->GetActivity();
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
+		$this->GetActivity();
 
 		$this->GetNotifyList();
 
@@ -935,7 +935,7 @@ define("DATA_TO_DATABASE",true);
 				'enddateymd' => $enddate,
 				'data_fields' => $datafields
 			]));
-			
+		
 		$result = curl_exec($ch);
 		curl_close($ch);
 			
