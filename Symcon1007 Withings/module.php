@@ -928,7 +928,7 @@ define("DATA_TO_DATABASE",true);
 
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/sleep ");
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/sleep");
 			
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 			
@@ -948,6 +948,14 @@ define("DATA_TO_DATABASE",true);
 			{
 			$info = curl_getinfo($ch);
 			
+			foreach($info as $key => $value)
+				{
+				
+				if ( is_array($value))
+					continue;
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Info : ' . $key ." - ".$value,0);
+
+				}
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Es wurden '. $info['total_time']. ' Sekunden benötigt für eine Anfrage an '. $info['url'],0);
 		  	}
 		else
@@ -3153,7 +3161,7 @@ define("DATA_TO_DATABASE",true);
 		
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify  ");
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify");
 		
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		
