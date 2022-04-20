@@ -467,8 +467,8 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
 		$this->GetSleepSummary(5);		// 5 Tage
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
-		$this->GetActivity();
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
+		//$this->GetActivity();
 
 		$this->GetNotifyList();
 
@@ -942,6 +942,34 @@ define("DATA_TO_DATABASE",true);
 			]));
 		
 		$result = curl_exec($ch);
+
+
+		if (!curl_errno($ch)) 
+			{
+			$info = curl_getinfo($ch);
+			
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Es wurden '. $info['total_time']. ' Sekunden benötigt für eine Anfrage an '. $info['url'],0);
+		  	}
+		else
+			{
+			$info = curl_getinfo($ch);
+			
+			foreach($info as $key => $value)
+				{
+				
+				if ( is_array($value))
+					continue;
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']','Info : ' . $key ." - ".$value,0);
+
+				}
+
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']','CURL NOK',0);
+	
+
+			}
+			  
+
+		  
 		curl_close($ch);
 			
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
