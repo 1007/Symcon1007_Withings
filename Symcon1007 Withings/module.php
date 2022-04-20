@@ -907,6 +907,8 @@ define("DATA_TO_DATABASE",true);
 		$datafields = $datafields . "snoring,snoringepisodecount,wakeupcount,wakeupduration,";
 		$datafields = $datafields . "hr_average,hr_min,hr_max,rr_average,rr_min,rr_max";
 
+		$action = "getsummary";
+
 		$startdate = time() - 24*60*60*$tage;
 		$enddate   = time();
 
@@ -920,6 +922,9 @@ define("DATA_TO_DATABASE",true);
 			}
 		
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Datafields : " . ($datafields) ,0);	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Header : " . ($header) ,0);	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Action : " . ($action) ,0);	
 
 		$ch = curl_init();
 
@@ -930,7 +935,7 @@ define("DATA_TO_DATABASE",true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header ]);
 			
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
-				'action' => 'getsummary',
+				'action' => $action,
 				'startdateymd' => $startdate,
 				'enddateymd' => $enddate,
 				'data_fields' => $datafields
