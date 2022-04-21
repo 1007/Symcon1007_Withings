@@ -2,7 +2,7 @@
   "elements":
   [
 
-    { "type": "Label"             , "label":  "####### Withings V 5.0 (50010)#######" },
+    { "type": "Label"             , "label":  "####### Withings V 5.0 (50011)#######" },
     
     { "type": "Button"            , "caption": "Dokumentation", "width": "250px" , "onClick": "echo 'https://github.com/1007/Symcon1007_Withings/tree/master';" },
     

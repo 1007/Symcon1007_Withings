@@ -467,8 +467,8 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
 		$this->GetSleepSummary(5);		// 5 Tage
 
-		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
-		//$this->GetActivity();
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
+		$this->GetActivity();
 
 		$this->GetNotifyList();
 
@@ -768,6 +768,7 @@ define("DATA_TO_DATABASE",true);
 			
 		$startdate = date("Y-m-d",time() - 24*60*60*$tage);
 		$enddate   = date("Y-m-d",time());
+		$enddate   = $this->GetYesterdayString();
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
 				
@@ -1500,7 +1501,7 @@ define("DATA_TO_DATABASE",true);
 		{
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Aktivitaeten werden ausgewertet.",0);
 
-		// "Activity" isdas Ident fuer externe Daten in Withings deviceid = null
+		// "Activity" ist das Ident fuer externe Daten in Withings deviceid = null
 		$InstanceIDActivity = @$this->GetIDForIdent("Activity");
 		if ( $InstanceIDActivity === FALSE )
 			$InstanceIDActivity = $this->CreateDummyInstance("Activity","Activity","Daten von externen APPs");
@@ -1587,6 +1588,7 @@ define("DATA_TO_DATABASE",true);
 			$datass = ['timestamp'=>$time,'value'=>$activitybrand, 			'ident'=>'brand',				'profil'=>'~TextBox',				'name'=>'Marke',							'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
 			$datass = ['timestamp'=>$time,'value'=>$activityistracker, 		'ident'=>'istracker',			'profil'=>'~Switch',				'name'=>'Ist Tracker',						'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
 			$datass = ['timestamp'=>$time,'value'=>$activityactive, 		'ident'=>'active',				'profil'=>'WITHINGS_M_Minuten',		'name'=>'Summe Hohe/Mittlere Aktivitaet',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+			$datass = ['timestamp'=>$time,'value'=>$time, 					'ident'=>'last_session_date',	'profil'=>'~UnixTimestamp',			'name'=>'Letzte Verbindung',				'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
 
 		
 			}	
@@ -1634,9 +1636,7 @@ define("DATA_TO_DATABASE",true);
 					{
 					
 					$status = $this->CheckDataYesterdayExist($timestamp);
-					if ( $status == false )
-						$value = 0;
-					else 
+					if ( $status == true ) 
 						$this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_VARIABLE,$profil,$ident);
 					}
 				else
@@ -2777,6 +2777,14 @@ define("DATA_TO_DATABASE",true);
 		{
 		return date('d.m.Y H:i:s',$time);			
 		}
+
+	protected function GetYesterdayString()
+		{
+	
+		$DayYesterday = date("Y-m-d",strtotime("-1 day")); 	
+	
+		return $DayYesterday;
+		}    
 
 
 	//******************************************************************************
