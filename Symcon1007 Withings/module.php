@@ -252,7 +252,7 @@ define("DATA_TO_DATABASE",true);
 												$OnlineOK = $this->GetMeas($days);
 												$OnlineOK = $this->GetSleepSummary($days);
 												$OnlineOK = $this->GetActivity($days);
-												//$OnlineOK = $this->GetIntradayactivity($days);
+												$OnlineOK = $this->GetIntradayactivity($days);
 												
 
 
@@ -358,7 +358,7 @@ define("DATA_TO_DATABASE",true);
 												$OnlineOK = $this->GetMeas($days,$starttime);
 												$OnlineOK = $this->GetSleepSummary($days,$starttime);
 												$OnlineOK = $this->GetActivity($days,$starttime);
-												//$OnlineOK = $this->GetIntradayactivity($days,$starttime);
+												$OnlineOK = $this->GetIntradayactivity($days,$starttime);
 												
 												// $this->SendDebug(__FUNCTION__.'['.__LINE__.']','Messung:'.$measure.' nicht definiert',0);
 												return;
@@ -470,6 +470,10 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
 		$this->GetActivity();
 
+		// Null Uhr
+		$startdate = mktime(0,0,0,date("n"),date("j"),date("Y")) - (60*60*24*4) ;	// 5 Tage
+		$this->GetIntradayactivity(5,$startdate);
+		
 		$this->GetNotifyList();
 
 		$this->CleanDatabase();
@@ -815,6 +819,8 @@ define("DATA_TO_DATABASE",true);
 
 	//******************************************************************************
 	//  Getintradayactivity
+	//  $tage = Anzahl der Tage
+	//  $start = Start Timestamp
 	//******************************************************************************
 	protected function GetIntradayactivity($tage = 1,$start=0)
 		{
@@ -824,70 +830,74 @@ define("DATA_TO_DATABASE",true);
             return false;
             }
 
-		$access_token = $this->ReadPropertyString("Userpassword");
+
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		$header = 'Authorization: Bearer ' . $access_token;
+	
+		$datafields = "steps,elevation,calories,distance,stroke,pool_lap,duration,heart_rate,spo2_auto";
+		$datafields = "";
+		
 
 		for($tag=0;$tag<$tage;$tag++)
-			{
-			// $startdate = time()- (24*60*60)*$tag  ;
-			// $enddate = $startdate + (24*60*60);
+			{		
 
-    		// Heute Null Uhr
-    		$startdate = mktime(0,0,0,date("n"),date("j"),date("Y"));
-    		$startdate = $startdate - (24*60*60*$tag);
-    		$enddate = $startdate + (24*60*60);
 
 			if ( $start != 0 )
 				{
 				$startdate = $start + ( $tag*24*60*60); 
-				$enddate = $start + ( ($tag+1)*24*60*60);	
+				$enddate = $start + ( ($tag+1)*24*60*60) - 1;	
 				}
-
-			$url = "https://wbsapi.withings.net/v2/measure?action=getintradayactivity&access_token=".$access_token."&startdate=".$startdate."&enddate=".$enddate;
-
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$url,0);
-        	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Tag:".$tag."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
-
-			$output = $this->DoCurl($url);
-
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$output,0);
-
-			$this->Logging($output);
-
-			$this->LoggingExt($output,"intradayactivity.log",false,false);
-
-			$data = json_decode($output,TRUE);
-
-			if ( !array_key_exists('status',$data) == TRUE )
+			else
 				{
-				$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status: unbekannt",0);
+
+				// Heute Null Uhr
+				$startdate = mktime(0,0,0,date("n"),date("j"),date("Y"));
+				$startdate = $startdate - (24*60*60*$tag);
+				$enddate = $startdate + (24*60*60);
+
+				}	
+
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Tag:".$tag."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
+
+			$ch = curl_init();
+		
+			curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/measure");
+		
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+				
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [ $header ]);
+				
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([ 
+					'action' => 'getintradayactivity',
+					'startdate' => $startdate,
+					'enddate' => $enddate,
+					'data_fields' => $datafields
+				]));
+				
+			$result = curl_exec($ch);
+			curl_close($ch);
+							
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+	
+			$data = json_decode($result,TRUE);
+		
+			if ( $this->CheckStatus($data) == false )
 				return false;
-				}
-
-			$status = $data['status'];
-
-			if ( $status != 0)
-        		{
-            	return false;
-            	}
-                    
-			$id = $this->GetIDForIdent("name");
-
-			$ModulID = IPS_GetParent($id);
-
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Name ID : ".$id,0);
-
-
-			$data = $data['body'];
-
-			$this->DoGetintradayactivity($ModulID,$data);
-
-			return true;
-
+	
+			$ModulID = $this->InstanceID;
+	
+			$body = $data['body'];
+	
+			if ( $start == 0 )
+				$NoLastData = false;
+			else
+				$NoLastData = true;	
+	
+			$this->DoGetintradayactivity($ModulID,$body,$NoLastData);
+	
 			}
 
 		}
-
-
 
 	//******************************************************************************
 	//	GetSleepSummary
@@ -1620,8 +1630,8 @@ define("DATA_TO_DATABASE",true);
 						// $this->LoggingExt("Start",$file="Activity-".$ident.".log",true );
 				
 					}
-				$this->LoggingExt($DebugText,$file="Activity-".$ident.".log" );
-				$this->LoggingExt($DebugText,$file="Activity.log" );
+				//$this->LoggingExt($DebugText,$file="Activity-".$ident.".log" );
+				//$this->LoggingExt($DebugText,$file="Activity.log" );
 
 				
 				if (  ( $key == $lastdata  AND $key != 0 ) )
@@ -1747,11 +1757,12 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	//	Auswertung Intradayactivity
 	//**************************************************************************
-	 protected function DoGetintradayactivity($ModulID,$data)
+	 protected function DoGetintradayactivity($ModulID,$data,$NoLastData=false)
 		{
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Aktivitaeten werden ausgewertet.",0);
 
-		// "IntraDayActivity" isdas Ident fuer externe Daten in Withings deviceid = null
+		// "IntraDayActivity" ist das Ident fuer externe Daten in Withings deviceid = null
+
 		$InstanceIDActivity = @$this->GetIDForIdent ("IntraDayActivity");
 		if ( $InstanceIDActivity === FALSE )
 			$InstanceIDActivity = $this->CreateDummyInstance("IntraDayActivity","IntraDayActivity","Daten von externen APPs");
@@ -1762,19 +1773,240 @@ define("DATA_TO_DATABASE",true);
 			return;
 			}
 
-
-		$data 		= @$data['series'];
-
+		$data = @$data['series'];
+		$keys = array_keys($data);
+            
+		$counter = 0;
+		foreach($keys as $key )
+			{ 
+			if ( $counter == 0 )
+				$measuregrpsstart = date('d.m.Y H:i:s ',$key);
+			
+			$measuregrpsende = date('d.m.Y H:i:s ',$key);
+			$counter++;	
+			}	
+		
 		if ( @count($data) == 0 )
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Keine Activity gefunden. Abbruch",0);
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$InstanceIDActivity." Keine Activity gefunden. Abbruch",0);
 			return false;
 			}
 		else
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Anzahl der Serien : ".count($data),0);
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$InstanceIDActivity."Anzahl der Serien : ".count($data),0);
+			
+			// $measuregrpsstart =  @$data[0];
+			$measuregrpsstart = $this->DateToTimestamp($measuregrpsstart);
+			$measuregrpsstart = $this->TimestampToDate($measuregrpsstart);	
+			// $measuregrpsende = @$data[count($data)-1]['date'];
+			$measuregrpsende = $this->DateToTimestamp($measuregrpsende);
+			$measuregrpsende = $this->TimestampToDate($measuregrpsende);	
+					
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Anzahl der Measuregrps : ".count($data) . " von " . $measuregrpsstart. " bis " . $measuregrpsende,0);	
+
+			}
 
 		$RequestReAggregation = false;
+		$ReaggregationsArray = array();		// Array fuer Reaggregation
 
+		$TypeArrayData = array();
+		$datass = array(); $datas = array();
+
+		$keys = array_keys($data);
+                 
+		foreach($keys as $key)
+			{ 
+
+
+			$lastdata = false;
+
+			$activitydatestart 	= intval(@$key);
+			$activityduration	= intval(@$data[$key]['duration']);
+			$activitydateend 	= $activitydatestart + $activityduration;
+			
+			$activitysteps		= intval(@$data[$key]['steps']);
+			$activitymodel  	= strval(@$data[$key]['model']);
+			$activitymodelid	= intval(@$data[$key]['model_id']);
+			$activitycalories	= floatval(@$data[$key]['calories']);
+			$activitydistance	= floatval(@$data[$key]['distance']);
+			$activityelevation	= intval(@$data[$key]['elevation']);
+			$activitystroke		= intval(@$data[$key]['stroke']);
+			$activitypoollap	= intval(@$data[$key]['pool_lap']);
+			$activityheartrate	= intval(@$data[$key]['heart_rate']);
+			$activityspo2		= intval(@$data[$key]['spo2_auto']);
+
+
+			if ( $activitysteps > 0 )
+				{
+				$datass = ['timestamp'=>$activitydatestart,'duration'=>$activityduration,'value'=>$activitysteps, 		'ident'=>'schritte',	'profil'=>'WITHINGS_M_Schritte',	'name'=>'Schritte',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+				}	
+			if ( $activityheartrate > 0 )
+				{
+				$datass = ['timestamp'=>$activitydatestart,'duration'=>$activityduration,'value'=>$activityheartrate, 	'ident'=>'puls',		'profil'=>'WITHINGS_M_Puls',		'name'=>'Puls',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+				}	
+			if ( $activitycalories > 0 )
+				{
+				$datass = ['timestamp'=>$activitydatestart,'duration'=>$activityduration,'value'=>$activitycalories, 	'ident'=>'kalorien',	'profil'=>'WITHINGS_M_Kalorien',	'name'=>'Kalorien',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+				}	
+			if ( $activitydistance > 0 )
+				{
+				$datass = ['timestamp'=>$activitydatestart,'duration'=>$activityduration,'value'=>$activitydistance, 	'ident'=>'distanze',	'profil'=>'WITHINGS_M_Meter',		'name'=>'Distanze',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+				}	
+			if ( $activityelevation > 0 )
+				{
+				$datass = ['timestamp'=>$activitydatestart,'duration'=>$activityduration,'value'=>$activityelevation, 	'ident'=>'hoehenmeter',	'profil'=>'WITHINGS_M_Stockwerke',	'name'=>'Stockwerke',	'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();	
+				}	
+
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',$activitydatestart."-".$this->TimestampToDate($activitydatestart)." - ".$activityduration . " - ".$this->TimestampToDate($activitydateend)." - ".$activitymodel." - ".$activitymodelid." - ".$activitycalories."-".$activitydistance."-".$activityelevation."-".$activitysteps."-".$activitystroke."-".$activityheartrate,0);
+			
+
+			}
+
+			
+		$this->LoggingExt("=====",$file="IntraDayActivity.log",true );	
+		$last_position = count($TypeArrayData) -1 ;
+		$x = 0 ;	
+		foreach($TypeArrayData as $key => $Activitydata)
+			{
+
+			$lastdata = $Activitydata['lastdata']; 
+			$name = $Activitydata['name']; 
+			$value = $Activitydata['value'];
+			$profil = $Activitydata['profil'];
+			$ident = $Activitydata['ident'];
+			$timestamp = $Activitydata['timestamp'];
+			$deviceid = 'IntraDayActivity';
+			$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+			$ID = $InstanceIDDeviceID;
+		
+			$DebugText = "[".$key."] : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$deviceid." - ".$value." - ". $ident." - ".$profil." - ".$name." - ".$lastdata;
+
+
+			$this->LoggingExt($DebugText,$file="IntraDayActivity.log" );
+
+			}
+
+		// Auswertung Pulsdaten
+		foreach($TypeArrayData as $key => $Activitydata)
+			{
+
+			$lastdata = $Activitydata['lastdata']; 
+			$name = $Activitydata['name']; 
+			$value = $Activitydata['value'];
+			$profil = $Activitydata['profil'];
+			$ident = $Activitydata['ident'];
+			$timestamp = $Activitydata['timestamp'];
+			$deviceid = 'IntraDayActivity';
+			$duration = $Activitydata['duration'];
+			$InstanceIDDeviceID = @$this->GetIDForIdent($deviceid);
+			$ID = $InstanceIDDeviceID;
+		
+			if ( $ident == 'puls' )
+				{
+					
+				$DebugText = "[".$key."] : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$deviceid." - ".$value." - ". $ident." - ".$profil." - ".$name." - ".$lastdata;
+			
+				//if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+				//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Pulsdaten : ".$DebugText,0);
+
+				$RequestReAggregation = false;
+				$RequestReAggregation = $this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_DATABASE,$timestamp,$ident);
+			
+				if ( $RequestReAggregation == true )
+					{ 
+					$VariableID = @IPS_GetObjectIDByIdent($ident,$ID );
+					array_push($ReaggregationsArray,$VariableID);
+					}
+				}
+
+			if ( $ident == 'kalorien' )
+				{
+					
+				$DebugText = "[".$key."] : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$deviceid." - ".$value." - ". $ident." - ".$profil." - ".$name." - ".$lastdata;
+			
+				if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Kaloriendaten : ".$DebugText,0);
+				$this->LoggingExt($DebugText,$file="IntraDayActivityKalorien.log" );
+
+				$RequestReAggregation = false;
+				$RequestReAggregation = $this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_DATABASE,$timestamp,$ident);
+				
+				if ( $RequestReAggregation == true )
+					{ 
+					$VariableID = @IPS_GetObjectIDByIdent($ident,$ID );
+					array_push($ReaggregationsArray,$VariableID);
+					}
+
+				}
+
+			if ( $ident == 'distanze' )
+				{
+					
+				$DebugText = "[".$key."] : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$deviceid." - ".$value." - ". $ident." - ".$profil." - ".$name." - ".$lastdata;
+			
+				if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Distanzdaten : ".$DebugText,0);
+				$this->LoggingExt($DebugText,$file="IntraDayActivityDistanze.log" );
+
+				$RequestReAggregation = false;
+				$RequestReAggregation = $this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_DATABASE,$timestamp,$ident);
+				
+				if ( $RequestReAggregation == true )
+					{ 
+					$VariableID = @IPS_GetObjectIDByIdent($ident,$ID );
+					array_push($ReaggregationsArray,$VariableID);
+					}
+
+				}
+
+			if ( $ident == 'schritte' )
+				{
+					
+				$tt = "000000".$key;	
+				$tt = substr($tt,-5);
+				$DebugText = "[".$tt."] : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$duration." - ".$deviceid." - ".$value." - ". $ident." - ".$profil." - ".$name." - ".$lastdata;
+			
+				if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schrittdaten : ".$DebugText,0);
+				$this->LoggingExt($DebugText,$file="IntraDayActivitySchritte.log" );
+
+				$RequestReAggregation = false;
+				$RequestReAggregation = $this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_DATABASE,$timestamp,$ident);
+				
+				if ( $RequestReAggregation == true )
+					{ 
+					$VariableID = @IPS_GetObjectIDByIdent($ident,$ID );
+					array_push($ReaggregationsArray,$VariableID);
+					}
+
+				}
+
+			
+			}
+
+
+
+
+
+
+		$this->SetValueToVariable($ID,"Updatezeit" ,time() ,"~UnixTimestamp"  ,0,DATA_TO_VARIABLE,false,"timestamp");
+
+		if ( $RequestReAggregation == true )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation erforderlich",0);
+			}	
+		else
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"RequestReAggregation nicht erforderlich",0);
+			}			
+
+
+
+
+
+
+
+		return ;
 		// Bei diesen Daten ist der neueste als letztes ???
 		$keys = array_keys($data);
                 
@@ -2302,7 +2534,7 @@ define("DATA_TO_DATABASE",true);
 				if ( $NoLastData == true )
 					$last = false;
 
-				if ( $key == 0 OR $key == $last_position )
+				if ( $key == $last_position )
 					if ( $this->ReadPropertyBoolean("ExtDebug") == true )
 						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$type." - ".$deviceid." - ".$value." - ". $ident." - ".$oldcat." - ".$profil." - ".$name." - ".$last,0);
 
