@@ -428,6 +428,22 @@ define("DATA_TO_DATABASE",true);
  
 
 	//**************************************************************************
+	// Extern Token abrufen
+	//**************************************************************************
+	public function GetAccessToken()
+		{
+	
+		if ( $this->RefreshTokens() == FALSE )	// Token konnte nicht aktualisiert werden
+            {
+			return FALSE;	
+			}
+		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
+		return $access_token;
+			
+		}
+		
+		
+	//**************************************************************************
 	// manuelles Holen der Daten oder ueber Timer
 	//**************************************************************************
 	public function Update()
