@@ -1242,6 +1242,8 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************    
 	protected function RegisterProfile($Typ, $Name, $Icon, $Prefix, $Suffix, $MinValue=false, $MaxValue=false, $StepSize=false, $Digits=0) 
 		{
+			
+					
 		if(!IPS_VariableProfileExists($Name)) 
 			{
 			IPS_CreateVariableProfile($Name, $Typ);  
@@ -1251,7 +1253,8 @@ define("DATA_TO_DATABASE",true);
 			$profile = IPS_GetVariableProfile($Name);
 			if($profile['ProfileType'] != $Typ)
 				{
-				IPS_Logmessage("Withingsmodul","Profiltyp falsch : " . $Name . " Ist : ".$profile['ProfileType']. " Soll : ".$Typ);
+				if ( $this->ReadPropertyBoolean("Logging") == true )
+					IPS_Logmessage("Withingsmodul","Profiltyp falsch : " . $Name . " Ist : ".$profile['ProfileType']. " Soll : ".$Typ);
 				//throw new Exception("Variable profile type does not match for profile ".$Name);
 
 				}
