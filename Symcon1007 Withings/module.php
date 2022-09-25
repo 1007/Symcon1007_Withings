@@ -619,7 +619,7 @@ define("DATA_TO_DATABASE",true);
 	
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user     ");
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user");
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -664,7 +664,7 @@ define("DATA_TO_DATABASE",true);
 		
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user   ");
+		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user");
 			
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 			
