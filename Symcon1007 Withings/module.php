@@ -97,9 +97,9 @@ define("DATA_TO_DATABASE",true);
 	protected function RegisterAllProfile()
 		{
 			
-		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,"Gauge"  ,""," cm");
-		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,"Graph"  ,""," bpm");
-    	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,"Graph"  ,""," Atemzuege/Minute");
+		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,""  ,""," cm");
+		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,""  ,""," bpm");
+    	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,""  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
@@ -1271,6 +1271,8 @@ define("DATA_TO_DATABASE",true);
 		
 		$ProfilArray = IPS_GetVariableProfile ($Name);
 		$AktIcon = $ProfilArray['Icon'];
+
+	
 
 		if ( $AktIcon == false )	// Icon bereits definiert, nicht ueberschreiben
 			{
