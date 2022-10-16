@@ -1105,10 +1105,14 @@ define("DATA_TO_DATABASE",true);
 
 		$this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
 
-		foreach($Associations as $Association) 
-			{
-			IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
-			}
+		$ProfilAsso = IPS_GetVariableProfile($Name);
+		$ProfilAsso = $ProfilAsso['Associations'];
+		
+		if ( $ProfilAsso == false )
+			foreach($Associations as $Association) 
+				{
+				IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+				}
 
 		}
 
@@ -1130,10 +1134,14 @@ define("DATA_TO_DATABASE",true);
 
 		$this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
 
-		foreach($Associations as $Association) 
-			{
-			IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
-			}
+		$ProfilAsso = IPS_GetVariableProfile($Name);
+		$ProfilAsso = $ProfilAsso['Associations'];
+		
+		if ( $ProfilAsso == false )
+			foreach($Associations as $Association) 
+				{
+				IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+				}
 
 		}
 
@@ -1260,12 +1268,24 @@ define("DATA_TO_DATABASE",true);
 				}
 			}
 
-		IPS_SetVariableProfileIcon($Name, $Icon);
+		
+		$ProfilArray = IPS_GetVariableProfile ($Name);
+		$AktIcon = $ProfilArray['Icon'];
+
+		if ( $AktIcon == false )	// Icon bereits definiert, nicht ueberschreiben
+			{
+			IPS_SetVariableProfileIcon($Name, $Icon);
+			}
+		
 		IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
 		IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
  
 		if ( $Typ == 2 )
+			{
+				
 			IPS_SetVariableProfileDigits($Name, $Digits);
+
+			}
 		}
 
 	
