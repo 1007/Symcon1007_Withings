@@ -99,8 +99,11 @@ define("DATA_TO_DATABASE",true);
 			
 		$this->RegisterProfile(1,"WITHINGS_M_Groesse"  ,""  ,""," cm");
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,""  ,""," bpm");
+		$this->RegisterProfile(1,"WITHINGS_M_IntProzent"     ,""  ,""," %");
     	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,""  ,""," Atemzuege/Minute");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
+		$this->RegisterProfile(2,"WITHINGS_M_Temperatur"     ,""       ,""," °C",false,false,false,1);
+		$this->RegisterProfile(2,"WITHINGS_M_Pulswelle"     ,""       ,""," m/s",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_BMI"      ,""       ,""," kg/m²",false,false,false,1);
 		$this->RegisterProfile(1,"WITHINGS_M_Blutdruck","",""," mmHg");
@@ -1457,7 +1460,7 @@ define("DATA_TO_DATABASE",true);
 			$datass = ['timestamp'=>$time,'value'=>$sleep_rraverage,				'deviceid'=>$deviceid,'ident'=>'atemzuegedurchschnitt',	'profil'=>'WITHINGS_M_Atmung',	'name'=>'Durchschnittliche Atemfrequenz',		'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
 			$datass = ['timestamp'=>$time,'value'=>$sleep_rrmin,					'deviceid'=>$deviceid,'ident'=>'atemzuegeminimal',		'profil'=>'WITHINGS_M_Atmung',	'name'=>'Minimale Atemfrequenz',			'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
 			$datass = ['timestamp'=>$time,'value'=>$sleep_rrmax,					'deviceid'=>$deviceid,'ident'=>'atemzuegemaximal',		'profil'=>'WITHINGS_M_Atmung',	'name'=>'Maximale Atemfrequenz',			'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
-			$datass = ['timestamp'=>$time,'value'=>$sleep_sleep_efficiency,			'deviceid'=>$deviceid,'ident'=>'schlafeffienz',			'profil'=>'~Valve',				'name'=>'Schlafeffienz',							'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
+			$datass = ['timestamp'=>$time,'value'=>$sleep_sleep_efficiency,			'deviceid'=>$deviceid,'ident'=>'schlafeffienz',			'profil'=>'WITHINGS_M_IntProzent',	'name'=>'Schlafeffienz',							'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
 
 			$datass = ['timestamp'=>$time,'value'=>$sleep_totaltimeinbed,			'deviceid'=>$deviceid,'ident'=>'totalezeitimbett',		'profil'=>'WITHINGS_M_Minuten',	'name'=>'Im Bett',		'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
 			$datass = ['timestamp'=>$time,'value'=>$sleep_totalsleeptime,			'deviceid'=>$deviceid,'ident'=>'totalschlafdauer',		'profil'=>'WITHINGS_M_Minuten',	'name'=>'Schlafdauer Gesamt',		'lastdata'=>$lastdata]; array_push($datas,$datass); $TypeArrayData = array_merge($TypeArrayData,$datas); $datass = array(); $datas = array();
@@ -1496,8 +1499,8 @@ define("DATA_TO_DATABASE",true);
 
 			if (  $key == $lastdata  AND $key != 0 )
 				{
-				if ( $this->ReadPropertyBoolean("ExtDebug") == true )
-					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[".$x."]".$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - - ".$deviceid." - ".$value." - ". $ident." -  - ".$profil." - ".$name." - ".$lastdata,0);
+				//if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+				//	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"[".$x."]".$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - - ".$deviceid." - ".$value." - ". $ident." -  - ".$profil." - ".$name." - ".$lastdata,0);
 				$x++;
 				}
 
@@ -2497,22 +2500,22 @@ define("DATA_TO_DATABASE",true);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 12 :	$value = floatval(round ($val,2));
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'temperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Temperatur'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'temperatur','oldcat'=> 0,'profil'=>'WITHINGS_M_Temperatur','name'=>'Temperatur'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 54 :	$value = intval(round ($val));
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'spo2','oldcat'=> 0,'profil'=>'~Intensity.100','name'=>'Sauerstoffsättigung'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'spo2','oldcat'=> 0,'profil'=>'WITHINGS_M_Prozent','name'=>'Sauerstoffsättigung'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
                     case 71 :	$value = floatval(round ($val,2)); 
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'koerpertemperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Koerpertemperatur'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'koerpertemperatur','oldcat'=> 0,'profil'=>'WITHINGS_M_Temperatur','name'=>'Koerpertemperatur'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 73 :	$value = floatval(round ($val,2));
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'hauttemperatur','oldcat'=> 0,'profil'=>'~Temperature','name'=>'Hauttemperatur'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'hauttemperatur','oldcat'=> 0,'profil'=>'WITHINGS_M_Temperatur','name'=>'Hauttemperatur'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
@@ -2532,7 +2535,7 @@ define("DATA_TO_DATABASE",true);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
 					case 91 :	$value = floatval(round ($val,2));
-								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'pulswave','oldcat'=> $CatIdWaage,'profil'=>'~WindSpeed.ms','name'=>'Pulswellengeschwindigkeit'];
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'pulswave','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Pulswelle','name'=>'Pulswellengeschwindigkeit'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
@@ -2575,7 +2578,7 @@ define("DATA_TO_DATABASE",true);
 				if ( $NoLastData == true )
 					$last = false;
 
-				if ( $key == $last_position )
+				 if ( $key == $last_position )
 					if ( $this->ReadPropertyBoolean("ExtDebug") == true )
 						$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$key." : ".$InstanceIDDeviceID.":".$this->TimestampToDate($timestamp) ." - ".$type." - ".$deviceid." - ".$value." - ". $ident." - ".$oldcat." - ".$profil." - ".$name." - ".$last,0);
 
@@ -2584,7 +2587,11 @@ define("DATA_TO_DATABASE",true);
 				$ID = $this->CheckOldVersionCatID($ident,$oldcat,$InstanceIDDeviceID);	// $ID = ID der Instanz oder Kategorie
 				
 				if ( $last == true )
+					{
 					$this->SetValueToVariable($ID,$name ,$value ,$profil ,10,DATA_TO_VARIABLE,$profil,$ident);
+					
+
+					}
 				else
 					{
 					$RequestReAggregation = false;
@@ -3440,8 +3447,8 @@ define("DATA_TO_DATABASE",true);
 			
 			$appli = @$key;
 			$url = @$Notify;
-			if ( $this->ReadPropertyBoolean("ExtDebug") == true )
-				$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $key ." - ".$url, 0);
+			// if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+			//	$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $key ." - ".$url, 0);
 
 			}
 		
