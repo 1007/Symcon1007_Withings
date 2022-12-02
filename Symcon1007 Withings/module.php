@@ -464,12 +464,16 @@ define("DATA_TO_DATABASE",true);
 
         $starttime = time();            
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"-------------------------------------------------------------------------------------------------------------------",0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data START",0);
+		$this->Debug("",__FUNCTION__,__LINE__,true);
+		$this->Debug("",__FUNCTION__,__LINE__,true);
+		$this->Debug("",__FUNCTION__,__LINE__,true);
+		$this->Debug("",__FUNCTION__,__LINE__,true);
+	
+		$this->Debug("Update Data -------------------------------------------------------------",__FUNCTION__,__LINE__,true);
 		
 		if ( $this->RefreshTokens() == FALSE )	// Token konnte nicht aktualisiert werden
             {
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Token NOK",0);	
+			$this->Debug("Update Token NOK",__FUNCTION__,__LINE__,false);	
 			$this->RunAlarmScript($this->InstanceID,"Kein Zugang zu Withings-Server");
             return;
             }
@@ -499,7 +503,7 @@ define("DATA_TO_DATABASE",true);
 
 		$endtime = time();
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Laufzeit ".($endtime - $starttime) . " Sekunden" ,0);
+		$this->Debug("Update Data Laufzeit ".($endtime - $starttime) . " Sekunden" ,__FUNCTION__,__LINE__,true);
 
 
 		return;
@@ -617,8 +621,8 @@ define("DATA_TO_DATABASE",true);
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
 		$header = 'Authorization: Bearer ' . $access_token;
 	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
 	
 		$ch = curl_init();
 
@@ -636,7 +640,8 @@ define("DATA_TO_DATABASE",true);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+		$this->Debug($result,__FUNCTION__,__LINE__, true);
+
 
 		$data = json_decode($result,TRUE); 
 
@@ -663,7 +668,7 @@ define("DATA_TO_DATABASE",true);
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
 		$header = 'Authorization: Bearer ' . $access_token;
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
 		
 		$ch = curl_init();
 
@@ -682,7 +687,8 @@ define("DATA_TO_DATABASE",true);
 		$result = curl_exec($ch);
 		curl_close($ch);
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+		
+		$this->Debug($result,__FUNCTION__,__LINE__,true);
 		
 		$data = json_decode($result,TRUE); 
 
@@ -930,7 +936,7 @@ define("DATA_TO_DATABASE",true);
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
 		$header = 'Authorization: Bearer ' . $access_token;
 	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
 
 		$datafields = "nb_rem_episodes,sleep_efficiency,sleep_latency,total_sleep_time,total_timeinbed,wakeup_latency,waso,apnea_hypopnea_index,breathing_disturbances_intensity,";
 		$datafields = $datafields . "asleepduration,deepsleepduration,durationtosleep,durationtowakeup,lightsleepduration,night_events,out_of_bed_count,remsleepduration,sleep_score,";
@@ -951,10 +957,8 @@ define("DATA_TO_DATABASE",true);
 			$enddate = date("Y-m-d",($start + ( $tage*24*60*60)));	
 			}
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Datafields : " . ($datafields) ,0);	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Header : " . ($header) ,0);	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Action : " . ($action) ,0);	
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . $startdate. " Enddate : ".$enddate,0);
+
 
 		$ch = curl_init();
 
@@ -975,7 +979,7 @@ define("DATA_TO_DATABASE",true);
   
 		curl_close($ch);
 			
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $result , 0);
+		$this->Debug($result ,__FUNCTION__,__LINE__, true);
 		
 		$data = json_decode($result,TRUE); 
 
@@ -1191,6 +1195,44 @@ define("DATA_TO_DATABASE",true);
 		}
 
 	//**************************************************************************
+	//  Save Access Token
+	//**************************************************************************
+	private function SaveAccessToken($token)
+		{
+		
+		$ordner = IPS_GetLogDir() . "Withings";
+		if ( !is_dir ( $ordner ) )
+			mkdir($ordner);
+
+		if ( !is_dir ( $ordner ) )
+			return;
+
+		$logdatei = IPS_GetLogDir() . "Withings/Access.Token";
+		$datei = fopen($logdatei,"a+");
+		fwrite($datei, $token .chr(13));
+		fclose($datei);
+		}
+
+	//**************************************************************************
+	//  Save Refresh Token
+	//**************************************************************************
+	private function SaveRefreshToken($token)
+	{
+	
+	$ordner = IPS_GetLogDir() . "Withings";
+	if ( !is_dir ( $ordner ) )
+		mkdir($ordner);
+
+	if ( !is_dir ( $ordner ) )
+		return;
+
+	$logdatei = IPS_GetLogDir() . "Withings/Refresh.Token";
+	$datei = fopen($logdatei,"a+");
+	fwrite($datei, $token .chr(13));
+	fclose($datei);
+	}
+
+	//**************************************************************************
 	//  Logging
 	//**************************************************************************
 	private function Logging($Text)
@@ -1323,7 +1365,7 @@ define("DATA_TO_DATABASE",true);
 	//**************************************************************************
 	 protected function DoSleepSummary($ModulID,$data,$NoLastData=false)
 		{
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schlaf wird ausgewertet.".$ModulID,0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Schlaf wird ausgewertet.",0);
 		
 		$InstanceIDSleep = @$this->GetIDForIdent("SleepMonitor");
 		/*
@@ -1837,7 +1879,8 @@ define("DATA_TO_DATABASE",true);
 			}
 		else
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$InstanceIDActivity."Anzahl der Serien : ".count($data),0);
+			
+			// 	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',$InstanceIDActivity."Anzahl der Serien : ".count($data),0);
 			
 			// $measuregrpsstart =  @$data[0];
 			$measuregrpsstart = $this->DateToTimestamp($measuregrpsstart);
@@ -2292,7 +2335,7 @@ define("DATA_TO_DATABASE",true);
 
 		if ( $statusstatus == true AND $bodystatus == true)
 			{
-			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status OK - Body OK",0);	
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Status OK - Body OK",0);	
 			return true;
 			}
 		else
@@ -2337,13 +2380,15 @@ define("DATA_TO_DATABASE",true);
 		{
 	
 		// $this->Logging("MeasDaten werden ausgewertet.");
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"MeasDaten werden ausgewertet.",0);
+		$this->Debug("MeasDaten werden ausgewertet.",__FUNCTION__,__LINE__,true);
 
+
+		/* 
 		if ( $NoLastData == true )
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"No Last Data.",0);
 		else
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Last Data.",0);
-		
+		*/ 
 		
 		$ReaggregationsArray = array();		// Array fuer Reaggregation
 
@@ -2871,49 +2916,46 @@ define("DATA_TO_DATABASE",true);
 		$refresh_token 	= @$data['body']['refresh_token'];
 		$userid 		= @$data['body']['userid'];
 
+		$this->SaveAccessToken($access_token);
+		$this->SaveRefreshToken($refresh_token);
+
 		if( $userid == true )
 			$this->SetUserID($userid);
 				
 		if (IPS_GetProperty($this->InstanceID, "Naccess_token")  != $access_token )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Access_Token neu : ".IPS_GetProperty($this->InstanceID, "Naccess_token")." -> ".$access_token,0 );
-
 			IPS_SetProperty($this->InstanceID, "Naccess_token", $access_token); 
 			}	
 		if (IPS_GetProperty($this->InstanceID, "Nrefresh_token")  != $refresh_token )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Refresh_Token neu : ".IPS_GetProperty($this->InstanceID, "Nrefresh_token")." -> ".$refresh_token,0 );
-
 			IPS_SetProperty($this->InstanceID, "Nrefresh_token", $refresh_token); 
 			}	
 		if (IPS_GetProperty($this->InstanceID, "Nexpires_in")  != $expires_in )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Expires in neu : ".IPS_GetProperty($this->InstanceID, "Nexpires_in")." -> ".$expires_in,0 );
-
 			IPS_SetProperty($this->InstanceID, "Nexpires_in", $expires_in); 
 			}	
 		if (IPS_GetProperty($this->InstanceID, "Ntoken_type")  != $token_type )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Token Type neu : ".IPS_GetProperty($this->InstanceID, "Ntoken_type")." -> ".$token_type,0 );
-
 			IPS_SetProperty($this->InstanceID, "Ntoken_type", $token_type); 
 			}	
 		if (IPS_GetProperty($this->InstanceID, "Nscope")  != $scope )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Scope neu : ".IPS_GetProperty($this->InstanceID, "Nscope")." -> ".$scope,0 );
-
 			IPS_SetProperty($this->InstanceID, "Nscope", $scope); 
 			}	
 		if (IPS_GetProperty($this->InstanceID, "Nuserid")  != $userid )
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"UserID neu : ".IPS_GetProperty($this->InstanceID, "Nuserid")." -> ".$userid,0 );
-
 			IPS_SetProperty($this->InstanceID, "Nuserid", $userid); 
 			}	
 
 		$Expires = time() + $expires_in;
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires), 0);
+		$this->Debug("Neuer Access Token ist gueltig bis ".date("d.m.y H:i:s", $Expires),__FUNCTION__,__LINE__,true);
 
 		IPS_ApplyChanges($this->InstanceID);
 
@@ -2957,13 +2999,14 @@ define("DATA_TO_DATABASE",true);
 		{
 			
 		$refresh_token = $this->ReadPropertyString("RefreshToken");	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $Token, 0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $refresh_token, 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $Token, 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Benutze Refresh Token um neuen Access Token zu holen : " . $refresh_token, 0);
 		
 		
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : " . $this->ReadPropertyString("Naccess_token"), 0);
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Refresh Token : " . $this->ReadPropertyString("Nrefresh_token"), 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : " . $this->ReadPropertyString("Naccess_token"), 0);
+		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Refresh Token : " . $this->ReadPropertyString("Nrefresh_token"), 0);
 		
+		$this->Debug("Access Token : " . $this->ReadPropertyString("Naccess_token"),__FUNCTION__,__LINE__,true);
 
 		$status = $this->RefreshAccessToken();
 		if ( $status == false )
@@ -3169,6 +3212,8 @@ define("DATA_TO_DATABASE",true);
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false,$CheckValue=false)
 		{
 
+			
+			
 		$Reaggieren = false;
 
 		if ( $profil != false )
@@ -3203,10 +3248,6 @@ define("DATA_TO_DATABASE",true);
 			{
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"VariableID nicht vorhanden : ".$CatID."-".$name."-".$profil,0);
 
-			$profiltype = IPS_GetVariableProfile($profil);
-      		$profiltype = $profiltype['ProfileType'];
-
-			IPS_Logmessage("Withings Modul","Variable wird angelegt Typ : " . $profiltype." - " .$profil);
 
 			if ( is_int($value) == true )
 				{
@@ -3224,13 +3265,18 @@ define("DATA_TO_DATABASE",true);
 					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 3 ".$profil);
 				}
 
+
 			if ( is_float($value) == true )
 				{
 				if ( $profiltype == 2 )
 					$VariableID = $this->RegisterVariableFloat( $VarIdent, $name,$profil,$position);
 				else
-					IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 2 ".$profil);
-				}
+					{
+					// IPS_Logmessage("Withings Modul","Variablentyp falsch : " . $profiltype . " - 2 ".$profil);
+					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable falsch : " . $profiltype." - 2 " .$profil,0);
+
+					}
+			}
 
 			if ( is_bool($value) == true )
 				{
@@ -3410,7 +3456,7 @@ define("DATA_TO_DATABASE",true);
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
 		$header = 'Authorization: Bearer ' . $access_token;
 	
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
+		$this->Debug("Access Token : ".$access_token,__FUNCTION__,__LINE__,FALSE);
 		
 		$ch = curl_init();
 
@@ -3663,6 +3709,21 @@ define("DATA_TO_DATABASE",true);
 	
 			}	
 
+		}
+		
+	//******************************************************************************
+	//	Globale Debug Funktion
+	// wenn $status true dann trotzdem debuggen
+	//******************************************************************************
+	protected function Debug($text,$function,$line,$status=false)
+		{
+
+		if ( $status == false )	
+			if ( $this->ReadPropertyBoolean("ExtDebug") == false )
+				return false;
+
+		$this->SendDebug($function.'['.$line.']', $text , 0);
+		
 		}
 		
 	//******************************************************************************
@@ -4010,7 +4071,7 @@ define("DATA_TO_DATABASE",true);
 		{
 		$instanceID = $this->InstanceID;
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Start :".$instanceID ,0);
+		$this->Debug("Instanze :".$instanceID ,__FUNCTION__,__LINE__,true);
 		
 		$childs = IPS_GetChildrenIDs($instanceID);
 
