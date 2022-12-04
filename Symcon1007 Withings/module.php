@@ -3212,7 +3212,11 @@ define("DATA_TO_DATABASE",true);
 	protected function SetValueToVariable($CatID,$name,$value,$profil=false,$position=0 ,$asynchron=false,$Timestamp=0,$VarIdent=false,$NoLogging=false,$CheckValue=false)
 		{
 
-			
+
+		$profilarray = IPS_GetVariableProfile ($profil) ;
+		$profiltype = $profilarray['ProfileType'];	
+
+			// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Variable Typ : ".$CatID."-".$name."-".$VarIdent."-".$profiltype."-".$profil,0);	
 			
 		$Reaggieren = false;
 
