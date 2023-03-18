@@ -464,11 +464,7 @@ define("DATA_TO_DATABASE",true);
 
         $starttime = time();            
 		
-		$this->Debug("",__FUNCTION__,__LINE__,true);
-		$this->Debug("",__FUNCTION__,__LINE__,true);
-		$this->Debug("",__FUNCTION__,__LINE__,true);
-		$this->Debug("",__FUNCTION__,__LINE__,true);
-	
+		
 		$this->Debug("Update Data -------------------------------------------------------------",__FUNCTION__,__LINE__,true);
 		
 		if ( $this->RefreshTokens() == FALSE )	// Token konnte nicht aktualisiert werden
@@ -625,6 +621,8 @@ define("DATA_TO_DATABASE",true);
 		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
 	
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user");
 
@@ -671,6 +669,8 @@ define("DATA_TO_DATABASE",true);
 		// $this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Access Token : ".$access_token , 0);
 		
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/user");
 			
@@ -729,6 +729,8 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . $this->TimestampToDate($startdate) . " Enddate : ".$this->TimestampToDate($enddate),0);	
 			
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/measure");
 			
@@ -802,6 +804,8 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Startdate : " . ($startdate) . " Enddate : ".($enddate),0);	
 				
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/measure");
 
@@ -885,6 +889,8 @@ define("DATA_TO_DATABASE",true);
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Tag:".$tag."-".date('d.m.Y H:i:s ',$startdate)." - ".date('d.m.Y H:i:s ',$enddate),0);
 
 			$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 		
 			curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/measure");
 		
@@ -961,6 +967,8 @@ define("DATA_TO_DATABASE",true);
 
 
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/sleep");
 			
@@ -2797,6 +2805,8 @@ define("DATA_TO_DATABASE",true);
 		// $result = file_get_contents("https://oauth.ipmagic.de/access_token/withings", false, $context);
 
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/oauth2");
 		
@@ -2883,6 +2893,8 @@ define("DATA_TO_DATABASE",true);
 		$refresh_token = $this->ReadPropertyString("Nrefresh_token");
 
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/oauth2");
 			
@@ -3463,6 +3475,8 @@ define("DATA_TO_DATABASE",true);
 		$this->Debug("Access Token : ".$access_token,__FUNCTION__,__LINE__,FALSE);
 		
 		$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify");
 		
@@ -3586,6 +3600,8 @@ define("DATA_TO_DATABASE",true);
 			$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Header : ".$header , 0);
 	
 			$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	
 			curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify    ");
 				
@@ -3677,6 +3693,8 @@ define("DATA_TO_DATABASE",true);
 					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl." setze appli=".$appli,0);	
 
 				$ch = curl_init();
+curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 				curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify");
 
@@ -3740,7 +3758,7 @@ define("DATA_TO_DATABASE",true);
 
 		$curl = curl_init($url);
 
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 
 		$output = curl_exec($curl);
 
