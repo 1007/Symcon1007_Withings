@@ -477,21 +477,59 @@ define("DATA_TO_DATABASE",true);
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Device",0);         
 		$this->GetDevice();
 		
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Meas",0);
-		$this->GetMeas();
+		if ( $this->ReadPropertyBoolean("CheckBoxMeas") == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Meas deaktiviert",0);
+			}
+		else
+			{		
+        	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Meas",0);
+			$this->GetMeas();
+			}
+		if ( $this->ReadPropertyBoolean("CheckBoxBodyGoals") == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals deaktiviert",0);
+			}
+		else
+			{		
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals",0);
+			$this->GetGoals();
+			}
+		if ( $this->ReadPropertyBoolean("CheckBoxSleepSummary") == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary deaktiviert",0);
+			}
+		else
+			{		
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
+			$this->GetSleepSummary(5);		// 5 Tage
+			}
+		if ( $this->ReadPropertyBoolean("CheckBoxActivity") == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity deaktiviert",0);
+			}
+		else
+			{		
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
+			$this->GetActivity();
+			}
+		if ( $this->ReadPropertyBoolean("CheckBoxActivity") == false )
+			{
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get IntradayActivity deaktiviert",0);
+			}
+		else
+			{		
+			$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get IntradayActivity",0);
+			// Null Uhr
+			$startdate = mktime(0,0,0,date("n"),date("j"),date("Y")) - (60*60*24*4) ;	// 5 Tage
+			$this->GetIntradayactivity(5,$startdate);
+			}
 
-        $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Goals",0);
-		$this->GetGoals();
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get SleepSummary",0);
-		$this->GetSleepSummary(5);		// 5 Tage
 
-		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Update Data Get Activity",0);
-		$this->GetActivity();
 
-		// Null Uhr
-		$startdate = mktime(0,0,0,date("n"),date("j"),date("Y")) - (60*60*24*4) ;	// 5 Tage
-		$this->GetIntradayactivity(5,$startdate);
+
+
 		
 		$this->GetNotifyList();
 
@@ -2287,19 +2325,19 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 					if ( $devicebattery == 'low' )
 						{
 						$v =  GetValueInteger($id);
-						if ( $v != 0)
+						if ( $v != 0);
 							SetValueInteger($id,0);
 						}
 					if ( $devicebattery == 'medium' )
 						{
 						$v =  GetValueInteger($id);
-						if ( $v != 1)
+						if ( $v != 1);
 							SetValueInteger($id,1);
 						}
 					if ( $devicebattery == 'high' )
 						{
 						$v =  GetValueInteger($id);
-						if ( $v != 2)
+						if ( $v != 2);
 							SetValueInteger($id,2);
 						}
 					}
@@ -2890,11 +2928,12 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	private function RefreshAccessToken() 
 		{
 
+		
 		$refresh_token = $this->ReadPropertyString("Nrefresh_token");
 
 		$ch = curl_init();
-curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
-curl_setopt($ch,CURLOPT_TIMEOUT,10);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+		curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/v2/oauth2");
 			
@@ -2907,7 +2946,7 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 				'client_secret' => $this->GetClientSecret(),
 				'refresh_token' => $refresh_token
 			]));
-			
+				
 		$result = curl_exec($ch);
 		curl_close($ch);
 
