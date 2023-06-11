@@ -101,7 +101,9 @@ define("DATA_TO_DATABASE",true);
 		$this->RegisterProfile(1,"WITHINGS_M_Puls"     ,""  ,""," bpm");
 		$this->RegisterProfile(1,"WITHINGS_M_IntProzent"     ,""  ,""," %");
     	$this->RegisterProfile(1,"WITHINGS_M_Atmung"   ,""  ,""," Atemzuege/Minute");
+		$this->RegisterProfile(1,"WITHINGS_M_Vorhofflimmern"   ,""  ,""," ");
 		$this->RegisterProfile(2,"WITHINGS_M_Kilo"     ,""       ,""," kg",false,false,false,1);
+		$this->RegisterProfile(2,"WITHINGS_M_Gefaesalter"     ,""       ,""," Jahre",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Temperatur"     ,""       ,""," °C",false,false,false,1);
 		$this->RegisterProfile(2,"WITHINGS_M_Pulswelle"     ,""       ,""," m/s",false,false,false,2);
 		$this->RegisterProfile(2,"WITHINGS_M_Prozent"  ,""       ,""," %",false,false,false,1);
@@ -2630,6 +2632,18 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
 								break;
+					case 130 :	$value = intval(round ($val));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'vorhofflimmern','oldcat'=> 0,'profil'=>'WITHINGS_M_Vorhofflimmern','name'=>'Vorhofflimmern'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
+								break;
+					case 155 :	$value = floatval(round ($val,1));
+								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'gefaesalter','oldcat'=> 0,'profil'=>'WITHINGS_M_Gefaesalter','name'=>'Gefaesalter'];
+								array_push($data,$data);
+								$TypeArrayData = array_merge($TypeArrayData,$data);
+								break;
+
+
 					default:	$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Messungstyp nicht vorhanden : ".$messung['type']."-".$val,0);
 					}
 				}
@@ -2637,7 +2651,7 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 			
 
-		for($x=1;$x<150;$x++)
+		for($x=1;$x<160;$x++)
 			{
 
 			$array = array();
@@ -2719,9 +2733,15 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 	private function GetTypeDataArray($TypeArrayData,$type_request,&$array)
 		{
-
+			// print_r($TypeArrayData);
 		foreach($TypeArrayData as $data)
 			{
+			
+			if ( empty($data['type']) )
+				{
+				continue;
+				}
+
 			$type =@$data['type'];
 			if ( is_int($type) == false )
 				continue;
