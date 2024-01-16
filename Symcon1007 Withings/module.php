@@ -2222,6 +2222,8 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	//**************************************************************************
 	protected function DoGoals($ModulID,$data)
 		{
+		GLOBAL $_gewicht;	
+
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ziele werden ausgewertet.",0);
 
 		$data = @$data['goals'];
@@ -2258,6 +2260,18 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 			IPS_SetPosition($id, 1);
 			}
 		SetValueFloat($id,$weight);
+
+		//$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Ziele werden ausgewertet:".$_gewicht,0);
+		$weightdiff = $_gewicht - $weight;
+		$id = @IPS_GetObjectIDByIdent( "weightdiff", $ObjektID ) ;                                                    
+		if ( $id === FALSE )
+			{
+			$id = $this->RegisterVariableFloat("weightdiff","GewichtsDifferenz","WITHINGS_M_Kilo",0);
+			IPS_SetParent($id, $ObjektID);
+			IPS_SetPosition($id, 1);
+			}
+		SetValueFloat($id,$weightdiff);
+
 
 		}
 		
@@ -2426,7 +2440,9 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	//**************************************************************************
 	protected  function DoMeas($ModulID,$data,$NoLastData=false)
 		{
-	
+		GLOBAL $_gewicht;	
+		$_gewicht = 0;	
+
 		// $this->Logging("MeasDaten werden ausgewertet.");
 		$this->Debug("MeasDaten werden ausgewertet.",__FUNCTION__,__LINE__,true);
 
@@ -2546,6 +2562,11 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 				switch ($messung['type'])
 					{ 
 					case 1 :	$value = floatval(round ($val,2));
+								$_gewicht = $value;
+								// $tt = $this->TimestampToDate($time);
+								// $this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Time : ".$tt." - ".$_gewicht,0);
+						
+
 								$data = ['type' => $messung['type'],'timestamp'=> $time,'value'=> $value,'deviceid'=>$deviceid,'ident'=>'weight','oldcat'=> $CatIdWaage,'profil'=>'WITHINGS_M_Kilo','name'=>'Gewicht'];
 								array_push($data,$data);
 								$TypeArrayData = array_merge($TypeArrayData,$data);
@@ -3837,6 +3858,7 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	protected function ProcessHookData()
 		{
 		GLOBAL $_IPS;
+		GLOBAL $_gewicht;
 
 		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"",0);
 		
