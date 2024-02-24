@@ -976,7 +976,12 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 	protected function GetSleepSummary($tage = 1,$start=0)
 		{
 
-		if ( $this->ReadPropertyBoolean("BloodLogging") == false )
+			
+			
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Blood: ".$this->ReadPropertyBoolean("BloodLogging") , 0);
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']', "Sleep : ".$this->ReadPropertyBoolean("CheckBoxSleepSummary") , 0);
+
+		if ( $this->ReadPropertyBoolean("CheckBoxSleepSummary") == false )
 			return false;
 
 		$access_token = IPS_GetProperty($this->InstanceID, "Naccess_token");
