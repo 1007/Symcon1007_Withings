@@ -528,7 +528,9 @@ define("DATA_TO_DATABASE",true);
 			}
 
 
+		$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"Erstelle Hook",0);
 
+		$this->SubscribeHook();
 
 
 
@@ -3560,8 +3562,8 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 		$this->Debug("Access Token : ".$access_token,__FUNCTION__,__LINE__,FALSE);
 		
 		$ch = curl_init();
-curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
-curl_setopt($ch,CURLOPT_TIMEOUT,10);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+		curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 		curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify");
 		
@@ -3596,8 +3598,8 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 			
 			$appli = @$key;
 			$url = @$Notify;
-			// if ( $this->ReadPropertyBoolean("ExtDebug") == true )
-			//	$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $key ." - ".$url, 0);
+			if ( $this->ReadPropertyBoolean("ExtDebug") == true )
+				$this->SendDebug(__FUNCTION__.'['.__LINE__.']', $key ." - ".$url, 0);
 
 			}
 		
@@ -3778,8 +3780,8 @@ curl_setopt($ch,CURLOPT_TIMEOUT,10);
 					$this->SendDebug(__FUNCTION__.'['.__LINE__.']',"CallbackURL:".$callbackurl." setze appli=".$appli,0);	
 
 				$ch = curl_init();
-curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
-curl_setopt($ch,CURLOPT_TIMEOUT,10);
+				curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,0);
+				curl_setopt($ch,CURLOPT_TIMEOUT,10);
 
 				curl_setopt($ch, CURLOPT_URL, "https://wbsapi.withings.net/notify");
 
